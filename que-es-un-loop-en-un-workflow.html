@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teamcubation: ¿Qué es un Loop en un Workflow?</title>
+    <style>
+        /* Estilos Generales */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f7f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 25px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        /* Encabezado y Títulos */
+        header {
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        h1 {
+            color: #1a237e;
+            font-size: 2em;
+            margin: 0;
+        }
+        h2 {
+            color: #3f51b5;
+            border-bottom: 1px solid #c5cae9;
+            padding-bottom: 8px;
+            margin-top: 40px;
+        }
+        .subtitle {
+            font-size: 1.1em;
+            color: #5c6bc0;
+            margin: 5px 0 0;
+        }
+
+        /* Elementos Interactivos */
+        .interactive-zone {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        #inbox {
+            flex-basis: 50%;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .controls-log {
+            flex-basis: 50%;
+            display: flex;
+            flex-direction: column;
+        }
+        .email {
+            padding: 10px;
+            margin-bottom: 8px;
+            border: 1px solid #d1d1d1;
+            border-radius: 5px;
+            background-color: #fff;
+            transition: all 0.5s ease;
+            cursor: default;
+        }
+        .email.processing {
+            transform: translateX(10px);
+            background-color: #ffecb3; /* Amarillo para "en proceso" */
+        }
+        .email.processed {
+            background-color: #e8f5e9; /* Verde para "procesado" */
+            color: #757575;
+            text-decoration: line-through;
+        }
+
+        /* Botones y Log */
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        button {
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        button:hover:not(:disabled) {
+            background-color: #303f9f;
+        }
+        button:disabled {
+            background-color: #9fa8da;
+            cursor: not-allowed;
+        }
+        #reset-button {
+            background-color: #757575;
+        }
+        #reset-button:hover:not(:disabled) {
+            background-color: #616161;
+        }
+        #log-container {
+            flex-grow: 1;
+            background-color: #2d2d2d;
+            color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.9em;
+            overflow-y: auto;
+            height: 150px;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+        }
+        .log-entry.success {
+            color: #a5d6a7;
+        }
+        .log-entry.info {
+            color: #fff59d;
+        }
+
+        /* Secciones de Explicación */
+        .explanation-section {
+            background-color: #e8eaf6;
+            border-left: 5px solid #3f51b5;
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 0 8px 8px 0;
+        }
+        code {
+            background-color: #d1c4e9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "Courier New", Courier, monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <p style="color: #555;">Un recurso educativo de <strong>Teamcubation</strong></p>
+            <h1>¿Qué es un "Loop" en un Workflow?</h1>
+            <p class="subtitle">Entendiendo los ciclos de repetición en la automatización.</p>
+        </header>
+
+        <p>Imaginá un <strong>Workflow</strong> (o flujo de trabajo) como una receta de cocina: una serie de pasos para lograr un resultado. Por ejemplo: <em>1. Abrir el mail, 2. Escribir el destinatario, 3. Redactar el mensaje, 4. Enviar.</em></p>
+        <p>Pero, ¿qué pasa si tenés que hacer la misma tarea muchas veces? ¿Como enviar 100 invitaciones? Ahí es donde entra en juego el <strong>Loop</strong>.</p>
+        
+        <h2>Demostración Interactiva: Procesando Correos</h2>
+        <p>Aquí abajo tenemos una "bandeja de entrada" con correos pendientes. Vamos a automatizar la tarea de procesarlos usando un loop.</p>
+
+        <div class="interactive-zone">
+            <div id="inbox">
+                <div class="email" data-id="1">Factura de proveedor</div>
+                <div class="email" data-id="2">Consulta de cliente A</div>
+                <div class="email" data-id="3">Reporte semanal</div>
+                <div class="email" data-id="4">Notificación del sistema</div>
+                <div class="email" data-id="5">Consulta de cliente B</div>
+            </div>
+            <div class="controls-log">
+                <div class="buttons">
+                    <button id="loop-button">Iniciar Loop de Procesamiento</button>
+                    <button id="reset-button">Reiniciar</button>
+                </div>
+                <div id="log-container">
+                    <div class="log-entry">Esperando instrucciones...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="explanation-section">
+            <h2>Entonces, ¿Qué es un Loop?</h2>
+            <p>Un <strong>loop (bucle o ciclo)</strong> es una instrucción en un workflow que le dice al sistema: <strong>"Repetí esta acción hasta que se cumpla una condición"</strong>.</p>
+            <p>En nuestro ejemplo:</p>
+            <ul>
+                <li><strong>La Acción a Repetir es:</strong> Tomar un correo y marcarlo como "procesado".</li>
+                <li><strong>La Condición para Detenerse es:</strong> Cuando ya no queden correos sin procesar en la lista.</li>
+            </ul>
+            <p>El loop es increíblemente eficiente. En lugar de dar la instrucción 100 veces para 100 correos, se la das una sola vez: <code>PARA CADA</code> correo en la bandeja de entrada, <code>HACER</code> la acción de procesar.</p>
+        </div>
+
+        <h2>¿Cuándo usar un Loop? ✅</h2>
+        <p>Usa un loop cuando necesites aplicar la <strong>misma acción idéntica</strong> a una <strong>lista de elementos similares</strong>.</p>
+        <ul>
+            <li>Enviar un email de marketing a una lista de 500 suscriptores.</li>
+            <li>Leer cada fila de una planilla de cálculo para guardar los datos en un sistema.</li>
+            <li>Revisar una lista de nuevos usuarios y asignarles una etiqueta de "Bienvenida".</li>
+            <li>Procesar todos los archivos de una carpeta para cambiarles el nombre.</li>
+        </ul>
+
+        <h2>¿Cuándo NO usar un Loop? ❌</h2>
+        <p>No necesitas un loop si los pasos de tu workflow son diferentes entre sí y se ejecutan una sola vez.</p>
+        <ul>
+            <li><strong>Ejemplo:</strong> Proceso de contratación de un empleado.
+                <ol>
+                    <li>Publicar oferta de trabajo.</li>
+                    <li>Entrevistar candidatos (este paso podría tener un loop interno, ¡pero el flujo general no lo es!).</li>
+                    <li>Enviar oferta al elegido.</li>
+                    <li>Firmar contrato.</li>
+                    <li>Crear su cuenta de email.</li>
+                </ol>
+            </li>
+        </ul>
+        <p>Estos pasos son secuenciales, pero no se repiten como un todo. Cada paso es único y prepara el camino para el siguiente.</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loopButton = document.getElementById('loop-button');
+            const resetButton = document.getElementById('reset-button');
+            const logContainer = document.getElementById('log-container');
+            const inbox = document.getElementById('inbox');
+            
+            const originalState = inbox.innerHTML;
+
+            function logMessage(message, type = 'info') {
+                const entry = document.createElement('div');
+                entry.textContent = `> ${message}`;
+                entry.className = `log-entry ${type}`;
+                logContainer.appendChild(entry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+
+            function startProcessing() {
+                loopButton.disabled = true;
+                resetButton.disabled = true;
+                logContainer.innerHTML = '';
+                logMessage('Iniciando workflow automatizado...');
+
+                const emails = document.querySelectorAll('.email:not(.processed)');
+                
+                if (emails.length === 0) {
+                    logMessage('No hay correos para procesar.', 'info');
+                    loopButton.disabled = false;
+                    resetButton.disabled = false;
+                    return;
+                }
+
+                let delay = 500; // start delay
+                const processingTime = 1000; // time per email
+
+                emails.forEach((email, index) => {
+                    setTimeout(() => {
+                        email.classList.add('processing');
+                        const emailTitle = email.textContent;
+                        logMessage(`Procesando [${emailTitle}]...`);
+                    }, delay + index * processingTime);
+
+                    setTimeout(() => {
+                        email.classList.remove('processing');
+                        email.classList.add('processed');
+                        logMessage(`Correo [${email.textContent}] marcado como procesado.`, 'success');
+                    }, delay + (index + 1) * processingTime - 300);
+                });
+
+                // Final message
+                setTimeout(() => {
+                    logMessage('Loop finalizado. Todos los correos han sido procesados.');
+                    resetButton.disabled = false;
+                }, delay + emails.length * processingTime);
+            }
+
+            function resetState() {
+                inbox.innerHTML = originalState;
+                logContainer.innerHTML = '<div class="log-entry">Esperando instrucciones...</div>';
+                loopButton.disabled = false;
+                resetButton.disabled = false;
+            }
+
+            loopButton.addEventListener('click', startProcessing);
+            resetButton.addEventListener('click', resetState);
+        });
+    </script>
+
+</body>
+</html>
