@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Historia Interactiva del Ajedrez</title>
+    <style>
+        :root {
+            --primary: #2e3a41;
+            --secondary: #545f68;
+            --accent: #89d064;
+            --bg: #f4f5f7;
+            --text: #232323;
+            --gray: #e2e3e6;
+        }
+        body {
+            background: linear-gradient(120deg, var(--gray) 0%, var(--bg) 100%);
+            color: var(--text);
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            background: var(--primary);
+            width: 100%;
+            padding: 24px 0 40px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .logo-ajedrez {
+            background: #181a1a;
+            padding: 18px 30px;
+            border-radius: 16px;
+            box-shadow: 0 2px 14px rgba(60,80,65,0.13);
+            margin-bottom: 14px;
+        }
+        .historia-title {
+            color: var(--accent);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-align: center;
+        }
+        .carousel-container {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 18px rgba(0,10,8,0.12);
+            width: 98vw;
+            max-width: 540px;
+            margin: -40px 0 32px 0;
+            padding: 16px 0 26px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .carousel-image {
+            width: 95%;
+            max-height: 220px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: var(--gray);
+        }
+        .carousel-text {
+            font-size: 1.1rem;
+            margin: 16px 0;
+            text-align: center;
+            color: var(--secondary);
+            min-height: 68px;
+            padding: 0 12px;
+        }
+        .carousel-controls {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            gap: 20px;
+            margin-top: 8px;
+        }
+        .carousel-btn {
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            font-size: 1.3rem;
+            padding: 8px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-weight: bold;
+        }
+        .carousel-btn:disabled {
+            background: #bccdb3;
+            cursor: not-allowed;
+        }
+        .carousel-stepper {
+            margin-top: 14px;
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gray);
+            border: 2px solid var(--secondary);
+            transition: background 0.3s, border 0.3s;
+        }
+        .carousel-dot.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        @media (max-width: 600px) {
+            .historia-title {
+                font-size: 1.7rem;
+            }
+            .carousel-container {
+                max-width: 98vw;
+                padding: 4px 0 16px 0;
+            }
+            .carousel-image {
+                max-height: 110px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <!-- Simulación de imagen de manual de marca, adaptado a Teamcubation con pieza de ajedrez -->
+        <div class="logo-ajedrez">
+            <img src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/MikeKlein/phpsjqk4y.png" alt="icono ajedrez" style="height:62px;">
+        </div>
+        <h1 class="historia-title">La Historia Interactiva del Ajedrez</h1>
+    </header>
+    <main>
+        <section class="carousel-container">
+            <img id="carouselImage" class="carousel-image" src="" alt="Historia del ajedrez">
+            <div id="carouselText" class="carousel-text"></div>
+            <div class="carousel-controls">
+                <button class="carousel-btn" id="prevBtn">&#8678; Atrás</button>
+                <button class="carousel-btn" id="nextBtn">Siguiente &#8680;</button>
+            </div>
+            <div class="carousel-stepper" id="carouselStepper"></div>
+        </section>
+    </main>
+    <script>
+        // Historia del ajedrez (pasos)
+        const pasos = [
+            {
+                texto: "<b>Orígenes en la India</b><br>El ajedrez nació hace más de 1500 años en la India, donde era conocido como 'chaturanga'. Se jugaba por la realeza y representaba un campo de batalla.",
+                img: "https://upload.wikimedia.org/wikipedia/commons/5/5b/Chaturanga-Indian-chess-19th-century.jpg"
+            },
+            {
+                texto: "<b>Llegada a Persia</b><br>Se expandió a Persia como 'shatranj'. Aquí, el juego empezó a tomar el formato que conocemos ahora y se popularizó entre las cortes persas.",
+                img: "https://upload.wikimedia.org/wikipedia/commons/c/c3/Shatranj.jpg"
+            },
+            {
+                texto: "<b>El Ajedrez en el Mundo Árabe</b><br>Con la expansión árabe, el ajedrez recorrió el norte de África y la península ibérica, llegando hasta Europa occidental.",
+                img: "https://upload.wikimedia.org/wikipedia/commons/d/da/NishapurChessSet12thCentury.jpg"
+            },
+            {
+                texto: "<b>Transformación Europea</b><br>En la Europa medieval, el ajedrez se transformó. Se cambiaron las piezas y las reglas; la reina y el alfil se volvieron más poderosos.",
+                img: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Chess-QS-Fenwick18th-century.jpg"
+            },
+            {
+                texto: "<b>El ajedrez moderno</b><br>Entre los siglos XIX y XX se estandarizaron las reglas, nació la competición internacional y surgieron grandes campeones.<br>¡El ajedrez que conocemos hoy!",
+                img: "https://upload.wikimedia.org/wikipedia/commons/9/9a/Chess_img_1010.jpg"
+            }
+        ];
+
+        let pasoActual = 0;
+
+        const imgEl = document.getElementById('carouselImage');
+        const textEl = document.getElementById('carouselText');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const stepper = document.getElementById('carouselStepper');
+
+        function mostrarPaso(idx) {
+            imgEl.src = pasos[idx].img;
+            textEl.innerHTML = pasos[idx].texto;
+            prevBtn.disabled = idx === 0;
+            nextBtn.disabled = idx === pasos.length - 1;
+            renderStepper();
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (pasoActual > 0) {
+                pasoActual--;
+                mostrarPaso(pasoActual);
+            }
+        });
+        nextBtn.addEventListener('click', () => {
+            if (pasoActual < pasos.length - 1) {
+                pasoActual++;
+                mostrarPaso(pasoActual);
+            }
+        });
+
+        function renderStepper() {
+            stepper.innerHTML = '';
+            for (let i = 0; i < pasos.length; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'carousel-dot' + (i === pasoActual ? ' active' : '');
+                dot.addEventListener('click', () => {
+                    pasoActual = i;
+                    mostrarPaso(pasoActual);
+                });
+                stepper.appendChild(dot);
+            }
+        }
+
+        // Inicialización
+        mostrarPaso(pasoActual);
+    </script>
+</body>
+</html>
