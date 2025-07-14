@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paso a paso: Solicitar API Key Gmail para conectar con n8n</title>
+  <style>
+    :root {
+      --primarioA: #551872;
+      --primarioB: #F34E1E;
+      --secundarioA: #484848;
+      --secundarioB: #8BDCB3;
+      --grisSec: #5A5A5A;
+      --bg: #F9F9F9;
+      --bg-step: #EDEDED;
+      --radius: 22px;
+      --font-main: 'Inter', Arial, sans-serif;
+    }
+    body {
+      font-family: var(--font-main);
+      background: var(--bg);
+      margin: 0;
+      color: var(--secundarioA);
+      min-height: 100vh;
+    }
+    .teamcubation-header {
+      display: flex;
+      align-items: center;
+      padding: 24px;
+      font-size: 2rem;
+      font-weight: bold;
+      background: var(--bg);
+      color: var(--primarioA);
+      border-bottom: 2px solid var(--secundarioB);
+      letter-spacing: 1px;
+      gap: 14px;
+    }
+    .teamcubation-header .logo {
+      background: var(--primarioB);
+      border-radius: 8px;
+      width: 32px; height: 32px;
+      display: grid; place-items: center;
+    }
+    .teamcubation-header .logo::after {
+      content: '';
+      display: block;
+      background: #fff;
+      width: 18px; height: 6px;
+      border-radius: 3px;
+      box-shadow: 0 7px 0 0 #fff;
+      margin-left: 2px;
+    }
+    .steps-container {
+      max-width: 570px;
+      margin: 40px auto 0 auto;
+      background: #fff;
+      padding: 32px 24px;
+      border-radius: var(--radius);
+      box-shadow: 0 2px 16px 0 rgba(88,88,88,0.07);
+    }
+    .steps-title {
+      font-size: 1.6rem;
+      color: var(--primarioA);
+      font-weight: 700;
+      margin-bottom: 0.7em;
+    }
+    .step {
+      background: var(--bg-step);
+      border-left: 7px solid var(--primarioB);
+      padding: 20px 20px 20px 24px;
+      border-radius: var(--radius);
+      margin-bottom: 24px;
+      display: none;
+      transition: background 0.2s;
+      position: relative;
+      min-height: 110px;
+    }
+    .step.active {
+      display: block;
+      animation: fadeIn 0.6s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
+    }
+    .step-number {
+      position: absolute;
+      left: -38px;
+      top: 20px;
+      background: var(--primarioA);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.1rem;
+      width: 29px; height: 29px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 4px 0 #0002;
+    }
+    .step-title {
+      font-weight: 700;
+      color: var(--primarioB);
+      margin-bottom: 10px;
+      font-size: 1.13rem;
+      letter-spacing: 0.2px;
+    }
+    .step-content {
+      color: var(--secundarioA);
+      font-size: 1rem;
+      margin-bottom: 8px;
+      line-height: 1.60;
+    }
+    .step img, .step .step-visual {
+      max-width: 98vw;
+      width: 100%;
+      max-height: 150px;
+      object-fit: contain;
+      margin: 8px 0;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 1px 10px #0001;
+      display: block;
+    }
+    .step-note {
+      font-size: 0.98rem;
+      color: var(--secundarioA);
+      margin-top: 5px;
+      background: var(--secundarioB);
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 15px;
+    }
+    .step a {
+      color: var(--primarioA);
+      text-decoration: underline;
+      word-break: break-all;
+    }
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+      margin-top: 18px;
+    }
+    .action-btn {
+      color: #fff;
+      background: var(--primarioA);
+      border-radius: 32px;
+      border: none;
+      font-size: 1.09rem;
+      font-weight: 600;
+      padding: 9px 25px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      outline: none;
+      letter-spacing: 0.5px;
+    }
+    .action-btn[disabled] {
+      background: var(--grisSec);
+      color: #ccc;
+      cursor: not-allowed;
+    }
+    .progress {
+      text-align: right;
+      color: var(--primarioA);
+      font-weight: 600;
+      margin-bottom: 22px;
+      font-size: 1.1rem;
+      letter-spacing: 0.2px;
+    }
+    @media (max-width: 700px) {
+      .steps-container { padding: 24px 4vw; }
+      .teamcubation-header { font-size: 1.1rem; }
+      .step { min-height: 80px; padding: 16px 8px 16px 13vw; }
+      .step-number { left: -29px; width: 20vw; max-width: 28px; height: 28px; font-size: 0.98rem; }
+    }
+    @media (max-width: 420px) {
+      .steps-container { padding: 15px 2vw; }
+      .steps-title { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="teamcubation-header">
+    <div class="logo"></div>
+    Teamcubation — Paso a paso: Solicitar API Key Gmail para conectar con n8n
+  </div>
+  <div class="steps-container">
+    <div class="progress" id="progress"></div>
+    <div class="steps-title">Cómo solicitar una API Key de Gmail para n8n</div>
+    <div class="step active">
+      <div class="step-number">1</div>
+      <div class="step-title">Ingresá a Google Cloud Console</div>
+      <div class="step-content">
+        Accedé a <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a> usando tu cuenta de Google.
+      </div>
+      <div class="step-visual">
+        <svg width="100%" height="40" viewBox="0 0 270 30">
+          <rect x="0" y="0" rx="8" ry="8" width="270" height="30" fill="#EDEDED"/>
+          <text x="18" y="20" font-family="Arial" font-size="15" fill="#484848">https://console.cloud.google.com/</text>
+        </svg>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-number">2</div>
+      <div class="step-title">Creá un proyecto nuevo</div>
+      <div class="step-content">
+        Hacé clic sobre el selector de proyecto arriba a la izquierda y elegí <b>“Nuevo Proyecto”</b>. Poné un nombre descriptivo (por ejemplo, "n8n Gmail") y presioná <b>Crear</b>.
+      </div>
+      <div class="step-visual">
+        <svg width="100%" height="35" viewBox="0 0 290 35">
+          <rect x="0" y="0" rx="8" ry="8" width="290" height="35" fill="#8BDCB3"/>
+          <text x="18" y="22" font-family="Arial" font-size="15" fill="#551872">Nuevo Proyecto</text>
+        </svg>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-number">3</div>
+      <div class="step-title">Habilitá la API de Gmail</div>
+      <div class="step-content">
+        Dentro del proyecto, buscá “Gmail API” usando la barra de búsqueda de la consola. Seleccioná <b>Gmail API</b> y hacé clic en <b>Habilitar</b>.
+      </div>
+      <div class="step-visual">
+        <svg width="100%" height="40" viewBox="0 0 270 40">
+          <rect x="0" y="0" rx="8" ry="8" width="270" height="40" fill="#F34E1E"/>
+          <text x="18" y="26" font-family="Arial" font-size="16" fill="#fff">Habilitar API</text>
+        </svg>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-number">4</div>
+      <div class="step-title">Configurá la pantalla de consentimiento OAuth</div>
+      <div class="step-content">
+        En el panel izquierdo, buscá “Pantalla de consentimiento OAuth”. Configurala como <b>"Externa"</b>, completá los campos requeridos y guardá. (No es necesario enviar para verificación si solo lo usás personalmente.)
+      </div>
+      <div class="step-note">Tip: completá el mail de soporte y el nombre de app como "n8n Gmail".</div>
+    </div>
+    <div class="step">
+      <div class="step-number">5</div>
+      <div class="step-title">Creá credenciales OAuth 2.0</div>
+      <div class="step-content">
+        En “Credenciales” &gt; “+ Crear credenciales” elegí <b>Cliente de OAuth</b>. Seleccioná "Aplicación web" y agregá <b>http://localhost</b> como origen autorizado.<br>
+        En la sección de <i>URIs de redireccionamiento</i>, agregá:
+        <ul style="margin:5px 0 0 24px;">
+          <li>http://localhost:5678/rest/oauth2-credential/callback</li>
+        </ul>
+        Luego presioná <b>Crear</b>.
+      </div>
+      <div class="step-note">Guardá el <b>ID de cliente</b> y el <b>Secreto</b>. Los vas a necesitar en n8n.</div>
+    </div>
+    <div class="step">
+      <div class="step-number">6</div>
+      <div class="step-title">Ingresá credenciales en n8n</div>
+      <div class="step-content">
+        Entrá a n8n, creá una nueva credencial de tipo <b>Gmail OAuth2 API</b> e ingresá el <b>Client ID</b> y <b>Client Secret</b> copiados. ¡Listo!
+      </div>
+      <div class="step-note">Te recomendamos probar la conexión ¡y ya podés automatizar Gmail!</div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" id="btn-prev" disabled>Anterior</button>
+      <button class="action-btn" id="btn-next">Siguiente</button>
+    </div>
+  </div>
+  <script>
+    const steps = Array.from(document.querySelectorAll('.step'));
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    const progress = document.getElementById('progress');
+    let current = 0;
+
+    function showStep(n) {
+      steps.forEach((step, idx) => step.classList.toggle('active', idx === n));
+      btnPrev.disabled = n === 0;
+      btnNext.textContent = n === steps.length - 1 ? 'Finalizar' : 'Siguiente';
+      progress.textContent = `Paso ${n+1} de ${steps.length}`;
+    }
+    btnPrev.onclick = () => {
+      if(current > 0) {
+        current--;
+        showStep(current);
+      }
+    };
+    btnNext.onclick = () => {
+      if(current < steps.length - 1) {
+        current++;
+        showStep(current);
+      } else {
+        current = 0;
+        showStep(current);
+      }
+    };
+    // Init
+    showStep(0);
+  </script>
+</body>
+</html>
