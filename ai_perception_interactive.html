@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cómo Percibe un Agente AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #240b36, #c31432);
+            font-family: 'Helvetica Neue', sans-serif;
+            color: #ffffff;
+        }
+        .interactive-section {
+            margin: 50px auto;
+            max-width: 800px;
+            text-align: center;
+        }
+        .teamcubation-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .action-btn {
+            @apply bg-orange-600 text-white px-4 py-2 rounded mt-5;
+        }
+        .perception-span {
+            font-weight: bold;
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <header class="text-center py-6">
+        <h1 class="text-3xl font-bold">Explorando la Percepción de una IA</h1>
+        <p class="teamcubation-brand">Utilizando Branding de Teamcubation</p>
+    </header>
+    <section class="interactive-section">
+        <h2 class="text-2xl">¿Cómo una IA percibe y toma decisiones?</h2>
+        <div id="perception-container" class="mt-8">
+            <p>Imagina que una IA es <span class="perception-span">un detective</span> buscando pistas en datos.</p>
+            <button class="action-btn" onclick="changePerception()">Explorar</button>
+        </div>
+    </section>
+    <script>
+        const perceptions = [
+            "Analiza patrones como un <span class='perception-span'>científico</span> descubriendo constantes.",
+            "Toma decisiones como un <span class='perception-span'>ajedrecista</span> eligiendo su próximo movimiento.",
+            "Ejecuta herramientas como un <span class='perception-span'>músico</span> componiendo una sinfonía.",
+            "Encuentra soluciones como un <span class='perception-span'>arquitecto</span> diseñando un puente.",
+        ];
+
+        function changePerception() {
+            const container = document.getElementById('perception-container');
+            const randomIndex = Math.floor(Math.random() * perceptions.length);
+            container.innerHTML = `<p>${perceptions[randomIndex]}</p>`;
+            container.innerHTML += '<button class="action-btn" onclick="changePerception()">Explorar más</button>';
+        }
+    </script>
+</body>
+</html>
