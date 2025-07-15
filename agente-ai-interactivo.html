@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Cómo funciona un Agente AI? | Teamcubation</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #18181b;
+      color: #fff;
+    }
+    .teamcubation-logo {
+      height: 36px;
+    }
+    .grey-bg {
+      background: #222226;
+    }
+    .bubble {
+      border-radius: 18px;
+    }
+    .agent-anim {
+      animation: bounce 1.6s infinite alternate;
+    }
+    @keyframes bounce {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-10px); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-center items-center p-4">
+  <!-- Header -->
+  <header class="w-full max-w-3xl flex items-center justify-between mb-6">
+    <div class="flex items-center">
+      <img src="https://teamcubation.com/logo.svg" alt="Teamcubation Logo" class="teamcubation-logo mr-2">
+      <span class="text-lg font-semibold tracking-wide">teamcubation</span>
+    </div>
+    <span class="text-xs text-gray-400">Aprende sobre Agentes AI</span>
+  </header>
+  
+  <main class="w-full max-w-3xl bg-[#222226] rounded-xl shadow-lg p-6 md:p-10">
+    <h1 class="text-3xl md:text-4xl font-extrabold mb-4 text-center">¿Cómo funciona un Agente AI?</h1>
+    <p class="mb-8 text-lg text-gray-200 text-center">Interactúa paso a paso y descubre cómo un Agente AI piensa, busca información y toma decisiones para ayudarte.</p>
+
+    <div class="w-full flex flex-col md:flex-row items-center md:items-stretch gap-4 mb-8">
+      <!-- Usuario -->
+      <div class="flex-1 flex flex-col items-center justify-center">
+        <div class="w-16 h-16 bg-gradient-to-br from-gray-400 to-gray-600 bubble flex items-center justify-center mb-2">
+          <span class="text-3xl">🧑</span>
+        </div>
+        <span class="text-center text-gray-200 text-sm">Usuario</span>
+      </div>
+      <!-- Flecha -->
+      <div class="flex flex-col items-center justify-center">
+        <span class="text-4xl text-gray-300">➡️</span>
+      </div>
+      <!-- Agente AI -->
+      <div class="flex-1 flex flex-col items-center justify-center">
+        <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-500 bubble flex items-center justify-center mb-2 agent-anim">
+          <span class="text-3xl">🤖</span>
+        </div>
+        <span class="text-center text-gray-200 text-sm">Agente AI</span>
+      </div>
+    </div>
+
+    <!-- Interactivo -->
+    <section class="mt-6 flex flex-col items-center w-full">
+      <div class="w-full max-w-md">
+        <div id="ai-steps" class="space-y-6">
+          <!-- Steps inserted by JS -->
+        </div>
+        <button id="next-btn" class="mt-8 w-full bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-400 hover:to-orange-500 text-lg font-bold text-white py-3 rounded-xl transition disabled:opacity-60">
+          Siguiente paso
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Explicación final -->
+  <footer class="w-full max-w-3xl text-center text-xs text-gray-400 mt-10">
+    © 2024 teamcubation. Aprendizaje visual y accesible sobre IA.
+  </footer>
+
+<script>
+// Pasos del agente AI explicados visualmente
+const steps = [
+  {
+    title: '1. Recibir una pregunta',
+    userBubble: '¿Podés recomendarme una película para ver hoy?',
+    aiBubble: null,
+    expl: 'El usuario le hace una pregunta al Agente AI. Puede ser en lenguaje natural.'
+  },
+  {
+    title: '2. Entender la intención',
+    userBubble: null,
+    aiBubble: 'Interpretando: El usuario quiere una recomendación de película.',
+    expl: 'El Agente AI "piensa" y analiza la pregunta para entender qué necesita la persona.'
+  },
+  {
+    title: '3. Buscar información',
+    userBubble: null,
+    aiBubble: 'Buscando en la base de datos de películas...',
+    expl: 'Luego, el Agente AI busca información relevante en diferentes fuentes.'
+  },
+  {
+    title: '4. Elegir la mejor respuesta',
+    userBubble: null,
+    aiBubble: 'Procesando opciones…',
+    expl: 'El Agente AI compara opciones y decide cuál se ajusta mejor a la petición.'
+  },
+  {
+    title: '5. Responder al usuario',
+    userBubble: null,
+    aiBubble: 'Te recomiendo ver "La La Land", ¡es una gran película para hoy! 🎬',
+    expl: 'Finalmente, el Agente AI responde al usuario de forma clara y amigable.'
+  }
+];
+
+let currentStep = 0;
+
+function renderStep(stepIdx) {
+  const step = steps[stepIdx];
+  let html = '';
+  html += `<div class="text-xl font-semibold mb-2 text-center text-orange-400">${step.title}</div>`;
+  html += `<div class="flex flex-col gap-2 mb-3">`;
+  if (step.userBubble) {
+    html += `<div class='self-start'><span class="inline-block bg-gray-600 text-white px-4 py-2 bubble">${step.userBubble}</span></div>`;
+  }
+  if (step.aiBubble) {
+    html += `<div class='self-end'><span class="inline-block bg-indigo-500 text-white px-4 py-2 bubble">${step.aiBubble}</span></div>`;
+  }
+  html += '</div>';
+  html += `<div class='text-gray-200 text-base bg-gray-800/80 rounded-xl px-4 py-3 text-center'>${step.expl}</div>`;
+  document.getElementById('ai-steps').innerHTML = html;
+
+  // Cambiar texto del botón en el último paso
+  const nextBtn = document.getElementById('next-btn');
+  if (stepIdx >= steps.length - 1) {
+    nextBtn.textContent = 'Reiniciar';
+  } else {
+    nextBtn.textContent = 'Siguiente paso';
+  }
+}
+
+document.getElementById('next-btn').addEventListener('click', () => {
+  if (currentStep >= steps.length - 1) {
+    currentStep = 0;
+  } else {
+    currentStep++;
+  }
+  renderStep(currentStep);
+});
+// Inicializar la vista
+renderStep(0);
+</script>
+</body>
+</html>
