@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Cómo funciona un Agente AI? | Teamcubation</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" rel="stylesheet"/>
+  <style>
+    body { background: #ececec; }
+    .teamcubation-primary { color: #0B1833; }
+    .teamcubation-accent { color: #00B2A9; }
+    .teamcubation-card { background: #fff; box-shadow: 0 2px 20px 0 rgba(34,50,84,.08); border-radius: 1.2rem; }
+    .step-indicator.active { background: #00B2A9; color: white; }
+    .step-indicator { transition: background 0.3s, color 0.3s; }
+    .step-circle { width: 38px; height: 38px; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 1.2rem; }
+    .step-title { font-size: 1.1rem; font-weight: 500; }
+    @media (max-width: 640px) {
+      .step-title { font-size: 1rem; }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+  <header class="w-full max-w-2xl mb-6 text-center">
+    <img src="https://teamcubation.com/wp-content/uploads/2022/08/logo-cubo-color.png" alt="Teamcubation logo" class="mx-auto mb-3 w-28 h-auto"/>
+    <h1 class="teamcubation-primary text-3xl sm:text-4xl font-black tracking-tight mb-4">¿Cómo funciona un <span class="teamcubation-accent">Agente AI</span>?</h1>
+    <p class="text-gray-700 max-w-xl mx-auto text-lg sm:text-xl">Un agente de inteligencia artificial realiza ciclos de <span class="font-bold">percepción</span>, <span class="font-bold">toma de decisiones</span> y <span class="font-bold">acción</span> utilizando herramientas externas.</p>
+  </header>
+
+  <main class="w-full max-w-3xl">
+    <!-- Swiper Steps -->
+    <div class="swiper teamcubation-card py-7 px-4 sm:p-8 relative overflow-visible">
+      <div class="flex justify-center gap-3 mb-8">
+        <div class="step-indicator step-circle bg-gray-200 text-gray-700" id="circ-0">1</div>
+        <div class="flex items-center"><div class="mx-1 border-t-2 border-gray-200 w-7 sm:w-11"></div></div>
+        <div class="step-indicator step-circle bg-gray-200 text-gray-700" id="circ-1">2</div>
+        <div class="flex items-center"><div class="mx-1 border-t-2 border-gray-200 w-7 sm:w-11"></div></div>
+        <div class="step-indicator step-circle bg-gray-200 text-gray-700" id="circ-2">3</div>
+      </div>
+      <div class="swiper-wrapper">
+        <!-- PERCEPCION -->
+        <div class="swiper-slide flex flex-col items-center justify-center">
+          <img src="https://cdn-icons-png.flaticon.com/512/1160/1160427.png" alt="Sensor alerta" class="mb-4 w-20 h-20"/>
+          <h2 class="teamcubation-primary step-title mb-2">1. Percepción</h2>
+          <p class="text-gray-700 text-center max-w-md text-lg">El agente recibe información del entorno. Puede ser desde un mensaje, una imagen o datos de sensores. Así, <span class="teamcubation-accent font-semibold">interpreta</span> el problema o la tarea.</p>
+          <div class="w-full flex flex-col items-center mt-4">
+            <button onclick="nextStep()" class="bg-teal-500 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-teal-600 transition">Siguiente</button>
+          </div>
+        </div>
+        <!-- DECISION -->
+        <div class="swiper-slide flex flex-col items-center justify-center">
+          <img src="https://cdn-icons-png.flaticon.com/512/3062/3062634.png" alt="Decisión AI" class="mb-4 w-20 h-20"/>
+          <h2 class="teamcubation-primary step-title mb-2">2. Toma de Decisiones</h2>
+          <p class="text-gray-700 text-center max-w-md text-lg">Con la información recibida, el agente <span class="teamcubation-accent font-semibold">evalúa opciones</span> posibles y elige el mejor curso de acción según su experiencia o reglas.</p>
+          <div class="w-full flex flex-col items-center mt-4">
+            <button onclick="prevStep()" class="text-teal-600 px-4 py-2 rounded hover:bg-gray-100 font-semibold transition mb-1">Anterior</button>
+            <button onclick="nextStep()" class="bg-teal-500 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-teal-600 transition">Siguiente</button>
+          </div>
+        </div>
+        <!-- ACCION -->
+        <div class="swiper-slide flex flex-col items-center justify-center">
+          <img src="https://cdn-icons-png.flaticon.com/512/2942/2942665.png" alt="Ejecución AI" class="mb-4 w-20 h-20"/>
+          <h2 class="teamcubation-primary step-title mb-2">3. Ejecución de Herramientas</h2>
+          <p class="text-gray-700 text-center max-w-md text-lg">Por último, el agente <span class="teamcubation-accent font-semibold">pone en marcha</span> una acción o utiliza una herramienta externa (como una app, script o envío de datos).</p>
+          <div class="w-full flex flex-col items-center mt-4">
+            <button onclick="prevStep()" class="text-teal-600 px-4 py-2 rounded hover:bg-gray-100 font-semibold transition">Anterior</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-7 flex flex-col items-center">
+      <h3 class="teamcubation-primary font-bold text-lg mb-2">Ejemplo Práctico</h3>
+      <div class="teamcubation-card p-5 w-full max-w-lg text-gray-800 text-base flex flex-col gap-2">
+        <div class="flex items-center gap-2"><span class="teamcubation-accent font-bold">Percepción:</span> El agente lee un mensaje: "¿Cuál es la mejor ruta hasta mi casa?"</div>
+        <div class="flex items-center gap-2"><span class="teamcubation-accent font-bold">Toma decisión:</span> Decide buscar rutas posibles evaluando tráfico y distancia.</div>
+        <div class="flex items-center gap-2"><span class="teamcubation-accent font-bold">Ejecución:</span> Consulta Google Maps automáticamente y responde con la mejor ruta.</div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="mt-12 mb-2 text-gray-400 text-sm tracking-wide">
+    © 2024 Teamcubation — IA accesible y efectiva
+  </footer>
+
+<script>
+  // Swiper Config
+  var swiper = new Swiper('.swiper', {
+    slidesPerView: 1,
+    allowTouchMove: false,
+    effect: 'fade',
+    fadeEffect: { crossFade: true },
+    speed: 420,
+    initialSlide: 0,
+  });
+  const indicators = [document.getElementById('circ-0'), document.getElementById('circ-1'), document.getElementById('circ-2')];
+
+  function updateStepper(idx) {
+    indicators.forEach((el, i) => {
+      if(i === idx) {
+        el.classList.add('active','bg-teal-500','text-white');
+        el.classList.remove('bg-gray-200','text-gray-700');
+      } else {
+        el.classList.remove('active','bg-teal-500','text-white');
+        el.classList.add('bg-gray-200','text-gray-700');
+      }
+    });
+  }
+
+  function nextStep() {
+    if(swiper.activeIndex < 2) {
+      swiper.slideTo(swiper.activeIndex + 1);
+      updateStepper(swiper.activeIndex + 1);
+      gsap.from('.swiper-slide-active', {scale: 0.9, opacity: 0, duration: 0.4, ease:'power2.out'});
+    }
+  }
+  function prevStep() {
+    if(swiper.activeIndex > 0) {
+      swiper.slideTo(swiper.activeIndex - 1);
+      updateStepper(swiper.activeIndex - 1);
+      gsap.from('.swiper-slide-active', {x: -30, opacity: 0, duration: 0.3, ease:'power2.out'});
+    }
+  }
+  updateStepper(0);
+</script>
+</body>
+</html>
