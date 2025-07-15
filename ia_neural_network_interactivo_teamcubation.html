@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Cómo funciona una red neuronal en IA Generativa? | Teamcubation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Helvetica Neue LT Std', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f6f6f6;
+        }
+        .font-medium { font-weight: 500;}
+        .font-roman { font-weight: 400;}
+        .font-light { font-weight: 300;}
+        /* Estilos para los nodos */
+        .neuron {
+            transition: box-shadow 0.2s;
+        }
+        .neuron.active {
+            box-shadow: 0 0 0 4px #F34E1E;
+            border-color: #F34E1E !important;
+        }
+        .arrow {
+            stroke: #8BDCB3;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start bg-[#f6f6f6]">
+    <!-- Encabezado -->
+    <header class="w-full bg-[#551872] text-white py-6 px-4 text-center mb-4 shadow-md">
+        <h1 class="text-2xl md:text-3xl font-medium tracking-wide">¿Cómo funciona una red neuronal en IA Generativa?</h1>
+        <p class="text-base md:text-lg font-light mt-2 max-w-2xl mx-auto">Visualiza paso a paso cómo las neuronas artificiales transforman una idea simple en una creación sorprendente gracias a la inteligencia artificial generativa.</p>
+    </header>
+
+    <!-- Componente interactivo -->
+    <main class="flex w-full max-w-4xl flex-col items-center p-4">
+        <section class="w-full bg-white shadow rounded-xl p-6 mb-5">
+            <div class="flex flex-col md:flex-row gap-8 items-center">
+                <!-- Visualización de la red neuronal -->
+                <div class="flex-1 flex justify-center relative w-full">
+                    <svg viewBox="0 0 350 320" class="w-full max-w-[350px] h-auto">
+                        <!-- Capas y neuronas -->
+                        <!-- Input Layer: 3 neuronas -->
+                        <g id="layer-input">
+                            <circle class="neuron" id="neuron-in-1" cx="50" cy="70" r="22" fill="#fff" stroke="#484848" stroke-width="3"/>
+                            <circle class="neuron" id="neuron-in-2" cx="50" cy="160" r="22" fill="#fff" stroke="#484848" stroke-width="3"/>
+                            <circle class="neuron" id="neuron-in-3" cx="50" cy="250" r="22" fill="#fff" stroke="#484848" stroke-width="3"/>
+                        </g>
+                        <!-- Hidden Layer: 4 neuronas -->
+                        <g id="layer-hidden">
+                            <circle class="neuron" id="neuron-hid-1" cx="160" cy="40" r="22" fill="#fff" stroke="#551872" stroke-width="3"/>
+                            <circle class="neuron" id="neuron-hid-2" cx="160" cy="110" r="22" fill="#fff" stroke="#551872" stroke-width="3"/>
+                            <circle class="neuron" id="neuron-hid-3" cx="160" cy="180" r="22" fill="#fff" stroke="#551872" stroke-width="3"/>
+                            <circle class="neuron" id="neuron-hid-4" cx="160" cy="250" r="22" fill="#fff" stroke="#551872" stroke-width="3"/>
+                        </g>
+                        <!-- Output Layer: 2 neuronas -->
+                        <g id="layer-output">
+                            <circle class="neuron" id="neuron-out-1" cx="290" cy="100" r="22" fill="#fff" stroke="#F34E1E" stroke-width="3"/>
+                            <circle class="neuron" id="neuron-out-2" cx="290" cy="200" r="22" fill="#fff" stroke="#F34E1E" stroke-width="3"/>
+                        </g>
+                        <!-- Flechas de conexiones -->
+                        <g id="connections" stroke-width="2.5" fill="none">
+                            <!-- Input a Hidden -->
+                            <line x1="72" y1="70" x2="138" y2="40" class="arrow"/>
+                            <line x1="72" y1="70" x2="138" y2="110" class="arrow"/>
+                            <line x1="72" y1="70" x2="138" y2="180" class="arrow"/>
+                            <line x1="72" y1="70" x2="138" y2="250" class="arrow"/>
+
+                            <line x1="72" y1="160" x2="138" y2="40" class="arrow"/>
+                            <line x1="72" y1="160" x2="138" y2="110" class="arrow"/>
+                            <line x1="72" y1="160" x2="138" y2="180" class="arrow"/>
+                            <line x1="72" y1="160" x2="138" y2="250" class="arrow"/>
+
+                            <line x1="72" y1="250" x2="138" y2="40" class="arrow"/>
+                            <line x1="72" y1="250" x2="138" y2="110" class="arrow"/>
+                            <line x1="72" y1="250" x2="138" y2="180" class="arrow"/>
+                            <line x1="72" y1="250" x2="138" y2="250" class="arrow"/>
+
+                            <!-- Hidden a Output -->
+                            <line x1="182" y1="40" x2="268" y2="100" class="arrow"/>
+                            <line x1="182" y1="40" x2="268" y2="200" class="arrow"/>
+                            <line x1="182" y1="110" x2="268" y2="100" class="arrow"/>
+                            <line x1="182" y1="110" x2="268" y2="200" class="arrow"/>
+                            <line x1="182" y1="180" x2="268" y2="100" class="arrow"/>
+                            <line x1="182" y1="180" x2="268" y2="200" class="arrow"/>
+                            <line x1="182" y1="250" x2="268" y2="100" class="arrow"/>
+                            <line x1="182" y1="250" x2="268" y2="200" class="arrow"/>
+                        </g>
+                        <!-- Etiquetas -->
+                        <text x="10" y="30" font-size="14" fill="#484848">Entrada</text>
+                        <text x="130" y="18" font-size="14" fill="#551872">Oculta</text>
+                        <text x="285" y="45" font-size="14" fill="#F34E1E">Salida</text>
+                    </svg>
+                </div>
+                <!-- Explicación paso a paso -->
+                <div class="flex-1">
+                    <div class="rounded-lg bg-[#484848]/10 p-5 flex flex-col items-center">
+                        <div class="flex items-center gap-2 mb-3">
+                            <button id="prev-step" class="rounded-full bg-[#551872] hover:bg-[#381052] transition text-white w-9 h-9 flex items-center justify-center" aria-label="Anterior"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.25 19L8.25 12l7-7"/></svg></button>
+                            <span id="step-label" class="text-lg font-medium text-[#551872]">1 de 4</span>
+                            <button id="next-step" class="rounded-full bg-[#F34E1E] hover:bg-[#c23815] transition text-white w-9 h-9 flex items-center justify-center" aria-label="Siguiente"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.75 5l7 7-7 7"/></svg></button>
+                        </div>
+                        <div id="step-text" class="text-base md:text-lg font-roman text-[#484848] text-center">
+                            Una red neuronal artificial recibe datos de entrada (por ejemplo: palabras, imágenes o ideas).
+                        </div>
+                        <div class="w-full h-2 mt-4 mb-1">
+                            <div class="rounded-full bg-[#8BDCB3]/30 h-2 w-full relative">
+                                <div id="progress-bar" class="absolute left-0 top-0 h-2 bg-gradient-to-r from-[#F34E1E] via-[#551872] to-[#8BDCB3] rounded-full transition-all" style="width: 23%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="w-full max-w-3xl mx-auto py-3">
+            <div class="rounded-xl bg-[#551872] text-white px-6 py-5 shadow text-center">
+                <p class="text-lg md:text-xl font-roman">¿Sabías que? <span class="font-medium text-[#8BDCB3]">Las IA generativas usan millones de neuronas artificiales trabajando en equipo para transformar simples instrucciones en resultados sorprendentes.</span></p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="text-sm text-[#484848] mt-8 mb-3 text-center w-full px-3">
+        Creado por Teamcubation · Innovación y aprendizaje en IA generativa
+    </footer>
+
+    <script>
+        // Datos de pasos
+        const steps = [
+            {
+                text: 'Una red neuronal artificial recibe datos de entrada (por ejemplo: palabras, imágenes o ideas).',
+                actives: ['neuron-in-1', 'neuron-in-2', 'neuron-in-3'],
+                progress: 23
+            },
+            {
+                text: 'Las neuronas de la capa de entrada pasan la información a neuronas ocultas, donde se combinan y transforman gracias a "conexiones" que fortalecen o debilitan los datos.',
+                actives: ['neuron-in-1','neuron-in-2','neuron-in-3','neuron-hid-1','neuron-hid-2','neuron-hid-3','neuron-hid-4'],
+                progress: 45
+            },
+            {
+                text: 'Las neuronas ocultas procesan la información y la envían a la capa de salida. Aquí se decide cómo se verá el resultado generado.',
+                actives: ['neuron-hid-1','neuron-hid-2','neuron-hid-3','neuron-hid-4','neuron-out-1','neuron-out-2'],
+                progress: 75
+            },
+            {
+                text: 'Por último, la red produce una solución creativa: un texto, imagen o cualquier contenido generado. ¡Así la IA transforma tu idea en realidad!',
+                actives: ['neuron-out-1','neuron-out-2'],
+                progress: 100
+            }
+        ];
+
+        let currentStep = 0;
+
+        function renderStep() {
+            // Actualiza texto
+            document.getElementById('step-text').textContent = steps[currentStep].text;
+            document.getElementById('step-label').textContent = (currentStep+1) + ' de ' + steps.length;
+            // Destaca neuronas activas
+            document.querySelectorAll('.neuron').forEach(el => el.classList.remove('active'));
+            steps[currentStep].actives.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('active');
+            });
+            // Barra de progreso
+            document.getElementById('progress-bar').style.width = steps[currentStep].progress + '%';
+            // Habilita/deshabilita botones
+            document.getElementById('prev-step').disabled = (currentStep===0);
+            document.getElementById('prev-step').style.opacity = (currentStep===0)? 0.5 : 1;
+            document.getElementById('next-step').disabled = (currentStep===steps.length-1);
+            document.getElementById('next-step').style.opacity = (currentStep===steps.length-1)? 0.5 : 1;
+        }
+        document.getElementById('prev-step').addEventListener('click', ()=>{
+            if (currentStep > 0) { currentStep--; renderStep(); }
+        });
+        document.getElementById('next-step').addEventListener('click', ()=>{
+            if (currentStep < steps.length-1) { currentStep++; renderStep(); }
+        });
+        // Render inicial
+        renderStep();
+    </script>
+</body>
+</html>
