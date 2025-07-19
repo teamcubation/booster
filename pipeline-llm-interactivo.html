@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cómo Funciona un LLM Interactivo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#551872',
+            secondary: '#F34E1E',
+            accent: '#8BDCB3',
+            graySecondary: '#484848'
+          },
+          fontFamily: {
+            sans: ['"Helvetica Neue LT Std"', 'Arial', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+    .animate-fadeIn { animation: fadeIn 1s ease-out; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+  <header class="bg-primary text-white p-6 text-center animate-fadeIn">
+    <h1 class="text-3xl md:text-5xl font-medium">De Prompt a Respuesta: Dentro de un LLM</h1>
+    <p class="mt-2 text-xl">Una experiencia interactiva para descubrir lo que sucede por dentro</p>
+  </header>
+  <main class="p-4 md:p-8 space-y-12">
+    <!-- Conceptos básicos -->
+    <section id="conceptos" class="space-y-4">
+      <h2 class="text-2xl font-medium text-primary">1. Conceptos Básicos</h2>
+      <p class="text-gray-700">Imagina que tu prompt es una pregunta a un experto. ¿Cómo traduce esa pregunta en palabras que entiende?</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-4 rounded shadow">
+          <h3 class="font-medium text-accent">Tokenización</h3>
+          <p>Cortamos el texto en piezas pequeñas (tokens).</p>
+        </div>
+        <div class="bg-white p-4 rounded shadow">
+          <h3 class="font-medium text-accent">Embeddings</h3>
+          <p>Convertimos tokens en números para procesarlos.</p>
+        </div>
+        <button id="toggle-detalle" class="mt-4 px-4 py-2 bg-secondary text-white rounded">Mostrar más detalles</button>
+        <div id="detalle-avanzado" class="hidden col-span-1 md:col-span-2 bg-white p-4 rounded shadow">
+          <h4 class="font-medium">Probabilidades & Decodificación</h4>
+          <p>El modelo calcula cuál palabra viene luego y la elige según la probabilidad.</p>
+        </div>
+      </div>
+    </section>
+    <!-- Demostración práctica -->
+    <section id="demo" class="space-y-4">
+      <h2 class="text-2xl font-medium text-primary">2. Demostración Práctica</h2>
+      <p>¡Pruébalo! Escribe tu prompt y observa el recorrido:</p>
+      <div class="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-4">
+        <input id="user-prompt" type="text" placeholder="Escribe tu prompt aquí..." class="flex-1 p-2 border border-gray-300 rounded">
+        <button id="run-demo" class="px-4 py-2 bg-primary text-white rounded">Enviar</button>
+      </div>
+      <div id="pipeline" class="mt-6 space-y-4">
+        <!-- Etapas dinámicas -->
+        <div id="step-token" class="hidden p-4 bg-white rounded shadow"></div>
+        <div id="step-embed" class="hidden p-4 bg-white rounded shadow"></div>
+        <div id="step-prob" class="hidden p-4 bg-white rounded shadow"></div>
+        <div id="step-decode" class="hidden p-4 bg-white rounded shadow"></div>
+        <div id="step-response" class="hidden p-4 bg-white rounded shadow">Respuesta generada: <span id="response-text" class="font-semibold"></span></div>
+      </div>
+    </section>
+    <!-- Ejercicios guiados -->
+    <section id="ejercicios" class="space-y-4">
+      <h2 class="text-2xl font-medium text-primary">3. Ejercicios Guiados</h2>
+      <p>¿Qué sucede si ajustas la “temperatura” del modelo?</p>
+      <input id="temp-range" type="range" min="0" max="1" step="0.1" value="0.5" class="w-full">
+      <p class="text-gray-700">Temperatura actual: <span id="temp-value">0.5</span></p>
+      <p class="text-gray-700">Experimenta y observa la variedad de respuestas.</p>
+    </section>
+    <!-- Casos de uso reales -->
+    <section id="casos" class="space-y-4">
+      <h2 class="text-2xl font-medium text-primary">4. Casos de Uso Reales</h2>
+      <ul class="list-disc list-inside space-y-2">
+        <li>Asistencia al cliente: respuestas rápidas a preguntas frecuentes.</li>
+        <li>Generación de contenido: borradores de emails, blogs.</li>
+        <li>Soporte de programadores: sugerencias de código.</li>
+      </ul>
+    </section>
+    <!-- Reflexiones éticas -->
+    <section id="etica" class="space-y-4">
+      <h2 class="text-2xl font-medium text-primary">5. Reflexiones Éticas</h2>
+      <p>¿Cómo nos aseguramos de respuestas justas y seguras?</p>
+      <details class="bg-white p-4 rounded shadow">
+        <summary class="cursor-pointer font-medium">Leer más</summary>
+        <p class="mt-2">Considera sesgos, privacidad y responsabilidad al diseñar productos con LLM.</p>
+      </details>
+    </section>
+    <!-- Recursos adicionales -->
+    <section id="recursos" class="space-y-4">
+      <h2 class="text-2xl font-medium text-primary">6. Recursos Adicionales</h2>
+      <ul class="list-disc list-inside text-accent">
+        <li><a href="https://platform.openai.com/docs" target="_blank" class="underline">Documentación de OpenAI</a></li>
+        <li><a href="https://en.wikipedia.org/wiki/Language_model" target="_blank" class="underline">Wikipedia: Modelos de Lenguaje</a></li>
+      </ul>
+    </section>
+  </main>
+  <footer class="bg-graySecondary text-white text-center p-4">
+    <p>Creado por Teamcubation | Inspiración en IA Generativa</p>
+  </footer>
+  <script>
+    // Toggle detalles
+    document.getElementById('toggle-detalle').addEventListener('click', () => {
+      document.getElementById('detalle-avanzado').classList.toggle('hidden');
+    });
+    // Demo pipeline
+    document.getElementById('run-demo').addEventListener('click', async () => {
+      const prompt = document.getElementById('user-prompt').value || 'Hola, IA!';
+      const steps = [
+        { id: 'step-token', text: '1. Tokenización: ' + prompt.split(' ').join(' | ') },
+        { id: 'step-embed', text: '2. Embeddings: vectores generados' },
+        { id: 'step-prob', text: '3. Cálculo de probabilidades: elige siguiente palabra' },
+        { id: 'step-decode', text: '4. Decodificación: formar palabras' },
+        { id: 'step-response', text: '5. Respuesta generada:' }
+      ];
+      // ocultar todos
+      steps.forEach(s => document.getElementById(s.id).classList.add('hidden'));
+      for (let i = 0; i < steps.length; i++) {
+        const {id, text} = steps[i];
+        const el = document.getElementById(id);
+        el.textContent = text;
+        await new Promise(r => setTimeout(r, 800));
+        el.classList.remove('hidden');
+      }
+      document.getElementById('response-text').textContent = '"¡Entendido!"';
+    });
+    // Slider temperatura
+    document.getElementById('temp-range').addEventListener('input', (e) => {
+      document.getElementById('temp-value').textContent = e.target.value;
+    });
+  </script>
+</body>
+</html>
