@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movimientos de las piezas de ajedrez</title>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#551872',
+            secondary: '#F34E1E',
+            graysec: '#484848',
+            greensec: '#8BDCB3'
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 1s ease-out; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans" style="font-family: 'Helvetica Neue', sans-serif;">
+  <div class="container mx-auto p-4">
+    <section class="mb-8 text-center">
+      <h1 class="text-4xl font-medium text-primary mb-2 fade-in">Movimientos de las piezas de ajedrez</h1>
+      <p class="text-lg text-graysec fade-in" style="animation-delay: 0.2s;">Aprende cómo se mueven cada pieza de manera interactiva.</p>
+    </section>
+    <section class="mb-8">
+      <div class="mb-4 text-center">
+        <label for="pieceSelect" class="block text-lg font-medium mb-2">Selecciona una pieza:</label>
+        <select id="pieceSelect" class="border border-gray-400 rounded p-2">
+          <option value="pawn">Peón ♙</option>
+          <option value="rook">Torre ♖</option>
+          <option value="knight">Caballo ♘</option>
+          <option value="bishop">Alfil ♗</option>
+          <option value="queen">Dama ♕</option>
+          <option value="king">Rey ♔</option>
+        </select>
+      </div>
+      <div id="board" class="w-full max-w-md aspect-square mx-auto border-2 border-gray-400 grid grid-cols-8 grid-rows-8" role="grid" aria-label="Tablero de ajedrez">
+        <!-- Las casillas se generarán con JavaScript -->
+      </div>
+    </section>
+    <section class="mb-8">
+      <h2 class="text-2xl font-medium mb-2">Ejercicio guiado</h2>
+      <p>¿Dónde puede moverse el caballo si está en d4? Haz clic en d4 y observa los movimientos.</p>
+    </section>
+    <section class="mb-8">
+      <h2 class="text-2xl font-medium mb-2">¿Por qué es útil saber esto?</h2>
+      <p>Controlar el tablero y anticipar movimientos te da ventaja estratégica en el juego.</p>
+    </section>
+    <section>
+      <h2 class="text-2xl font-medium mb-2">Recursos adicionales</h2>
+      <ul class="list-disc list-inside text-blue-600">
+        <li><a href="https://www.chess.com" target="_blank">Chess.com</a></li>
+        <li><a href="https://lichess.org" target="_blank">Lichess.org</a></li>
+      </ul>
+    </section>
+  </div>
+
+  <script>
+    const letters = ['a','b','c','d','e','f','g','h'];
+    const boardElement = document.getElementById('board');
+    const pieceSelect = document.getElementById('pieceSelect');
+
+    function createBoard() {
+      boardElement.innerHTML = '';
+      for (let row = 8; row >= 1; row--) {
+        for (let col = 1; col <= 8; col++) {
+          const cell = document.createElement('div');
+          const letter = letters[col - 1];
+          cell.dataset.col = letter;
+          cell.dataset.row = row;
+          const isLight = (row + col) % 2 === 0;
+          cell.classList.add('flex','items-center','justify-center','cursor-pointer');
+          cell.classList.add(isLight ? 'bg-gray-200' : 'bg-graysec','border','border-gray-300');
+          cell.addEventListener('click', onCellClick);
+          boardElement.appendChild(cell);
+        }
+      }
+    }
+
+    function onCellClick(e) {
+      const cell = e.currentTarget;
+      const selectedPiece = pieceSelect.value;
+      clearBoard();
+      placePiece(cell);
+      highlightMoves(cell, selectedPiece);
+    }
+
+    function clearBoard() {
+      document.querySelectorAll('#board .highlight').forEach(c => {
+        c.classList.remove('highlight','bg-greensec','bg-opacity-75');
+      });
+      document.querySelectorAll('#board span.piece-symbol').forEach(s => s.remove());
+    }
+
+    function placePiece(cell) {
+      const pieceSymbols = {
+        pawn: '♙', rook: '♖', knight: '♘', bishop: '♗', queen: '♕', king: '♔'
+      };
+      const symbol = pieceSymbols[pieceSelect.value];
+      const span = document.createElement('span');
+      span.textContent = symbol;
+      span.classList.add('piece-symbol','text-2xl');
+      cell.appendChild(span);
+    }
+
+    function highlightMoves(cell, piece) {
+      const col = cell.dataset.col;
+      const row = parseInt(cell.dataset.row);
+      const colIndex = letters.indexOf(col) + 1;
+      let moves = [];
+      const addMove = (c, r) => {
+        if (c >=1 && c <=8 && r >=1 && r <=8) moves.push({c, r});
+      };
+
+      switch(piece) {
+        case 'pawn':
+          addMove(colIndex, row + 1);
+          if (row === 2) addMove(colIndex, row + 2);
+          break;
+        case 'rook':
+          [ [1,0],[-1,0],[0,1],[0,-1] ].forEach(dir => {
+            for (let i=1; i<8; i++) addMove(colIndex + dir[0]*i, row + dir[1]*i);
+          });
+          break;
+        case 'bishop':
+          [ [1,1],[1,-1],[-1,1],[-1,-1] ].forEach(dir => {
+            for (let i=1; i<8; i++) addMove(colIndex + dir[0]*i, row + dir[1]*i);
+          });
+          break;
+        case 'queen':
+          [ [1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1] ].forEach(dir => {
+            for (let i=1; i<8; i++) addMove(colIndex + dir[0]*i, row + dir[1]*i);
+          });
+          break;
+        case 'king':
+          [ [1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1] ].forEach(dir => {
+            addMove(colIndex + dir[0], row + dir[1]);
+          });
+          break;
+        case 'knight':
+          [ [1,2],[2,1],[2,-1],[1,-2],[-1,-2],[-2,-1],[-2,1],[-1,2] ].forEach(mv => {
+            addMove(colIndex + mv[0], row + mv[1]);
+          });
+          break;
+      }
+
+      moves.forEach(m => {
+        const selector = '[data-col="' + letters[m.c - 1] + '"][data-row="' + m.r + '"]';
+        const target = document.querySelector(selector);
+        if (target) {
+          target.classList.add('highlight','bg-greensec','bg-opacity-75');
+        }
+      });
+    }
+
+    createBoard();
+  </script>
+</body>
+</html>
