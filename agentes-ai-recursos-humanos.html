@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agentes AI para Recursos Humanos</title>
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primaryViolet: '#551872',
+            primaryOrange: '#F34E1E',
+            secondaryGray: '#484848',
+            secondaryGreen: '#8BDCB3'
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom font and animations */
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; }
+    @keyframes fadeIn { from {opacity:0; transform: translateY(-10px);} to {opacity:1; transform: translateY(0);} }
+    .animate-fadeIn { animation: fadeIn 1s ease-out; }
+  </style>
+</head>
+<body class="bg-gray-100 text-secondaryGray">
+  <!-- 1. Introducción -->
+  <section id="intro" class="flex flex-col items-center justify-center min-h-screen px-4 py-12 text-center">
+    <h1 class="text-4xl md:text-5xl font-medium text-primaryViolet animate-fadeIn">
+      ¿Qué es un <span class="text-primaryOrange">Agente AI</span>?
+    </h1>
+    <p class="mt-4 md:w-2/3">
+      Imagina un reclutador virtual que revisa CVs, toma decisiones y actúa por ti. ¡Ese es un Agente AI!
+    </p>
+  </section>
+
+  <!-- 2. Conceptos básicos -->
+  <section id="concepts" class="px-4 py-12">
+    <h2 class="text-2xl font-medium text-primaryViolet text-center mb-6">
+      Conceptos Clave
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="concept-card bg-white rounded-lg shadow p-4 cursor-pointer">
+        <h3 class="font-medium text-primaryOrange">Percepción</h3>
+        <div class="concept-desc hidden mt-2 text-sm">
+          El agente obtiene datos (como recibir CVs en un portal de empleo).
+        </div>
+      </div>
+      <div class="concept-card bg-white rounded-lg shadow p-4 cursor-pointer">
+        <h3 class="font-medium text-primaryOrange">Decisión</h3>
+        <div class="concept-desc hidden mt-2 text-sm">
+          Usa reglas o modelos para elegir la mejor opción (e.g., filtrar candidatos).
+        </div>
+      </div>
+      <div class="concept-card bg-white rounded-lg shadow p-4 cursor-pointer">
+        <h3 class="font-medium text-primaryOrange">Acción</h3>
+        <div class="concept-desc hidden mt-2 text-sm">
+          Ejecuta tareas automáticamente (enviar invitaciones a entrevistas).
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Demostración práctica -->
+  <section id="demo" class="bg-white py-12 px-4">
+    <h2 class="text-2xl font-medium text-primaryViolet text-center mb-6">
+      Simula un Agente de Selección
+    </h2>
+    <div class="max-w-lg mx-auto">
+      <p class="mb-4">Selecciona los perfiles que quieres que revise el agente:</p>
+      <div class="space-y-2">
+        <label class="flex items-center">
+          <input type="checkbox" class="candidate-checkbox mr-2" data-name="Alicia" data-exp="2" />
+          Alicia (2 años de experiencia)
+        </label>
+        <label class="flex items-center">
+          <input type="checkbox" class="candidate-checkbox mr-2" data-name="Bruno" data-exp="5" />
+          Bruno (5 años de experiencia)
+        </label>
+        <label class="flex items-center">
+          <input type="checkbox" class="candidate-checkbox mr-2" data-name="Carla" data-exp="3" />
+          Carla (3 años de experiencia)
+        </label>
+      </div>
+      <button id="run-demo" class="mt-4 px-4 py-2 bg-primaryOrange text-white rounded-lg hover:bg-opacity-90">
+        Pedir recomendación al Agente
+      </button>
+      <div id="demo-result" class="mt-2 text-sm text-secondaryGray"></div>
+    </div>
+  </section>
+
+  <!-- 4. Casos de uso reales -->
+  <section id="cases" class="px-4 py-12">
+    <h2 class="text-2xl font-medium text-primaryViolet text-center mb-6">
+      Casos de Uso en RRHH
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="flex items-start bg-white rounded-lg shadow p-4">
+        <div class="text-3xl mr-4">📄</div>
+        <div>
+          <h3 class="font-medium">Filtrado de CV</h3>
+          <p class="text-sm mt-1">El agente categoriza y prioriza candidatos en segundos.</p>
+        </div>
+      </div>
+      <div class="flex items-start bg-white rounded-lg shadow p-4">
+        <div class="text-3xl mr-4">🔔</div>
+        <div>
+          <h3 class="font-medium">Onboarding Automático</h3>
+          <p class="text-sm mt-1">Configura tareas y recordatorios para nuevos empleados.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scripts Interactividad -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Toggle conceptos
+      document.querySelectorAll('.concept-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const desc = card.querySelector('.concept-desc');
+          desc.classList.toggle('hidden');
+          card.classList.toggle('border-2');
+          card.classList.toggle('border-secondaryGreen');
+        });
+      });
+      // Simulación demo
+      document.getElementById('run-demo').addEventListener('click', () => {
+        const checks = document.querySelectorAll('.candidate-checkbox');
+        let best = {name: '', exp: -1};
+        checks.forEach(ch => {
+          if (ch.checked) {
+            const exp = parseInt(ch.getAttribute('data-exp'), 10);
+            if (exp > best.exp) {
+              best = { name: ch.getAttribute('data-name'), exp };
+            }
+          }
+        });
+        const resultDiv = document.getElementById('demo-result');
+        if (best.exp >= 0) {
+          resultDiv.textContent = `El agente recomienda contactar a ${best.name} con ${best.exp} años de experiencia. 🎉`;
+          resultDiv.classList.remove('text-secondaryGray');
+          resultDiv.classList.add('text-secondaryGreen');
+        } else {
+          resultDiv.textContent = 'Por favor selecciona al menos un candidato.';
+          resultDiv.classList.remove('text-secondaryGreen');
+          resultDiv.classList.add('text-primaryOrange');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
