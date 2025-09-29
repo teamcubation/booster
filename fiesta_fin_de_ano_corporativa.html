@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fiesta de Fin de Año Corporativa</title>
+  <style>
+    /* Tipografía y colores de Teamcubation */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Helvetica Neue", sans-serif;
+      background-color: #f5f5f5;
+      color: #484848;
+      line-height: 1.5;
+    }
+    header {
+      position: relative;
+      text-align: center;
+      padding: 80px 20px;
+      background: linear-gradient(135deg, #551872, #F34E1E);
+      color: #fff;
+      overflow: hidden;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      animation: fadeIn 2s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.8);} 
+      to { opacity: 1; transform: scale(1);} 
+    }
+    section {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    section h2 {
+      margin-top: 0;
+      color: #551872;
+      font-size: 1.5rem;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: 500;
+    }
+    input[type=range] {
+      width: 100%;
+    }
+    select, input[type=text], input[type=number] {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #F34E1E;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #d84319;
+    }
+    .result {
+      background: #8BDCB3;
+      padding: 15px;
+      border-radius: 4px;
+      color: #fff;
+      margin-top: 10px;
+    }
+    @media (max-width: 480px) {
+      header h1 { font-size: 1.5rem; }
+      section { margin: 20px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>¡Organiza tu Fiesta de Fin de Año!</h1>
+    <p>Colaboración Argentina & Brasil</p>
+  </header>
+
+  <!-- Paso 1: Presupuesto -->
+  <section id="budget">
+    <h2>Paso 1: Define el presupuesto</h2>
+    <p>¿Cómo repartirías el presupuesto entre Argentina y Brasil?</p>
+    <label for="sliderBudget">Distribución (%)</label>
+    <input type="range" id="sliderBudget" min="0" max="100" value="50" aria-label="Distribución presupuesto">
+    <div id="budgetValues">
+      <p>Argentina: <strong id="argVal">50</strong>%</p>
+      <p>Brasil: <strong id="braVal">50</strong>%</p>
+    </div>
+  </section>
+
+  <!-- Paso 2: Lugar -->
+  <section id="venue">
+    <h2>Paso 2: Selecciona el lugar</h2>
+    <label for="venueAr">Argentina:</label>
+    <select id="venueAr" aria-label="Lugar en Argentina">
+      <option value="Oficina">Oficina central</option>
+      <option value="Salón externo">Salón externo</option>
+    </select>
+    <label for="venueBr">Brasil:</label>
+    <select id="venueBr" aria-label="Lugar en Brasil">
+      <option value="Oficina">Oficina regional</option>
+      <option value="Salón externo">Salón externo</option>
+    </select>
+  </section>
+
+  <!-- Paso 3: Catering -->
+  <section id="catering">
+    <h2>Paso 3: Elige el catering</h2>
+    <p>Selecciona un menú típico para cada país.</p>
+    <label for="menuAr">Menú Argentina:</label>
+    <select id="menuAr" aria-label="Menú en Argentina">
+      <option value="Asado">Asado + Ensalada</option>
+      <option value="Empanadas">Empanadas variadas</option>
+    </select>
+    <label for="menuBr">Menú Brasil:</label>
+    <select id="menuBr" aria-label="Menú en Brasil">
+      <option value="Churrasco">Churrasco + Farofa</option>
+      <option value="Feijoada">Feijoada</option>
+    </select>
+  </section>
+
+  <!-- Paso 4: Asignación de tareas -->
+  <section id="tasks">
+    <h2>Paso 4: Asigna tareas</h2>
+    <p>Asigna un responsable para cada tarea.</p>
+    <label for="task1">Decoración:</label>
+    <select id="task1" aria-label="Responsable Decoración">
+      <option value="Ana (AR)">Ana (AR)</option>
+      <option value="Bruno (BR)">Bruno (BR)</option>
+    </select>
+    <label for="task2">Sonido:</label>
+    <select id="task2" aria-label="Responsable Sonido">
+      <option value="Carla (AR)">Carla (AR)</option>
+      <option value="Diego (BR)">Diego (BR)</option>
+    </select>
+  </section>
+
+  <!-- Resumen -->
+  <section id="summary">
+    <h2>¡Listo! Ver tu resumen</h2>
+    <button id="showSummary">Ver resumen</button>
+    <div id="output" class="result" aria-live="polite" style="display:none;"></div>
+  </section>
+
+  <script>
+    // Paso 1: presupuesto
+    const slider = document.getElementById('sliderBudget');
+    const argVal = document.getElementById('argVal');
+    const braVal = document.getElementById('braVal');
+    slider.addEventListener('input', () => {
+      const a = slider.value;
+      argVal.textContent = a;
+      braVal.textContent = 100 - a;
+    });
+
+    // Resumen final
+    document.getElementById('showSummary').addEventListener('click', () => {
+      const summary = [];
+      summary.push('Presupuesto: Argentina ' + argVal.textContent + '%, Brasil ' + braVal.textContent + '%');
+      summary.push('Lugar: Argentina - ' + document.getElementById('venueAr').value + ', Brasil - ' + document.getElementById('venueBr').value);
+      summary.push('Catering: Argentina - ' + document.getElementById('menuAr').value + ', Brasil - ' + document.getElementById('menuBr').value);
+      summary.push('Tareas: Decoración - ' + document.getElementById('task1').value + ', Sonido - ' + document.getElementById('task2').value);
+      const output = document.getElementById('output');
+      output.innerHTML = summary.map(line => '<p>✔ ' + line + '</p>').join('');
+      output.style.display = 'block';
+      window.scrollTo({ top: output.offsetTop - 20, behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>
