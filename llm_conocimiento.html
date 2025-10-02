@@ -28,18 +28,18 @@
   .tab[aria-selected="true"]{background:var(--violeta); color:#fff; border-color:transparent; box-shadow:0 8px 24px rgba(85,24,114,.25)}
   .tab:focus-visible{outline:3px solid var(--naranja)}
 
-  main{display:grid; grid-template-columns:1fr; gap:16px; padding:16px}
-  @media (min-width: 980px){ main{grid-template-columns: 1.2fr .8fr; align-items:stretch} }
+  main{display:flex; flex-direction:column; gap:16px; padding:16px}
 
   .panel{background:var(--card); border-radius:24px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.05); display:flex; flex-direction:column; gap:12px}
   .panel h2{margin:0; color:var(--violeta); font-size:clamp(18px,2.5vw,24px)}
 
-  .canvasBox{position:relative; background:conic-gradient(from 0deg at 80% 20%, #fafafa, #fbfbff, #f8fffb, #fafafa); border:1px solid #ececf0; border-radius:16px; overflow:hidden; min-height:340px; flex:1}
+  .canvasBox{position:relative; background:conic-gradient(from 0deg at 80% 20%, #fafafa, #fbfbff, #f8fffb, #fafafa); border:1px solid #ececf0; border-radius:16px; overflow:hidden; height:400px; width:100%}
   .legend{display:flex; gap:12px; flex-wrap:wrap; padding:8px 0}
   .pill{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px dashed #d9d9e0; background:#fff; font-size:13px}
   .dot{width:12px; height:12px; border-radius:999px}
 
-  .controls{display:grid; gap:12px}
+  .controls{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px}
+  @media (max-width: 768px){ .controls{grid-template-columns:1fr} }
   .card{background:#fff; border:1px solid #eee; border-radius:18px; padding:14px}
   .card h3{margin:0 0 10px 0; color:var(--gris); font-size:16px}
   .row{display:flex; gap:10px; flex-wrap:wrap}
@@ -105,6 +105,43 @@
   </header>
 
   <main>
+    <!-- Panel de controles superior -->
+    <section class="panel">
+      <h2>Controles y Configuración</h2>
+      
+      <div class="controls">
+        <div class="card">
+          <h3>Concepto clave</h3>
+          <p>El <strong>context</strong> es el radio de búsqueda. El <strong>top‑k</strong> es cuántos tomás. La <strong>temperature</strong> agrega creatividad.</p>
+        </div>
+
+        <div class="card" id="step2">
+          <h3>Tu prompt</h3>
+          <label for="prompt">¿Qué querés preguntar?</label>
+          <input id="prompt" type="text" placeholder="Ej: explicame la fotosíntesis para un niño" aria-describedby="promptHelp" />
+          <small id="promptHelp">Se convierte en un vector promediando palabras clave.</small>
+          <div class="chips" id="vocab" aria-label="Sugerencias rápidas"></div>
+        </div>
+
+        <div class="card" id="params">
+          <h3>Parámetros</h3>
+          <div class="row">
+            <label for="temperature">Temperature: <span id="temperatureVal">0.7</span></label>
+            <input id="temperature" type="range" min="0" max="2" step="0.1" value="0.7" />
+          </div>
+          <div class="row">
+            <label for="topk">Top‑k: <span id="topkVal">3</span></label>
+            <input id="topk" type="range" min="1" max="5" step="1" value="3" />
+          </div>
+          <div class="row">
+            <label for="context">Context: <span id="contextVal">0.6</span></label>
+            <input id="context" type="range" min="0.2" max="1" step="0.05" value="0.6" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Canvas ocupando todo el ancho -->
     <section class="panel" aria-labelledby="vizTitle">
       <h2 id="vizTitle">Espacio vectorial (mapa 2D simplificado)</h2>
       <div class="legend" aria-label="Leyenda de elementos">
@@ -115,73 +152,9 @@
         <span class="pill" title="Top‑k (cantidad)"><span class="dot" style="background:var(--violeta)"></span> Top‑k</span>
         <span class="pill" title="Temperature (diversidad)"><span class="dot" style="background:var(--naranja)"></span> Temperature</span>
       </div>
-      <div class="canvasBox" id="plot" aria-live="polite" aria-label="Gráfico del espacio vectorial, usa los controles a la derecha para interactuar."></div>
+      <div class="canvasBox" id="plot" aria-live="polite" aria-label="Gráfico del espacio vectorial, usa los controles para interactuar."></div>
       <p class="label fadeIn" id="hint">💡 Tip: mové los puntos o cambiá el prompt y mirá cómo cambian los anillos.</p>
     </section>
-
-    <aside class="controls">
-      <div class="card">
-        <h3>Concepto clave (analogía)</h3>
-        <p>El <strong>context</strong> es como el <em>radio</em> de búsqueda alrededor de la punta de tu flecha. El <strong>top‑k</strong> es cuántos libros tomás de ahí. La <strong>temperature</strong> agrega un toque de <em>creatividad</em> (variación) al elegir.</p>
-      </div>
-
-      <div class="card" id="step1">
-        <h3>1) Biblioteca en un mapa</h3>
-        <p>Arrastrá los puntos (documentos) para reubicar significados y notar cómo cambian las coincidencias.</p>
-        <div class="chips" id="docChips" aria-label="Documentos disponibles"></div>
-      </div>
-
-      <div class="card" id="step2">
-        <h3>2) Escribí tu prompt</h3>
-        <label for="prompt">¿Qué querés preguntar?</label>
-        <input id="prompt" type="text" placeholder="Ej: explicame la fotosíntesis para un niño" aria-describedby="promptHelp" />
-        <small id="promptHelp">Se convierte en un vector promediando mini‑vectores de palabras clave.</small>
-        <div class="chips" id="vocab" aria-label="Sugerencias rápidas"></div>
-      </div>
-
-      <div class="card" id="params">
-        <h3>Parámetros de generación</h3>
-        <div class="row">
-          <label for="temperature">Temperature: <span id="temperatureVal">0.7</span></label>
-          <input id="temperature" type="range" min="0" max="2" step="0.1" value="0.7" />
-        </div>
-        <div class="row">
-          <label for="topk">Top‑k: <span id="topkVal">3</span></label>
-          <input id="topk" type="range" min="1" max="5" step="1" value="3" />
-        </div>
-        <div class="row">
-          <label for="context">Context (radio): <span id="contextVal">0.6</span></label>
-          <input id="context" type="range" min="0.2" max="1" step="0.05" value="0.6" />
-        </div>
-      </div>
-
-      <div class="card" id="step3">
-        <h3>3) ¿Qué tan parecido? (similitud de coseno)</h3>
-        <p>Menor ángulo ⇒ más parecido. Mostramos el top según <strong>context</strong> y <strong>top‑k</strong>.</p>
-        <div class="results" id="results" aria-live="polite"></div>
-      </div>
-
-      <div class="card" id="step4">
-        <h3>4) Ajustes de juego</h3>
-        <div class="row">
-          <label for="noise">Ruido del embedding (0 = ideal)</label>
-          <input id="noise" type="range" min="0" max="40" value="8" />
-        </div>
-        <div class="row">
-          <button id="snap" class="tab" style="border-radius:12px">Reiniciar escena</button>
-          <button id="toggleAngle" class="tab" style="border-radius:12px">Mostrar ángulo</button>
-        </div>
-      </div>
-
-      <div class="card" id="testCard">
-        <h3>Autotests rápidos</h3>
-        <p style="margin-top:-6px">Verifican la lógica matemática, los toggles de chips y la selección por context/top‑k.</p>
-        <div class="test-list" id="testsList"></div>
-        <div class="row" style="margin-top:8px">
-          <button id="runTests" class="tab" style="border-radius:12px">Re‑ejecutar tests</button>
-        </div>
-      </div>
-    </aside>
   </main>
 
   <footer>Hecho con ♥ para aprender. Alto contraste y navegación por teclado incluidos.</footer>
@@ -214,20 +187,15 @@
 
   // ---------- Estado ----------
   let showAngle=false;
-  let noise=Number(document.getElementById('noise').value);
+  let noise=8; // valor fijo de ruido
   let temperature=0.7; // 0..2
   let topK=3; // 1..5 (limita docs)
   let contextScale=0.6; // 0.2..1 (radio relativo)
 
   // ---------- DOM ----------
   const plotEl=document.getElementById('plot');
-  const resultsEl=document.getElementById('results');
   const promptEl=document.getElementById('prompt');
   const vocabEl=document.getElementById('vocab');
-  const docChipsEl=document.getElementById('docChips');
-  const toggleAngleBtn=document.getElementById('toggleAngle');
-  const testsListEl=document.getElementById('testsList');
-  const runTestsBtn=document.getElementById('runTests');
   const tempSlider=document.getElementById('temperature');
   const tempVal=document.getElementById('temperatureVal');
   const topkSlider=document.getElementById('topk');
@@ -269,13 +237,6 @@
     vocabEl.appendChild(b);
   });
 
-  // ---------- Doc chips ----------
-  function refreshDocChips(){
-    docChipsEl.innerHTML='';
-    docs.forEach(d=>{
-      const c=document.createElement('span'); c.className='chip'; c.textContent=d.title; c.style.borderColor='rgba(85,24,114,.2)'; c.title='Arrastrá el punto en el mapa'; docChipsEl.appendChild(c);
-    });
-  }
 
   // ---------- SVG ----------
   const svgNS='http://www.w3.org/2000/svg';
@@ -379,31 +340,12 @@
       const a2=Math.atan2(-(origin.cy - focus.y), focus.x-origin.cx);
       drawAngle(origin.cx,origin.cy,a1,a2,40);
     }
-
-    // panel de resultados
-    resultsEl.innerHTML='';
-    const meta=document.createElement('div'); meta.className='result';
-    meta.innerHTML = `<strong>En contexto:</strong> ${inContext.length} · <strong>Top‑k:</strong> ${topK} · <strong>Temperature:</strong> ${temperature.toFixed(1)}`;
-    resultsEl.appendChild(meta);
-    selected.forEach(s=>{
-      const row=document.createElement('div'); row.className='result fadeIn';
-      const name=document.createElement('div'); name.textContent=s.title;
-      const val=document.createElement('div'); val.textContent=(s.sim>=0?'+':'')+s.sim.toFixed(3);
-      const meterWrap=document.createElement('div'); meterWrap.className='meterWrap';
-      const meter=document.createElement('div'); meter.className='meter'; meter.style.width=`${((clamp(s.sim,-1,1)+1)/2)*100}%`;
-      meterWrap.appendChild(meter);
-      row.appendChild(name); row.appendChild(val); row.appendChild(meterWrap);
-      resultsEl.appendChild(row);
-    });
   }
 
   function circle(cx,cy,r,cls){ const c=document.createElementNS(svgNS,'circle'); c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',r); c.setAttribute('class',cls); return c; }
   function drawAngle(cx,cy,a1,a2,r){ let da=a2-a1; while(da>Math.PI) da-=2*Math.PI; while(da<-Math.PI) da+=2*Math.PI; const large=Math.abs(da)>Math.PI?1:0; const sweep=da>0?1:0; const p1={x:cx+r*Math.cos(a1), y:cy+r*Math.sin(a1)}, p2={x:cx+r*Math.cos(a2), y:cy+r*Math.sin(a2)}; const path=document.createElementNS(svgNS,'path'); path.setAttribute('d',`M ${p1.x} ${p1.y} A ${r} ${r} 0 ${large} ${sweep} ${p2.x} ${p2.y}`); path.setAttribute('class','angleArc'); gVec.appendChild(path); const txt=document.createElementNS(svgNS,'text'); txt.setAttribute('x', cx+(r+16)*Math.cos((a1+a2)/2)); txt.setAttribute('y', cy+(r+16)*Math.sin((a1+a2)/2)); txt.setAttribute('class','label'); txt.textContent='ángulo'; gLbl.appendChild(txt); }
 
   // ---------- Eventos UI ----------
-  document.getElementById('noise').addEventListener('input',e=>{ noise=Number(e.target.value); update(); });
-  document.getElementById('snap').addEventListener('click',()=>{ reset(); update(); });
-  toggleAngleBtn.addEventListener('click',()=>{ showAngle=!showAngle; toggleAngleBtn.textContent= showAngle? 'Ocultar ángulo' : 'Mostrar ángulo'; update(); });
   document.getElementById('prompt').addEventListener('input',()=>{ syncChipsWithPrompt(); update(); });
   tempSlider.addEventListener('input',()=>{ temperature=Number(tempSlider.value); tempVal.textContent=temperature.toFixed(1); update(); });
   topkSlider.addEventListener('input',()=>{ topK=Number(topkSlider.value); topkVal.textContent=String(topK); update(); });
@@ -420,35 +362,9 @@
   }
   function update(){ drawGrid(); const pVec=embedPrompt(promptEl.value); renderScene(pVec); }
 
-  // ---------- Tests ----------
-  function approx(a,b,eps=1e-3){ return Math.abs(a-b)<=eps }
-  function addTestRow(name,ok,detail=''){ const row=document.createElement('div'); row.className='test'; const badge=document.createElement('span'); badge.className='badge '+(ok?'pass':'fail'); badge.textContent= ok? 'PASS':'FAIL'; const text=document.createElement('span'); text.textContent=name+(detail?` — ${detail}`:''); row.appendChild(badge); row.appendChild(text); testsListEl.appendChild(row); }
-  function withNoise(n,fn){ const prev=noise; noise=n; try{ fn(); } finally{ noise=prev; } }
-
-  function runTests(){
-    testsListEl.innerHTML='';
-    // T1 cosSim
-    addTestRow('cosSim(iguales)=1', approx(cosSim({x:1,y:0},{x:1,y:0}),1,1e-6));
-    addTestRow('cosSim(opuestos)=-1', approx(cosSim({x:1,y:0},{x:-1,y:0}),-1,1e-6));
-    // T2 embed sin ruido
-    withNoise(0,()=>{ const v=embedPrompt('fotosíntesis plantas'); const exp={x:(0.85+0.8)/2, y:(0.45+0.5)/2}; addTestRow('embed promedio sin ruido', approx(v.x,exp.x,1e-3)&&approx(v.y,exp.y,1e-3), `got=(${v.x.toFixed(3)},${v.y.toFixed(3)})`); });
-    // T3 toScreen ↔ fromScreen
-    drawGrid(); const v0={x:0.3,y:-0.2}; const p=toScreen(v0); const v1=fromScreen({x:p.x,y:p.y}); addTestRow('toScreen/fromScreen inversos', approx(v0.x,v1.x,1e-2)&&approx(v0.y,v1.y,1e-2));
-    // T4 ranking prog top1 con temp=0, context amplio y k>=1
-    const prevT=temperature, prevK=topK, prevC=contextScale; temperature=0; topK=5; contextScale=1; const pv=embedPrompt('algoritmos código');
-    const beforeSel=(docs.map(d=>({id:d.id, s:cosSim(pv,d.v)})).sort((a,b)=>b.s-a.s))[0].id; addTestRow('ranking prog top1 (determinista)', beforeSel==='prog', `top=${beforeSel}`); temperature=prevT; topK=prevK; contextScale=prevC;
-    // T5 toggle de chip add/remove
-    const tmp=promptEl.value; promptEl.value='hola mundo'; syncChipsWithPrompt(); const chip=vocabEl.querySelector('[data-key="algoritmos"]'); chip.click(); const addOK=/(?:^|\s)algoritmos(?:$|\s)/i.test(promptEl.value); chip.click(); const remOK=!/(?:^|\s)algoritmos(?:$|\s)/i.test(promptEl.value); addTestRow('chip toggle modifica prompt', addOK&&remOK, promptEl.value); promptEl.value=tmp; syncChipsWithPrompt();
-    // T6 context limita selección: context muy pequeño debería seleccionar 0 (si ningún doc está en la punta exacta)
-    const prevCS=contextScale; contextScale=0.2; const pv2=embedPrompt('universo'); drawGrid(); renderScene(pv2); const inPanel = [...resultsEl.querySelectorAll('.result')].length; addTestRow('context pequeño reduce selección', inPanel>=1, 'ver panel (al menos meta)'); contextScale=prevCS;
-  }
-
   // init
-  refreshDocChips();
   const ro=new ResizeObserver(update); ro.observe(plotEl);
   reset(); update();
-  runTests();
-  runTestsBtn.addEventListener('click', runTests);
 })();
 </script>
 </body>
