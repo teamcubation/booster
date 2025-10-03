@@ -67,6 +67,8 @@
   .point.hot{stroke:var(--naranja)}
   .angleArc{fill:none; stroke:#8BDCB3; stroke-width:2; stroke-dasharray:5 4}
   .label{font-size:12px; fill:#6b6f76; user-select:none}
+  .distance-line{stroke:#9ca3af; stroke-width:1.5; stroke-dasharray:4 3; opacity:0.6}
+  .distance-label{font-size:11px; fill:#4b5563; font-weight:600; background:rgba(255,255,255,0.9); padding:2px 4px; border-radius:4px}
 
   /* círculos concéntricos */
   .ring-context{fill:none; stroke:var(--verde); stroke-width:2; transition: r 0.3s ease-out, cx 0.3s ease-out, cy 0.3s ease-out}
@@ -138,6 +140,11 @@
             <label for="context">Context: <span id="contextVal">0.6</span></label>
             <input id="context" type="range" min="0.2" max="1" step="0.05" value="0.6" />
           </div>
+          <div class="row" style="margin-top:12px">
+            <button id="toggleDistances" class="chip" type="button" style="cursor:pointer; border:1.5px solid var(--gris)">
+              <span id="distancesIcon">👁️</span> Mostrar distancias
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -188,6 +195,7 @@
 
   // ---------- Estado ----------
   let showAngle=false;
+  let showDistances=false; // mostrar líneas de distancia
   let temperature=0.7; // 0..2
   let topK=3; // 1..5 (limita docs)
   let contextScale=0.6; // 0.2..1 (radio relativo)
@@ -303,6 +311,12 @@
     const origin=toScreen({x:0,y:0});
     const pEnd=toScreen(pVec);
 
+    // calcular radios (necesarios para distancias también)
+    const baseR = pEnd.s*0.5; // radio base de referencia
+    const rContext = baseR * contextScale; // 0.2..1 * base
+    const rTopk = rContext * (topK/5); // proporcional a topK
+    const rTemp = Math.min(rTopk, Math.max(10, rContext * (temperature/2) * 0.5)); // nunca supera rTopk
+
     // vector del prompt (solo si hay texto)
     if(hasPrompt){
       const vLine=line(origin.cx,origin.cy,pEnd.x,pEnd.y,'vec-prompt'); 
@@ -325,11 +339,6 @@
       }
 
       // anillos: context (verde) > top-k (violeta) > temperature (naranja)
-      const baseR = pEnd.s*0.5; // radio base de referencia
-      const rContext = baseR * contextScale; // 0.2..1 * base
-      const rTopk = rContext * (topK/5); // proporcional a topK
-      const rTemp = Math.min(rTopk, Math.max(10, rContext * (temperature/2) * 0.5)); // nunca supera rTopk
-      
       const cContext = circle(pEnd.x,pEnd.y,rContext,'ring-context');
       const cTopk = circle(pEnd.x,pEnd.y,rTopk,'ring-topk');
       const cTemp = circle(pEnd.x,pEnd.y,rTemp,'ring-temp');
@@ -366,14 +375,56 @@
       });
 
       // Filtrado por contexto: dentro del rContext
-      const baseR = pEnd.s*0.5;
-      const rContext = baseR * contextScale;
       const inContext = scored.filter(s=> s.dist <= rContext);
       selected = inContext.sort((a,b)=> b.sim - a.sim).slice(0, topK);
 
       // pintar documentos (solo puntos, sin flechas)
       scored.forEach(s=>{
         const isSelected = selected.find(x=>x.id===s.id);
+        
+        // línea de distancia (si está activado)
+        if(showDistances){
+          // calcular el punto en el borde del círculo de temperatura
+          const dx = s.end.x - pEnd.x;
+          const dy = s.end.y - pEnd.y;
+          const dist = Math.hypot(dx, dy);
+          
+          // solo dibujar si hay distancia suficiente
+          if(dist > rTemp + 5){
+            // punto de inicio en el borde del círculo de temperatura
+            const startX = pEnd.x + (dx / dist) * rTemp;
+            const startY = pEnd.y + (dy / dist) * rTemp;
+            
+            const distLine = line(startX, startY, s.end.x, s.end.y, 'distance-line');
+            gVec.appendChild(distLine);
+            
+            // calcular similitud en porcentaje (entre 0 y 100)
+            const simPercent = Math.max(0, Math.min(100, Math.round(s.sim * 100)));
+            
+            // posición del label en el medio de la línea
+            const midX = (startX + s.end.x) / 2;
+            const midY = (startY + s.end.y) / 2;
+            
+            // fondo blanco para el texto
+            const rect = document.createElementNS(svgNS, 'rect');
+            rect.setAttribute('x', midX - 18);
+            rect.setAttribute('y', midY - 8);
+            rect.setAttribute('width', 36);
+            rect.setAttribute('height', 16);
+            rect.setAttribute('fill', 'rgba(255,255,255,0.9)');
+            rect.setAttribute('rx', 4);
+            gLbl.appendChild(rect);
+            
+            const distLabel = document.createElementNS(svgNS, 'text');
+            distLabel.setAttribute('x', midX);
+            distLabel.setAttribute('y', midY + 4);
+            distLabel.setAttribute('text-anchor', 'middle');
+            distLabel.setAttribute('class', 'distance-label');
+            distLabel.textContent = `${simPercent}%`;
+            gLbl.appendChild(distLabel);
+          }
+        }
+        
         const c=document.createElementNS(svgNS,'circle'); c.setAttribute('cx',s.end.x); c.setAttribute('cy',s.end.y); c.setAttribute('r',8); c.setAttribute('class','point'); 
         if(isSelected) c.style.fill = 'var(--verde)';
         c.dataset.docid=s.id; c.setAttribute('role','img'); c.setAttribute('aria-label',s.title); gVec.appendChild(c);
@@ -405,6 +456,17 @@
   tempSlider.addEventListener('input',()=>{ temperature=Number(tempSlider.value); tempVal.textContent=temperature.toFixed(1); update(); });
   topkSlider.addEventListener('input',()=>{ topK=Number(topkSlider.value); topkVal.textContent=String(topK); update(); });
   ctxSlider.addEventListener('input',()=>{ contextScale=Number(ctxSlider.value); ctxVal.textContent=contextScale.toFixed(2); update(); });
+  
+  // Toggle de distancias
+  const toggleBtn = document.getElementById('toggleDistances');
+  const distIcon = document.getElementById('distancesIcon');
+  toggleBtn.addEventListener('click', ()=>{
+    showDistances = !showDistances;
+    toggleBtn.textContent = showDistances ? '🚫 Ocultar distancias' : '👁️ Mostrar distancias';
+    toggleBtn.style.background = showDistances ? 'var(--verde)' : '#fafafa';
+    toggleBtn.style.color = showDistances ? '#053b25' : 'var(--gris)';
+    update();
+  });
 
   // ---------- Reset / Update ----------
   function reset(){
