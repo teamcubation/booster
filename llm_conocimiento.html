@@ -16,7 +16,7 @@
   }
   html,body{height:100%}
   body{margin:0; background:var(--bg); color:var(--gris); font-family:"Helvetica Neue LT Std", Helvetica, Arial, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; line-height:1.45; font-size:16px}
-  .app{display:grid; grid-template-rows:auto auto 1fr auto; min-height:100vh}
+  .app{display:grid; grid-template-rows:1fr auto; min-height:100vh}
   header{position:relative; overflow:hidden; padding:24px 16px; background:linear-gradient(135deg, #ffffff 0%, #f2ebf6 60%, #e8f8f0 100%); border-bottom:4px solid #ececec}
   .brand{display:flex; align-items:center; gap:12px}
   .logo{width:42px; height:42px; border-radius:12px; background:radial-gradient(circle at 30% 30%, var(--naranja), var(--violeta)); box-shadow:0 6px 20px rgba(85,24,114,0.25)}
@@ -88,22 +88,6 @@
 </head>
 <body>
 <div class="app">
-  <header>
-    <div class="brand">
-      <div class="logo" role="img" aria-label="Isotipo Teamcubation: degradé violeta y naranja"></div>
-      <div>
-        <h1>¿Cómo un LLM guarda conocimiento y encuentra lo que pedís?</h1>
-        <p class="sub">Imaginá una <strong>biblioteca</strong> donde cada libro es una flecha en un mapa (vectores). Tu pregunta crea su propia flecha y, al final, aparecen <em>anillos</em> que simulan <strong>temperature</strong>, <strong>top‑k</strong> y <strong>context</strong>.</p>
-      </div>
-    </div>
-    <div class="tabs" role="tablist" aria-label="Pasos de aprendizaje">
-      <button class="tab" role="tab" aria-selected="true" data-step="0">1) Mapa de conocimiento</button>
-      <button class="tab" role="tab" aria-selected="false" data-step="1">2) Tu prompt como vector</button>
-      <button class="tab" role="tab" aria-selected="false" data-step="2">3) Coincidencia (similitud)</button>
-      <button class="tab" role="tab" aria-selected="false" data-step="3">4) Prueba y juega</button>
-    </div>
-  </header>
-
   <main>
     <!-- Panel de controles superior -->
     <section class="panel">
@@ -187,7 +171,6 @@
 
   // ---------- Estado ----------
   let showAngle=false;
-  let noise=8; // valor fijo de ruido
   let temperature=0.7; // 0..2
   let topK=3; // 1..5 (limita docs)
   let contextScale=0.6; // 0.2..1 (radio relativo)
@@ -286,8 +269,8 @@
       const h=hash(text); const ang=(h%360)*Math.PI/180; const r=0.7; acc={x:Math.cos(ang)*r, y:Math.sin(ang)*r}; n=1;
     }
     acc.x/=n; acc.y/=n;
-    const jitter={ x: acc.x + (rnd(-1,1)*noise/100), y: acc.y + (rnd(-1,1)*noise/100) };
-    const m=mag(jitter); const scale=m>1?1/m:1; return {x:jitter.x*scale, y:jitter.y*scale};
+    // normalizar si excede 1
+    const m=mag(acc); const scale=m>1?1/m:1; return {x:acc.x*scale, y:acc.y*scale};
   }
   function hash(str){ let h=2166136261; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h+= (h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24) } return h>>>0; }
 
@@ -296,49 +279,64 @@
     gVec.innerHTML=''; gLbl.innerHTML='';
     const origin=toScreen({x:0,y:0});
     const pEnd=toScreen(pVec);
+    const hasPrompt = promptEl.value.trim().length > 0;
 
-    // vector del prompt
-    const vLine=line(origin.cx,origin.cy,pEnd.x,pEnd.y,'vec-prompt'); gVec.appendChild(vLine);
+    // vector del prompt (solo si hay texto)
+    if(hasPrompt){
+      const vLine=line(origin.cx,origin.cy,pEnd.x,pEnd.y,'vec-prompt'); gVec.appendChild(vLine);
 
-    // anillos: context (verde) > top-k (violeta) > temperature (naranja)
-    const baseR = pEnd.s*0.5; // radio base de referencia
-    const rContext = baseR * contextScale; // 0.2..1 * base
-    const rTopk = rContext * (topK/5); // proporcional a topK
-    const rTemp = Math.max(10, rContext * (temperature/2) * 0.5); // 0.. ~ rContext
-    gVec.appendChild(circle(pEnd.x,pEnd.y,rContext,'ring-context'));
-    gVec.appendChild(circle(pEnd.x,pEnd.y,rTopk,'ring-topk'));
-    gVec.appendChild(circle(pEnd.x,pEnd.y,rTemp,'ring-temp'));
+      // anillos: context (verde) > top-k (violeta) > temperature (naranja)
+      const baseR = pEnd.s*0.5; // radio base de referencia
+      const rContext = baseR * contextScale; // 0.2..1 * base
+      const rTopk = rContext * (topK/5); // proporcional a topK
+      const rTemp = Math.max(10, rContext * (temperature/2) * 0.5); // 0.. ~ rContext
+      gVec.appendChild(circle(pEnd.x,pEnd.y,rContext,'ring-context'));
+      gVec.appendChild(circle(pEnd.x,pEnd.y,rTopk,'ring-topk'));
+      gVec.appendChild(circle(pEnd.x,pEnd.y,rTemp,'ring-temp'));
+    }
 
     // calcular scores
-    const scored = docs.map(d=>{
-      const sim = cosSim(pVec,d.v);
-      // distancia en pantalla a la punta del prompt
-      const end=toScreen(d.v);
-      const dist = Math.hypot(end.x-pEnd.x, end.y-pEnd.y);
-      // sampling con temperature: pequeña perturbación a la puntuación
-      const jitter = (temperature>0? rnd(-1,1)*0.05*temperature : 0);
-      return { id:d.id, title:d.title, v:d.v, sim: sim + jitter, dist, end };
-    });
+    let selected = [];
+    if(hasPrompt){
+      const scored = docs.map(d=>{
+        const sim = cosSim(pVec,d.v);
+        // distancia en pantalla a la punta del prompt
+        const end=toScreen(d.v);
+        const dist = Math.hypot(end.x-pEnd.x, end.y-pEnd.y);
+        // sampling con temperature: pequeña perturbación a la puntuación
+        const jitter = (temperature>0? rnd(-1,1)*0.05*temperature : 0);
+        return { id:d.id, title:d.title, v:d.v, sim: sim + jitter, dist, end };
+      });
 
-    // Filtrado por contexto: dentro del rContext
-    const inContext = scored.filter(s=> s.dist <= rContext);
-    const selected = inContext.sort((a,b)=> b.sim - a.sim).slice(0, topK);
+      // Filtrado por contexto: dentro del rContext
+      const baseR = pEnd.s*0.5;
+      const rContext = baseR * contextScale;
+      const inContext = scored.filter(s=> s.dist <= rContext);
+      selected = inContext.sort((a,b)=> b.sim - a.sim).slice(0, topK);
 
-    // pintar documentos
-    // primero los no seleccionados
-    scored.forEach(s=>{
-      const cls = selected.find(x=>x.id===s.id) ? 'vec-highlight' : 'vec-knowledge';
-      const l=line(origin.cx,origin.cy,s.end.x,s.end.y,cls); gVec.appendChild(l);
-      const c=document.createElementNS(svgNS,'circle'); c.setAttribute('cx',s.end.x); c.setAttribute('cy',s.end.y); c.setAttribute('r',6); c.setAttribute('class','point'); c.dataset.docid=s.id; c.setAttribute('role','img'); c.setAttribute('aria-label',s.title); gVec.appendChild(c);
-      const t=document.createElementNS(svgNS,'text'); t.setAttribute('x',s.end.x+8); t.setAttribute('y',s.end.y-6); t.setAttribute('class','label'); t.textContent=s.title; gLbl.appendChild(t);
-    });
+      // pintar documentos (solo puntos, sin flechas)
+      scored.forEach(s=>{
+        const isSelected = selected.find(x=>x.id===s.id);
+        const c=document.createElementNS(svgNS,'circle'); c.setAttribute('cx',s.end.x); c.setAttribute('cy',s.end.y); c.setAttribute('r',8); c.setAttribute('class','point'); 
+        if(isSelected) c.style.fill = 'var(--verde)';
+        c.dataset.docid=s.id; c.setAttribute('role','img'); c.setAttribute('aria-label',s.title); gVec.appendChild(c);
+        const t=document.createElementNS(svgNS,'text'); t.setAttribute('x',s.end.x+8); t.setAttribute('y',s.end.y-6); t.setAttribute('class','label'); t.textContent=s.title; gLbl.appendChild(t);
+      });
 
-    // ángulo con el primero del ranking (si hay) 
-    if(showAngle && selected.length>0){
-      const focus=toScreen(selected[0].v);
-      const a1=Math.atan2(-(origin.cy - pEnd.y), pEnd.x-origin.cx);
-      const a2=Math.atan2(-(origin.cy - focus.y), focus.x-origin.cx);
-      drawAngle(origin.cx,origin.cy,a1,a2,40);
+      // ángulo con el primero del ranking (si hay) 
+      if(showAngle && selected.length>0){
+        const focus=toScreen(selected[0].v);
+        const a1=Math.atan2(-(origin.cy - pEnd.y), pEnd.x-origin.cx);
+        const a2=Math.atan2(-(origin.cy - focus.y), focus.x-origin.cx);
+        drawAngle(origin.cx,origin.cy,a1,a2,40);
+      }
+    } else {
+      // sin prompt, solo dibujar todos los documentos sin resaltado (solo puntos)
+      docs.forEach(d=>{
+        const end=toScreen(d.v);
+        const c=document.createElementNS(svgNS,'circle'); c.setAttribute('cx',end.x); c.setAttribute('cy',end.y); c.setAttribute('r',8); c.setAttribute('class','point'); c.dataset.docid=d.id; c.setAttribute('role','img'); c.setAttribute('aria-label',d.title); gVec.appendChild(c);
+        const t=document.createElementNS(svgNS,'text'); t.setAttribute('x',end.x+8); t.setAttribute('y',end.y-6); t.setAttribute('class','label'); t.textContent=d.title; gLbl.appendChild(t);
+      });
     }
   }
 
