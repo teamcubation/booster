@@ -69,9 +69,9 @@
   .label{font-size:12px; fill:#6b6f76; user-select:none}
 
   /* círculos concéntricos */
-  .ring-context{fill:none; stroke:var(--verde); stroke-width:2}
-  .ring-topk{fill:none; stroke:var(--violeta); stroke-dasharray:6 4; opacity:.9}
-  .ring-temp{fill:rgba(243,78,30,0.07); stroke:rgba(243,78,30,.7); stroke-width:1.5}
+  .ring-context{fill:none; stroke:var(--verde); stroke-width:2; transition: r 0.3s ease-out, cx 0.3s ease-out, cy 0.3s ease-out}
+  .ring-topk{fill:none; stroke:var(--violeta); stroke-dasharray:6 4; opacity:.9; transition: r 0.3s ease-out, cx 0.3s ease-out, cy 0.3s ease-out}
+  .ring-temp{fill:rgba(243,78,30,0.07); stroke:rgba(243,78,30,.7); stroke-width:1.5; transition: r 0.3s ease-out, cx 0.3s ease-out, cy 0.3s ease-out}
 
   .test-list{display:grid; gap:8px}
   .test{display:flex; align-items:center; gap:8px; font-size:14px}
@@ -84,6 +84,23 @@
   .pulse{animation:pulse 1.4s ease-in-out infinite}
   @keyframes pulse{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
   .sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0}
+
+  /* Animaciones para el vector y círculos */
+  @keyframes drawVector{
+    from{ stroke-dashoffset: inherit; }
+    to{ stroke-dashoffset: 0; }
+  }
+  
+  @keyframes growCircle{
+    from{ 
+      transform: scale(0);
+      opacity: 0;
+    }
+    to{ 
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
 </style>
 </head>
 <body>
@@ -174,6 +191,7 @@
   let temperature=0.7; // 0..2
   let topK=3; // 1..5 (limita docs)
   let contextScale=0.6; // 0.2..1 (radio relativo)
+  let lastPrompt = ''; // para detectar cambios en el prompt
 
   // ---------- DOM ----------
   const plotEl=document.getElementById('plot');
@@ -276,23 +294,62 @@
 
   // ---------- Render ----------
   function renderScene(pVec){
+    const currentPrompt = promptEl.value.trim();
+    const hasPrompt = currentPrompt.length > 0;
+    const promptChanged = currentPrompt !== lastPrompt;
+    lastPrompt = currentPrompt;
+
     gVec.innerHTML=''; gLbl.innerHTML='';
     const origin=toScreen({x:0,y:0});
     const pEnd=toScreen(pVec);
-    const hasPrompt = promptEl.value.trim().length > 0;
 
     // vector del prompt (solo si hay texto)
     if(hasPrompt){
-      const vLine=line(origin.cx,origin.cy,pEnd.x,pEnd.y,'vec-prompt'); gVec.appendChild(vLine);
+      const vLine=line(origin.cx,origin.cy,pEnd.x,pEnd.y,'vec-prompt'); 
+      
+      if(promptChanged){
+        // calcular longitud real para stroke-dasharray
+        const length = Math.hypot(pEnd.x - origin.cx, pEnd.y - origin.cy);
+        vLine.setAttribute('stroke-dasharray', length);
+        vLine.setAttribute('stroke-dashoffset', length);
+        gVec.appendChild(vLine);
+        
+        // animar el vector
+        requestAnimationFrame(() => {
+          vLine.setAttribute('stroke-dashoffset', '0');
+          vLine.style.transition = 'stroke-dashoffset 0.8s ease-out';
+        });
+      } else {
+        // sin animación
+        gVec.appendChild(vLine);
+      }
 
       // anillos: context (verde) > top-k (violeta) > temperature (naranja)
       const baseR = pEnd.s*0.5; // radio base de referencia
       const rContext = baseR * contextScale; // 0.2..1 * base
       const rTopk = rContext * (topK/5); // proporcional a topK
-      const rTemp = Math.max(10, rContext * (temperature/2) * 0.5); // 0.. ~ rContext
-      gVec.appendChild(circle(pEnd.x,pEnd.y,rContext,'ring-context'));
-      gVec.appendChild(circle(pEnd.x,pEnd.y,rTopk,'ring-topk'));
-      gVec.appendChild(circle(pEnd.x,pEnd.y,rTemp,'ring-temp'));
+      const rTemp = Math.min(rTopk, Math.max(10, rContext * (temperature/2) * 0.5)); // nunca supera rTopk
+      
+      const cContext = circle(pEnd.x,pEnd.y,rContext,'ring-context');
+      const cTopk = circle(pEnd.x,pEnd.y,rTopk,'ring-topk');
+      const cTemp = circle(pEnd.x,pEnd.y,rTemp,'ring-temp');
+      
+      if(promptChanged){
+        // aplicar animaciones con delays solo cuando cambia el prompt
+        cContext.style.transformOrigin = `${pEnd.x}px ${pEnd.y}px`;
+        cContext.style.animation = 'growCircle 0.5s ease-out 0.8s both';
+        
+        cTopk.style.transformOrigin = `${pEnd.x}px ${pEnd.y}px`;
+        cTopk.style.animation = 'growCircle 0.5s ease-out 1s both';
+        
+        cTemp.style.transformOrigin = `${pEnd.x}px ${pEnd.y}px`;
+        cTemp.style.animation = 'growCircle 0.5s ease-out 1.2s both';
+      }
+      // si no cambió el prompt, los círculos solo usarán las transiciones CSS definidas
+      
+      gVec.appendChild(cContext);
+      gVec.appendChild(cTopk);
+      gVec.appendChild(cTemp);
     }
 
     // calcular scores
@@ -353,6 +410,7 @@
   function reset(){
     docs[0].v={x: 0.8, y: 0.5}; docs[1].v={x:-0.7, y: 0.4}; docs[2].v={x:-0.6, y:-0.6}; docs[3].v={x: 0.7, y:-0.5}; docs[4].v={x: 0.1, y: 0.9};
     promptEl.value=''; syncChipsWithPrompt();
+    lastPrompt = ''; // resetear el tracking del prompt
     // set defaults
     temperature=Number(tempSlider.value); topK=Number(topkSlider.value); contextScale=Number(ctxSlider.value);
     tempVal.textContent=temperature.toFixed(1); topkVal.textContent=String(topK); ctxVal.textContent=contextScale.toFixed(2);
