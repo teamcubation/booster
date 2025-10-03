@@ -1,0 +1,1 @@
+Hacé git add y git commit por patchs semánticos para que todos los cambios realizados queden commiteados. Luego hacé git push.
