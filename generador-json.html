@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Estructura de Datos - Teamcubation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            color: #484848;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(85, 24, 114, 0.1);
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        h1 {
+            color: #551872;
+            font-size: 2.5em;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            color: #F34E1E;
+            font-size: 1.2em;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+
+        .intro-text {
+            color: #484848;
+            font-size: 1.1em;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .panel-title {
+            color: #551872;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #551872, #F34E1E);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .field-builder {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #551872;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #551872;
+            box-shadow: 0 0 0 3px rgba(85, 24, 114, 0.1);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #551872, #6b1f8f);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(85, 24, 114, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #F34E1E, #ff6347);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 78, 30, 0.3);
+        }
+
+        .btn-success {
+            background: #8BDCB3;
+            color: #484848;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 220, 179, 0.4);
+        }
+
+        .fields-list {
+            margin-top: 20px;
+        }
+
+        .field-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #551872;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .field-info {
+            flex: 1;
+        }
+
+        .field-name {
+            color: #551872;
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+
+        .field-type {
+            color: #F34E1E;
+            font-size: 0.9em;
+            margin-top: 3px;
+        }
+
+        .field-value {
+            color: #484848;
+            font-size: 0.9em;
+            margin-top: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn-delete {
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            background: #ff5252;
+            transform: scale(1.05);
+        }
+
+        .json-preview {
+            background: #2d2d2d;
+            color: #8BDCB3;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+            max-height: 500px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .json-preview .key {
+            color: #F34E1E;
+        }
+
+        .json-preview .string {
+            color: #8BDCB3;
+        }
+
+        .json-preview .number {
+            color: #ffd700;
+        }
+
+        .json-preview .boolean {
+            color: #ff6b9d;
+        }
+
+        .copy-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #8BDCB3;
+            color: #484848;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            animation: slideInRight 0.3s ease-out;
+            font-weight: 500;
+            z-index: 1000;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .help-box {
+            background: #f0f7ff;
+            border-left: 4px solid #551872;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+
+        .help-box strong {
+            color: #551872;
+        }
+
+        .value-input-container {
+            margin-top: 10px;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .subtitle {
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            header {
+                padding: 25px 15px;
+            }
+
+            h1 {
+                font-size: 1.6em;
+            }
+
+            .panel {
+                padding: 20px;
+            }
+
+            .panel-title {
+                font-size: 1.4em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Generador de Estructura de Datos</h1>
+            <div class="subtitle">Crea la estructura de datos que necesitás sin conocimientos técnicos</div>
+            <p class="intro-text">
+                Esta herramienta te ayuda a crear una <strong>estructura de datos</strong> (JSON) que luego podrás usar en 
+                Power Automate, N8N o cualquier otra plataforma de automatización. Pensalo como armar una planilla: 
+                vas a definir qué información necesitás guardar y qué tipo de datos es cada uno.
+            </p>
+        </header>
+
+        <div class="main-content">
+            <div class="panel">
+                <h2 class="panel-title">
+                    <span class="icon">✏️</span>
+                    Constructor
+                </h2>
+
+                <div class="help-box">
+                    <strong>¿Cómo funciona?</strong><br>
+                    1. Escribí el nombre del campo (ejemplo: "nombre_cliente")<br>
+                    2. Elegí qué tipo de información va a contener<br>
+                    3. Agregá un valor de ejemplo<br>
+                    4. Hacé clic en "Agregar campo"
+                </div>
+
+                <div class="field-builder">
+                    <div class="input-group">
+                        <label for="fieldName">📝 Nombre del campo</label>
+                        <input 
+                            type="text" 
+                            id="fieldName" 
+                            placeholder="Ej: nombre_cliente, precio_producto, fecha_compra"
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <label for="fieldType">🎨 Tipo de dato</label>
+                        <select id="fieldType">
+                            <option value="texto">Texto (palabras, frases)</option>
+                            <option value="numero">Número (cantidades, precios)</option>
+                            <option value="verdadero_falso">Verdadero/Falso (sí o no)</option>
+                            <option value="lista">Lista (varios elementos)</option>
+                            <option value="fecha">Fecha</option>
+                            <option value="email">Email</option>
+                        </select>
+                    </div>
+
+                    <div class="value-input-container" id="valueInputContainer">
+                        <div class="input-group">
+                            <label for="fieldValue">💡 Valor de ejemplo</label>
+                            <input 
+                                type="text" 
+                                id="fieldValue" 
+                                placeholder="Ej: Juan Pérez"
+                            >
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="addField()">
+                        ➕ Agregar campo
+                    </button>
+                </div>
+
+                <div class="fields-list" id="fieldsList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>Todavía no agregaste ningún campo.<br>¡Empezá creando tu primera estructura!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2 class="panel-title">
+                    <span class="icon">👁️</span>
+                    Resultado
+                </h2>
+
+                <div class="help-box">
+                    <strong>Tu estructura de datos:</strong><br>
+                    Este es el resultado que podés copiar y usar en tus herramientas de automatización.
+                </div>
+
+                <button class="btn btn-success" onclick="copyJSON()" style="width: 100%; margin-bottom: 15px;">
+                    📋 Copiar estructura completa
+                </button>
+
+                <button class="btn btn-secondary" onclick="clearAll()" style="width: 100%; margin-bottom: 15px;">
+                    🗑️ Limpiar todo
+                </button>
+
+                <div class="json-preview" id="jsonPreview">
+{
+    
+}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let fields = [];
+
+        // Actualizar el placeholder del valor según el tipo seleccionado
+        document.getElementById('fieldType').addEventListener('change', function() {
+            const fieldValue = document.getElementById('fieldValue');
+            const type = this.value;
+            
+            const placeholders = {
+                'texto': 'Ej: Juan Pérez',
+                'numero': 'Ej: 1500',
+                'verdadero_falso': 'Escribí: verdadero o falso',
+                'lista': 'Ej: item1, item2, item3 (separados por coma)',
+                'fecha': 'Ej: 2025-10-07 o 07/10/2025',
+                'email': 'Ej: usuario@ejemplo.com'
+            };
+            
+            fieldValue.placeholder = placeholders[type];
+            fieldValue.value = '';
+        });
+
+        function addField() {
+            const fieldName = document.getElementById('fieldName').value.trim();
+            const fieldType = document.getElementById('fieldType').value;
+            const fieldValue = document.getElementById('fieldValue').value.trim();
+
+            if (!fieldName) {
+                alert('⚠️ Por favor, escribí un nombre para el campo');
+                return;
+            }
+
+            if (!fieldValue) {
+                alert('⚠️ Por favor, escribí un valor de ejemplo');
+                return;
+            }
+
+            // Validar y convertir el valor según el tipo
+            let processedValue;
+            try {
+                processedValue = processValue(fieldValue, fieldType);
+            } catch (error) {
+                alert('⚠️ ' + error.message);
+                return;
+            }
+
+            // Verificar si el campo ya existe
+            if (fields.some(f => f.name === fieldName)) {
+                alert('⚠️ Ya existe un campo con ese nombre. Elegí otro nombre o eliminá el campo existente.');
+                return;
+            }
+
+            fields.push({
+                name: fieldName,
+                type: fieldType,
+                value: processedValue,
+                displayValue: fieldValue
+            });
+
+            // Limpiar inputs
+            document.getElementById('fieldName').value = '';
+            document.getElementById('fieldValue').value = '';
+
+            updateDisplay();
+        }
+
+        function processValue(value, type) {
+            switch(type) {
+                case 'texto':
+                case 'fecha':
+                case 'email':
+                    return value;
+                
+                case 'numero':
+                    const num = Number(value);
+                    if (isNaN(num)) {
+                        throw new Error('El valor debe ser un número válido');
+                    }
+                    return num;
+                
+                case 'verdadero_falso':
+                    const lowerValue = value.toLowerCase();
+                    if (lowerValue === 'verdadero' || lowerValue === 'true' || lowerValue === 'sí' || lowerValue === 'si') {
+                        return true;
+                    } else if (lowerValue === 'falso' || lowerValue === 'false' || lowerValue === 'no') {
+                        return false;
+                    } else {
+                        throw new Error('Para verdadero/falso, escribí: verdadero o falso');
+                    }
+                
+                case 'lista':
+                    return value.split(',').map(item => item.trim()).filter(item => item !== '');
+                
+                default:
+                    return value;
+            }
+        }
+
+        function deleteField(index) {
+            fields.splice(index, 1);
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            // Actualizar lista de campos
+            const fieldsList = document.getElementById('fieldsList');
+            
+            if (fields.length === 0) {
+                fieldsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>Todavía no agregaste ningún campo.<br>¡Empezá creando tu primera estructura!</p>
+                    </div>
+                `;
+            } else {
+                fieldsList.innerHTML = fields.map((field, index) => `
+                    <div class="field-item">
+                        <div class="field-info">
+                            <div class="field-name">${field.name}</div>
+                            <div class="field-type">Tipo: ${getTypeLabel(field.type)}</div>
+                            <div class="field-value">Ejemplo: ${field.displayValue}</div>
+                        </div>
+                        <button class="btn-delete" onclick="deleteField(${index})">🗑️ Eliminar</button>
+                    </div>
+                `).join('');
+            }
+
+            // Actualizar preview JSON
+            updateJSONPreview();
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                'texto': 'Texto',
+                'numero': 'Número',
+                'verdadero_falso': 'Verdadero/Falso',
+                'lista': 'Lista',
+                'fecha': 'Fecha',
+                'email': 'Email'
+            };
+            return labels[type] || type;
+        }
+
+        function updateJSONPreview() {
+            const jsonPreview = document.getElementById('jsonPreview');
+            
+            if (fields.length === 0) {
+                jsonPreview.textContent = '{\n    \n}';
+                return;
+            }
+
+            const jsonObject = {};
+            fields.forEach(field => {
+                jsonObject[field.name] = field.value;
+            });
+
+            const jsonString = JSON.stringify(jsonObject, null, 4);
+            jsonPreview.innerHTML = syntaxHighlight(jsonString);
+        }
+
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                        return '<span class="key">' + match + '</span>';
+                    } else {
+                        cls = 'string';
+                        return '<span class="string">' + match + '</span>';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                    return '<span class="boolean">' + match + '</span>';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function copyJSON() {
+            if (fields.length === 0) {
+                alert('⚠️ No hay campos para copiar. Agregá al menos un campo primero.');
+                return;
+            }
+
+            const jsonObject = {};
+            fields.forEach(field => {
+                jsonObject[field.name] = field.value;
+            });
+
+            const jsonString = JSON.stringify(jsonObject, null, 4);
+
+            navigator.clipboard.writeText(jsonString).then(() => {
+                showNotification('✅ ¡Estructura copiada! Ya podés pegarla en tu herramienta.');
+            }).catch(() => {
+                // Fallback para navegadores más antiguos
+                const textArea = document.createElement('textarea');
+                textArea.value = jsonString;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification('✅ ¡Estructura copiada! Ya podés pegarla en tu herramienta.');
+            });
+        }
+
+        function clearAll() {
+            if (fields.length === 0) {
+                alert('ℹ️ No hay campos para limpiar.');
+                return;
+            }
+
+            if (confirm('¿Estás seguro de que querés eliminar todos los campos?')) {
+                fields = [];
+                updateDisplay();
+                showNotification('🗑️ Todos los campos fueron eliminados.');
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'copy-notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 2500);
+        }
+
+        // Permitir agregar campo con Enter
+        document.getElementById('fieldName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('fieldType').focus();
+            }
+        });
+
+        document.getElementById('fieldValue').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addField();
+            }
+        });
+    </script>
+</body>
+</html>
+
