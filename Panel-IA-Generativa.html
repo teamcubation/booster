@@ -4,45 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Interactivo de Parámetros de IA Generativa</title>
+    <link rel="stylesheet" href="teamcubation.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-purple: #551872;
-            --primary-orange: #F34E1E;
-            --secondary-gray: #484848;
-            --secondary-green: #5BDCB3;
-            --purple-light: #420E6A;
-            --orange-dark: #CD3C00;
-            --gray-light: #5A5A5A;
-            --green-light: #A1C9AA;
-            --white: #FFFFFF;
-            --light-gray: #F8F9FA;
-            --medium-gray: #E5E7EB;
-        }
-
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-body);
             background-color: var(--light-gray);
-            color: var(--secondary-gray);
+            color: var(--dark-gray);
         }
         .tab-button {
-            transition: all 0.3s ease;
+            transition: all var(--transition-base);
             background-color: var(--white);
-            color: var(--primary-purple);
+            color: var(--cold-main-violet);
             border: 1px solid var(--medium-gray);
         }
         .tab-button.active {
-            background-color: var(--primary-purple);
+            background-color: var(--cold-main-violet);
             color: var(--white);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-md);
         }
         .tab-button:not(.active):hover {
-            background-color: var(--green-light);
-            color: var(--purple-light);
+            background-color: var(--warm-secondary-yellow);
+            color: var(--cold-secondary-violet);
         }
         .accordion-header {
             transition: background-color 0.2s ease-out;
@@ -62,60 +46,61 @@
             transform: rotate(180deg);
         }
         .slider-track {
-            background: var(--green-light);
+            background: var(--medium-gray);
         }
         .slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 20px;
             height: 20px;
-            background: var(--primary-orange);
+            background: var(--cold-main-violet);
             cursor: pointer;
             border-radius: 50%;
             border: 2px solid var(--white);
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow-sm);
         }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 20px;
             height: 20px;
-            background: var(--primary-orange);
+            background: var(--cold-main-violet);
             cursor: pointer;
             border-radius: 50%;
             border: 2px solid var(--white);
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow-sm);
             margin-top: -7px;
         }
         input[type=range]::-moz-range-thumb {
             width: 20px;
             height: 20px;
-            background: var(--primary-orange);
+            background: var(--cold-main-violet);
             cursor: pointer;
             border-radius: 50%;
             border: 2px solid var(--white);
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow-sm);
         }
         .d3-chart-container text {
-            font-family: 'Inter', sans-serif;
-            fill: var(--gray-light);
+            font-family: var(--font-body);
+            fill: var(--dark-gray);
         }
         .d3-chart-container .bar {
-            transition: fill 0.3s ease, opacity 0.3s ease;
-            fill: var(--green-light);
+            transition: fill var(--transition-base), opacity var(--transition-base);
+            fill: var(--medium-gray);
         }
         .d3-chart-container .bar.candidate {
-            fill: var(--primary-orange);
+            fill: var(--cold-main-violet);
+            opacity: 0.6;
         }
         .d3-chart-container .bar.selected {
-            fill: var(--primary-purple);
-            stroke: var(--orange-dark);
-            stroke-width: 2px;
+            fill: var(--white);
+            stroke: var(--black);
+            stroke-width: 3px;
         }
         .d3-chart-container .bar.sampling {
-            fill: var(--primary-purple) !important;
+            fill: var(--cold-main-violet) !important;
             opacity: 0.85;
-            filter: brightness(1.3) drop-shadow(0 0 8px var(--primary-purple));
+            filter: brightness(1.3) drop-shadow(0 0 8px var(--cold-main-violet));
             animation: samplePulse 0.3s ease-in-out;
         }
         .d3-chart-container .bar.final-selected {
@@ -127,67 +112,97 @@
             }
             50% { 
                 opacity: 1;
-                filter: brightness(1.5) drop-shadow(0 0 12px var(--primary-purple));
+                filter: brightness(1.5) drop-shadow(0 0 12px var(--cold-main-violet));
             }
         }
         @keyframes selectToken {
             0% { 
-                fill: var(--primary-orange);
+                fill: var(--medium-gray);
+                stroke: transparent;
+                stroke-width: 0;
+                opacity: 0.5;
+            }
+            30% {
+                fill: var(--cold-main-violet);
+                stroke: var(--black);
+                stroke-width: 3px;
                 opacity: 1;
+                filter: brightness(1.3) drop-shadow(0 0 8px var(--black));
             }
-            25% { 
-                fill: var(--primary-orange);
-                opacity: 0.7;
-                filter: brightness(1.4) drop-shadow(0 0 10px var(--primary-orange));
-            }
-            50% {
-                fill: var(--primary-purple);
-                opacity: 0.9;
-                filter: brightness(1.5) drop-shadow(0 0 15px var(--primary-purple));
-            }
-            75% {
-                fill: var(--primary-purple);
+            60% {
+                fill: var(--cold-main-violet);
+                stroke: var(--black);
+                stroke-width: 4px;
                 opacity: 1;
-                filter: brightness(1.3) drop-shadow(0 0 12px var(--primary-purple));
+                filter: brightness(1.2) drop-shadow(0 0 6px var(--black));
             }
             100% { 
-                fill: var(--primary-purple);
+                fill: var(--cold-main-violet);
+                stroke: var(--black);
+                stroke-width: 3px;
                 opacity: 1;
                 filter: none;
             }
         }
         .d3-chart-container .axis path,
         .d3-chart-container .axis line {
-            stroke: var(--gray-light);
+            stroke: var(--dark-gray);
             opacity: 0.5;
         }
         .tooltip {
             position: absolute;
             text-align: center;
-            padding: 8px;
-            font-size: 12px;
-            background: var(--primary-purple);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 0.75rem;
+            background: var(--cold-main-violet);
             color: var(--white);
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.2s;
+            transition: opacity var(--transition-fast);
+            box-shadow: var(--shadow-md);
         }
         header {
-            background-color: var(--purple-light);
-            color: var(--white);
+            background-color: var(--white);
+            color: var(--dark-gray);
+            border-bottom: 1px solid var(--medium-gray);
+        }
+        header h1 {
+            color: var(--cold-main-violet);
         }
         #reset-btn {
-            background-color: var(--orange-dark);
+            background-color: var(--white);
+            border: 2px solid var(--cold-main-violet);
+            color: var(--cold-main-violet);
+        }
+        #prepare-btn {
+            background-color: var(--white);
+            border: 2px solid var(--cold-main-violet);
+            color: var(--cold-main-violet);
+        }
+        #select-btn,
+        #generate-btn {
+            background-color: var(--cold-main-violet);
             color: var(--white);
         }
-        #generate-btn {
-            background-color: var(--primary-purple);
-            color: var(--white);
+        #select-btn:disabled {
+            background-color: var(--medium-gray);
+            color: var(--dark-gray);
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         #generate-btn:hover,
-        #reset-btn:hover {
-            opacity: 0.95;
+        #select-btn:hover:not(:disabled) {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        #reset-btn:hover,
+        #prepare-btn:hover {
+            background-color: var(--cold-main-violet);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
         .bg-neutral-light {
             background-color: var(--white);
@@ -253,15 +268,15 @@
                             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
                                 <h2 class="text-xl font-bold">Probabilidades del siguiente token</h2>
                                 <div class="flex gap-2 w-full sm:w-auto">
-                                    <button id="prepare-btn" class="flex-1 sm:flex-none py-2 px-4 font-semibold rounded-lg hover:bg-opacity-90 transition-colors shadow-md" style="background-color: var(--secondary-green); color: var(--white);">
+                                    <button id="prepare-btn" class="flex-1 sm:flex-none py-2 px-4 font-semibold rounded-lg transition-colors shadow-md">
                                         Analizar opciones
                                     </button>
-                                    <button id="select-btn" class="flex-1 sm:flex-none py-2 px-4 font-semibold rounded-lg transition-colors shadow-md" style="background-color: var(--primary-purple); color: var(--white); opacity: 0.5; cursor: not-allowed;" disabled>
+                                    <button id="select-btn" class="flex-1 sm:flex-none py-2 px-4 font-semibold rounded-lg transition-colors shadow-md" disabled>
                                         Seleccionar token
                                     </button>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 mb-2">Visualización paso a paso. Las barras en <span class="font-semibold" style="color: var(--primary-orange);">naranja</span> son las candidatas para selección.</p>
+                            <p class="text-xs text-gray-500 mb-2">Visualización paso a paso. Las barras en <span class="font-semibold" style="color: var(--cold-main-violet);">violeta</span> son las candidatas para selección.</p>
                             <div id="selection-status" class="text-center py-2 mb-2 rounded-lg font-semibold text-sm transition-all duration-300" style="min-height: 36px; opacity: 0;">
                                 <span id="status-text"></span>
                             </div>

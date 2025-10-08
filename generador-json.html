@@ -4,53 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador de Estructura de Datos - Teamcubation</title>
+    <link rel="stylesheet" href="teamcubation.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
-            color: #484848;
-            line-height: 1.6;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            background: var(--light-gray);
+            padding: var(--spacing-md);
         }
 
         header {
             text-align: center;
-            padding: 40px 20px;
-            background: white;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 20px rgba(85, 24, 114, 0.1);
-            animation: fadeInDown 0.6s ease-out;
+            padding: var(--spacing-xl) var(--spacing-lg);
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-lg);
+            animation: fadeInUp 0.6s ease-out;
         }
 
         h1 {
-            color: #551872;
-            font-size: 2.5em;
-            font-weight: 500;
-            margin-bottom: 15px;
+            color: var(--cold-main-violet);
         }
 
         .subtitle {
-            color: #F34E1E;
+            color: var(--dark-gray);
             font-size: 1.2em;
             font-weight: 300;
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.8;
         }
 
         .intro-text {
-            color: #484848;
+            color: var(--dark-gray);
             font-size: 1.1em;
             max-width: 800px;
             margin: 0 auto;
@@ -60,135 +44,141 @@
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
+            gap: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
         }
 
         .panel {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
             animation: fadeInUp 0.6s ease-out;
         }
 
         .panel-title {
-            color: #551872;
+            color: var(--cold-main-violet);
             font-size: 1.8em;
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-md);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: var(--spacing-sm);
         }
 
         .icon {
             width: 35px;
             height: 35px;
-            background: linear-gradient(135deg, #551872, #F34E1E);
+            background: var(--cold-main-violet);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: var(--white);
             font-size: 1.2em;
         }
 
         .field-builder {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border: 2px solid #e0e0e0;
+            background: var(--light-gray);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+            border: 2px solid var(--medium-gray);
         }
 
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: var(--spacing-md);
         }
 
         .input-group label {
             display: block;
-            color: #551872;
-            font-weight: 500;
-            margin-bottom: 8px;
+            color: var(--cold-main-violet);
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
             font-size: 0.95em;
         }
 
         .input-group input,
         .input-group select {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 2px solid var(--medium-gray);
+            border-radius: var(--radius-sm);
             font-size: 1em;
-            font-family: inherit;
-            transition: all 0.3s ease;
+            font-family: var(--font-body);
+            transition: all var(--transition-base);
         }
 
         .input-group input:focus,
         .input-group select:focus {
             outline: none;
-            border-color: #551872;
-            box-shadow: 0 0 0 3px rgba(85, 24, 114, 0.1);
+            border-color: var(--cold-main-violet);
+            box-shadow: 0 0 0 3px rgba(182, 54, 255, 0.1);
         }
 
         .btn {
-            padding: 12px 25px;
+            padding: var(--spacing-sm) var(--spacing-lg);
             border: none;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             font-size: 1em;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: inherit;
+            transition: all var(--transition-base);
+            font-family: var(--font-heading);
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--spacing-xs);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #551872, #6b1f8f);
-            color: white;
+            background: var(--cold-main-violet);
+            color: var(--white);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(85, 24, 114, 0.3);
+            box-shadow: var(--shadow-lg);
+            background: var(--cold-secondary-violet);
         }
 
         .btn-secondary {
-            background: linear-gradient(135deg, #F34E1E, #ff6347);
-            color: white;
+            background: var(--white);
+            border: 2px solid var(--cold-main-violet);
+            color: var(--cold-main-violet);
         }
 
         .btn-secondary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(243, 78, 30, 0.3);
+            box-shadow: var(--shadow-lg);
+            background: var(--cold-main-violet);
+            color: var(--white);
         }
 
         .btn-success {
-            background: #8BDCB3;
-            color: #484848;
+            background: var(--cold-main-violet);
+            color: var(--white);
         }
 
         .btn-success:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(139, 220, 179, 0.4);
+            box-shadow: var(--shadow-lg);
+            background: var(--cold-secondary-violet);
         }
 
         .fields-list {
-            margin-top: 20px;
+            margin-top: var(--spacing-md);
         }
 
         .field-item {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+            background: var(--white);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-sm);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 4px solid #551872;
+            border-left: 4px solid var(--cold-main-violet);
             animation: slideIn 0.3s ease-out;
+            box-shadow: var(--shadow-sm);
         }
 
         .field-info {
@@ -196,45 +186,46 @@
         }
 
         .field-name {
-            color: #551872;
-            font-weight: 500;
+            color: var(--cold-main-violet);
+            font-weight: 600;
             font-size: 1.1em;
         }
 
         .field-type {
-            color: #F34E1E;
+            color: var(--cold-main-violet);
             font-size: 0.9em;
             margin-top: 3px;
+            opacity: 0.7;
         }
 
         .field-value {
-            color: #484848;
+            color: var(--dark-gray);
             font-size: 0.9em;
             margin-top: 5px;
             font-family: 'Courier New', monospace;
         }
 
         .btn-delete {
-            background: #ff6b6b;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 6px;
+            background: var(--white);
+            border: 1px solid var(--medium-gray);
+            color: var(--dark-gray);
+            padding: var(--spacing-xs) var(--spacing-md);
+            border-radius: var(--radius-sm);
             cursor: pointer;
             font-size: 0.9em;
-            transition: all 0.3s ease;
+            transition: all var(--transition-fast);
         }
 
         .btn-delete:hover {
-            background: #ff5252;
+            background: var(--medium-gray);
             transform: scale(1.05);
         }
 
         .json-preview {
-            background: #2d2d2d;
-            color: #8BDCB3;
-            padding: 20px;
-            border-radius: 10px;
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
             font-family: 'Courier New', monospace;
             font-size: 0.95em;
             line-height: 1.6;
@@ -242,10 +233,11 @@
             overflow-y: auto;
             white-space: pre-wrap;
             word-break: break-all;
+            border: 1px solid var(--medium-gray);
         }
 
         .json-preview .key {
-            color: #F34E1E;
+            color: #a78bfa;
         }
 
         .json-preview .string {
