@@ -1,1 +1,1 @@
-Hacé git add y git commit por patchs semánticos para que todos los cambios realizados queden commiteados. Luego hacé git push.
+Revisá los cambios actuales de git, luego hacé git add y git commit por patchs semánticos para que todos los cambios realizados queden commiteados. Luego hacé git push. Los cambios pueden ser tanto de creación como de eliminación de archivos y código.
