@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow - Automatización de Cumpleaños</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 15px 15px 10px 15px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: clamp(1.3rem, 4vw, 1.8rem);
+            color: #B636FF;
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            font-size: clamp(0.8rem, 2vw, 0.95rem);
+            color: #4a5568;
+            max-width: 800px;
+            margin: 0 auto 15px;
+        }
+
+        .workflow-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 1.2s ease-out;
+            margin-bottom: 20px;
+        }
+
+        .control-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .icon-button {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .icon-button.run {
+            background: linear-gradient(135deg, #FF4933 0%, #FF2E5B 100%);
+        }
+
+        .icon-button.run:hover:not(:disabled) {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(255, 73, 51, 0.4);
+        }
+
+        .icon-button.reset {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+        }
+
+        .icon-button.reset:hover:not(:disabled) {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(74, 85, 104, 0.4);
+        }
+
+        .icon-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .icon-button.edit {
+            background: linear-gradient(135deg, #B636FF 0%, #6D00FF 100%);
+        }
+
+        .icon-button.edit:hover:not(:disabled) {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(182, 54, 255, 0.4);
+        }
+
+        /* Toggle orientación */
+        .orientation-toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toggle-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 100px;
+            height: 36px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #B636FF 0%, #6D00FF 100%);
+            transition: .4s;
+            border-radius: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px;
+        }
+
+        .slider-icon {
+            font-size: 1.2rem;
+            z-index: 1;
+            transition: all 0.3s;
+        }
+
+        .slider-icon.active {
+            transform: scale(1.2);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 28px;
+            width: 44px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 34px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(48px);
+        }
+
+        .workflow-flow {
+            position: relative;
+            display: flex;
+            padding: 5px 0;
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+
+        .workflow-flow.vertical {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .workflow-flow.horizontal {
+            flex-direction: row;
+            align-items: flex-start;
+        }
+
+        .flow-node-wrapper {
+            display: flex;
+            gap: 15px;
+            margin: 10px 0;
+        }
+
+        .workflow-flow.vertical .flow-node-wrapper {
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .workflow-flow.horizontal .flow-node-wrapper {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .flow-node {
+            background: white;
+            border-radius: 12px;
+            padding: 15px 18px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .workflow-flow.vertical .flow-node {
+            flex: 1;
+            max-width: 400px;
+            min-width: 280px;
+        }
+
+        .workflow-flow.horizontal .flow-node {
+            width: 280px;
+            min-height: 120px;
+        }
+
+        .flow-node.active {
+            transform: scale(1.02);
+            box-shadow: 0 8px 30px rgba(255, 73, 51, 0.4);
+            border: 3px solid #FF4933;
+            animation: activeBorder 1s ease-in-out infinite;
+        }
+
+        @keyframes activeBorder {
+            0%, 100% {
+                border-color: #FF4933;
+                box-shadow: 0 8px 30px rgba(255, 73, 51, 0.4), 0 0 0 0 rgba(255, 73, 51, 0.4);
+            }
+            50% {
+                border-color: #FF2E5B;
+                box-shadow: 0 8px 30px rgba(255, 73, 51, 0.6), 0 0 0 8px rgba(255, 73, 51, 0.1);
+            }
+        }
+
+        .node-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .node-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .node-type {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+
+        .node-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-top: 2px;
+        }
+
+        .node-description {
+            color: #718096;
+            font-size: 0.8rem;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .loop-counter {
+            background: linear-gradient(135deg, #00B2FF 0%, #001AFF 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        .current-person-card {
+            background: linear-gradient(135deg, #FFA232 0%, #FF4933 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            display: none;
+        }
+
+        .current-person-card.show {
+            display: block;
+        }
+
+        .current-person-card h5 {
+            font-size: 0.75rem;
+            margin-bottom: 6px;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+
+        .current-person-card .person-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .current-person-card .person-detail {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        /* Estilos por tipo de nodo */
+        .flow-node.trigger .node-icon {
+            background: linear-gradient(135deg, #FF4933 0%, #FF2E5B 100%);
+            color: white;
+        }
+
+        .flow-node.trigger .node-type {
+            color: #FF4933;
+        }
+
+        .flow-node.action .node-icon {
+            background: linear-gradient(135deg, #B636FF 0%, #6D00FF 100%);
+            color: white;
+        }
+
+        .flow-node.action .node-type {
+            color: #B636FF;
+        }
+
+        .flow-node.loop .node-icon {
+            background: linear-gradient(135deg, #00B2FF 0%, #001AFF 100%);
+            color: white;
+        }
+
+        .flow-node.loop .node-type {
+            color: #00B2FF;
+        }
+
+        .flow-node.condition .node-icon {
+            background: linear-gradient(135deg, #DCDF30 0%, #FFA232 100%);
+            color: #4a4a00;
+        }
+
+        .flow-node.condition .node-type {
+            color: #8b8b00;
+        }
+
+        /* Data panel (tabla, resultados) */
+        .data-panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+        }
+
+        .workflow-flow.vertical .data-panel {
+            max-width: 320px;
+        }
+
+        .workflow-flow.horizontal .data-panel {
+            width: 280px;
+        }
+
+        .data-panel h4 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            color: #2d3748;
+            font-weight: 800;
+        }
+
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .excel-table th {
+            background: #B636FF;
+            color: white;
+            padding: 8px 6px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.7rem;
+        }
+
+        .excel-table td {
+            padding: 8px 6px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .excel-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .excel-table tr.highlighted {
+            background: #fff3cd;
+            font-weight: 600;
+        }
+
+        /* Email preview */
+        .email-preview {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 0.8rem;
+        }
+
+        .email-header {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .email-field {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 0.75rem;
+        }
+
+        .email-field:last-child {
+            margin-bottom: 0;
+        }
+
+        .email-label {
+            font-weight: 700;
+            color: #4a5568;
+            width: 60px;
+            flex-shrink: 0;
+        }
+
+        .email-value {
+            color: #2d3748;
+            flex: 1;
+        }
+
+        .email-body {
+            padding: 15px 12px;
+            line-height: 1.6;
+            color: #2d3748;
+            font-size: 0.8rem;
+            background: white;
+        }
+
+        .email-body p {
+            margin: 0 0 8px 0;
+        }
+
+        .email-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .email-emoji {
+            font-size: 1.2rem;
+        }
+
+        /* Modal para editar datos */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.5rem;
+            color: #B636FF;
+            font-weight: 800;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #718096;
+            padding: 5px 10px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #2d3748;
+            transform: scale(1.1);
+        }
+
+        .edit-table {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .edit-row {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr 40px;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .edit-row input {
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .edit-row input:focus {
+            outline: none;
+            border-color: #B636FF;
+            box-shadow: 0 0 0 3px rgba(182, 54, 255, 0.1);
+        }
+
+        .delete-row-btn {
+            background: #f56565;
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-row-btn:hover {
+            background: #e53e3e;
+            transform: scale(1.1);
+        }
+
+        .add-row-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #B636FF 0%, #6D00FF 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .add-row-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(182, 54, 255, 0.3);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .modal-btn.cancel {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .modal-btn.cancel:hover {
+            background: #cbd5e0;
+        }
+
+        .modal-btn.save {
+            background: linear-gradient(135deg, #FF4933 0%, #FF2E5B 100%);
+            color: white;
+        }
+
+        .modal-btn.save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 73, 51, 0.3);
+        }
+
+        /* Toggle para loop manual */
+        .loop-control-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+
+        .loop-control-toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .loop-control-toggle label {
+            cursor: pointer;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .condition-result {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .condition-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .condition-btn {
+            flex: 1;
+            padding: 8px 14px;
+            border: 2px solid;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+        }
+
+        .condition-btn.yes {
+            background: white;
+            border-color: #48bb78;
+            color: #48bb78;
+        }
+
+        .condition-btn.yes:hover {
+            background: #48bb78;
+            color: white;
+        }
+
+        .condition-btn.no {
+            background: white;
+            border-color: #f56565;
+            color: #f56565;
+        }
+
+        .condition-btn.no:hover {
+            background: #f56565;
+            color: white;
+        }
+
+        .condition-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+
+        .result-badge.yes {
+            background: #48bb78;
+            color: white;
+        }
+
+        .result-badge.no {
+            background: #f56565;
+            color: white;
+        }
+
+        .continue-button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #00B2FF 0%, #001AFF 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            width: 100%;
+        }
+
+        .continue-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 178, 255, 0.3);
+        }
+
+        .continue-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-summary {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-summary.show {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .result-summary h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+
+        .result-summary p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .result-stats {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        /* Conectores */
+        .connector {
+            background: linear-gradient(to bottom, #cbd5e0 0%, #e2e8f0 100%);
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+        }
+
+        .workflow-flow.vertical .connector {
+            width: 3px;
+            height: 25px;
+        }
+
+        .workflow-flow.horizontal .connector {
+            height: 3px;
+            width: 25px;
+        }
+
+        .workflow-flow.vertical .connector::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 7px solid #cbd5e0;
+        }
+
+        .workflow-flow.horizontal .connector::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 7px solid #cbd5e0;
+        }
+
+        /* Círculo animado - Oculto */
+        .flow-indicator {
+            display: none;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #B636FF 0%, #6D00FF 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            animation: fadeIn 1.4s ease-out;
+        }
+
+        .info-box h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+
+        .info-box p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .nested-node {
+            padding-left: 15px;
+            border-left: 3px solid #e2e8f0;
+        }
+
+        .workflow-flow.horizontal .nested-node {
+            padding-left: 0;
+            padding-top: 15px;
+            border-left: none;
+            border-top: 3px solid #e2e8f0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 968px) {
+            .flow-node-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .data-panel {
+                max-width: 100%;
+                width: 100%;
+            }
+
+            .workflow-flow.horizontal {
+                flex-direction: column;
+            }
+
+            .control-section {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .workflow-container {
+                padding: 15px;
+            }
+
+            .flow-node {
+                padding: 12px 15px;
+            }
+
+            .nested-node {
+                padding-left: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 15px 10px;
+            }
+
+            .workflow-container {
+                padding: 15px;
+            }
+
+            .control-section {
+                justify-content: center;
+            }
+
+            .orientation-toggle {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .edit-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .delete-row-btn {
+                width: 100%;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar-fixed">
+            <div class="nav-inner">
+                <div class="navbar-left">
+                    <div class="workflow-title">
+                        <h1>🔄 Workflow Automático</h1>
+                    </div>
+                </div>
+                <div class="navbar-center">
+                    <div class="orientation-toggle">
+                        <span class="toggle-label">Vista:</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="orientationToggle">
+                            <span class="slider">
+                                <span class="slider-icon" id="iconVertical">↓</span>
+                                <span class="slider-icon" id="iconHorizontal">→</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                 <div class="navbar-right">
+                     <div class="control-buttons">
+                         <button class="icon-button run" id="runButton" title="Ejecutar flujo">
+                             ▶️
+                         </button>
+                         <button class="icon-button reset" id="resetButton" title="Resetear flujo">
+                             🔄
+                         </button>
+                         <button class="icon-button edit" id="editButton" title="Editar datos">
+                             ✏️
+                         </button>
+                     </div>
+                 </div>
+            </div>
+        </nav>
+        <div class="header-placeholder"></div>
+        <style>
+            .navbar-fixed {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                background: #fff;
+                box-shadow: 0 2px 14px 0 rgba(182,54,255,0.06);
+                z-index: 1002;
+                min-height: 60px;
+                display: flex;
+                align-items: center;
+                transition: box-shadow 0.25s;
+            }
+            .nav-inner {
+                max-width: 1400px;
+                margin: 0 auto;
+                width: 100%;
+                padding: 0 20px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0 8px;
+                height: 60px;
+            }
+            .navbar-left {
+                flex: 2 1 0;
+                min-width: 0;
+                display: flex;
+                align-items: center;
+            }
+            .navbar-center {
+                flex: 1 1 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .navbar-right {
+                flex: 2 1 0;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+            }
+            .workflow-title h1 {
+                margin: 0;
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: clamp(1.15rem, 2vw, 1.55rem);
+                color: #B636FF;
+                font-weight: 800;
+                letter-spacing: -0.5px;
+            }
+            .header-placeholder {
+                height: 60px;
+            }
+            @media (max-width: 768px) {
+                .nav-inner {
+                    padding: 0 10px;
+                    height: 56px;
+                }
+                .header-placeholder {
+                    height: 56px;
+                }
+                .workflow-title h1 {
+                    font-size: clamp(1rem, 3vw, 1.2rem);
+                }
+            }
+            @media (max-width: 540px) {
+                .nav-inner {
+                    flex-direction: column;
+                    align-items: stretch;
+                    gap: 8px 0;
+                    height: auto;
+                    padding: 6px 4vw 6px 4vw;
+                }
+                .navbar-fixed {
+                    min-height: unset;
+                }
+                .navbar-center, .navbar-left, .navbar-right {
+                    justify-content: center !important;
+                    margin-bottom: 2px;
+                }
+                .header-placeholder {
+                    height: 66px;
+                }
+            }
+        </style>
+
+        <div class="workflow-container">
+            <div class="control-section">
+                <div class="loop-control-toggle">
+                    <input type="checkbox" id="manualLoopControl" checked>
+                    <label for="manualLoopControl">Control manual del loop</label>
+                </div>
+            </div>
+
+            <div class="workflow-flow vertical" id="workflowFlow">
+                <!-- Disparador -->
+                <div class="flow-node-wrapper">
+                    <div class="flow-node trigger" data-step="0">
+                        <div class="node-header">
+                            <div class="node-icon">⏰</div>
+                            <div>
+                                <div class="node-type">Disparador</div>
+                                <div class="node-title">Todos los días a las 8:00 AM</div>
+                            </div>
+                        </div>
+                        <div class="node-description">
+                            El flujo se inicia automáticamente cada mañana.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="connector"></div>
+
+                <!-- Acción 1: Leer Excel -->
+                <div class="flow-node-wrapper">
+                    <div class="flow-node action" data-step="1">
+                        <div class="node-header">
+                            <div class="node-icon">📊</div>
+                            <div>
+                                <div class="node-type">Acción</div>
+                                <div class="node-title">Leer tabla de Excel</div>
+                            </div>
+                        </div>
+                        <div class="node-description">
+                            Lee todas las filas con datos de empleados y fechas.
+                        </div>
+                    </div>
+
+                    <div class="data-panel" id="excelPanel" style="display: none;">
+                        <h4>📋 Datos del Excel</h4>
+                        <table class="excel-table" id="excelTable">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody id="excelBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="connector"></div>
+
+                <!-- Loop: For Each -->
+                <div class="flow-node-wrapper">
+                    <div class="flow-node loop" data-step="2">
+                        <div class="node-header">
+                            <div class="node-icon">🔁</div>
+                            <div>
+                                <div class="node-type">For Each (Bucle)</div>
+                                <div class="node-title">Por cada fila de la tabla</div>
+                            </div>
+                        </div>
+                        <div class="node-description">
+                            Repite las acciones para cada persona en la lista.
+                        </div>
+                        <div class="loop-counter" id="loopCounter" style="display: none;">
+                            Iteración: <span id="loopNumber">1</span> de 5
+                        </div>
+                        <div class="current-person-card" id="currentPersonCard">
+                            <h5>👤 PROCESANDO AHORA:</h5>
+                            <div class="person-name" id="currentPersonName">—</div>
+                            <div class="person-detail" id="currentPersonEmail">—</div>
+                            <div class="person-detail" id="currentPersonBirthday">—</div>
+                        </div>
+                        <button class="continue-button" id="continueLoop" style="display: none;">
+                            ➡️ Siguiente persona
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Nodos dentro del loop -->
+                <div class="nested-node">
+                    <div class="connector"></div>
+
+                    <!-- Condición: If -->
+                    <div class="flow-node-wrapper">
+                        <div class="flow-node condition" data-step="3">
+                            <div class="node-header">
+                                <div class="node-icon">❓</div>
+                                <div>
+                                    <div class="node-type">Condición (If)</div>
+                                    <div class="node-title">¿La fecha es hoy?</div>
+                                </div>
+                            </div>
+                            <div class="node-description">
+                                Compara automáticamente la fecha de cumpleaños con la fecha actual (hoy es: <strong id="todayDate"></strong>).
+                            </div>
+                        </div>
+
+                        <div class="data-panel" id="condition1Result" style="display: none;">
+                            <h4>Resultado</h4>
+                            <div class="result-badge" id="condition1Badge"></div>
+                        </div>
+                    </div>
+
+                    <div class="connector"></div>
+
+                    <!-- Acción 2: Pedir aprobación -->
+                    <div class="flow-node-wrapper">
+                        <div class="flow-node action" data-step="4">
+                            <div class="node-header">
+                                <div class="node-icon">✋</div>
+                                <div>
+                                    <div class="node-type">Acción</div>
+                                    <div class="node-title">Pedir aprobación</div>
+                                </div>
+                            </div>
+                            <div class="node-description">
+                                Pregunta: "¿Enviar felicitación a <span id="approvalName">[Nombre]</span>?"
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="connector"></div>
+
+                    <!-- Condición 2: If aprobado -->
+                    <div class="flow-node-wrapper">
+                        <div class="flow-node condition" data-step="5">
+                            <div class="node-header">
+                                <div class="node-icon">✅</div>
+                                <div>
+                                    <div class="node-type">Condición (If)</div>
+                                    <div class="node-title">¿Está aprobado?</div>
+                                </div>
+                            </div>
+                            <div class="node-description">
+                                Espera la respuesta del supervisor.
+                            </div>
+                            <div class="condition-buttons" id="condition2Buttons" style="display: none;">
+                                <button class="condition-btn yes" data-value="true">✓ APROBAR</button>
+                                <button class="condition-btn no" data-value="false">✗ RECHAZAR</button>
+                            </div>
+                        </div>
+
+                        <div class="data-panel" id="condition2Result" style="display: none;">
+                            <h4>Resultado</h4>
+                            <div class="result-badge" id="condition2Badge"></div>
+                        </div>
+                    </div>
+
+                    <div class="connector"></div>
+
+                    <!-- Acción 3: Enviar email -->
+                    <div class="flow-node-wrapper">
+                        <div class="flow-node action" data-step="6">
+                            <div class="node-header">
+                                <div class="node-icon">📧</div>
+                                <div>
+                                    <div class="node-type">Acción</div>
+                                    <div class="node-title">Enviar email de felicitación</div>
+                                </div>
+                            </div>
+                            <div class="node-description">
+                                Email: "¡Feliz cumpleaños <span id="emailName">[Nombre]</span>! 🎉"
+                            </div>
+                        </div>
+
+                        <div class="data-panel" id="emailPanel" style="display: none;">
+                            <h4>📧 Vista previa del email</h4>
+                            <div class="email-preview">
+                                <div class="email-header">
+                                    <div class="email-field">
+                                        <span class="email-label">Para:</span>
+                                        <span class="email-value" id="emailTo">—</span>
+                                    </div>
+                                    <div class="email-field">
+                                        <span class="email-label">Asunto:</span>
+                                        <span class="email-value">¡Feliz Cumpleaños! 🎂</span>
+                                    </div>
+                                </div>
+                                <div class="email-body">
+                                    <p>Hola <strong id="emailRecipientName">—</strong>,</p>
+                                    <p><span class="email-emoji">🎉</span> ¡Feliz cumpleaños! <span class="email-emoji">🎂</span></p>
+                                    <p>Te deseamos un día increíble lleno de alegría y momentos especiales.</p>
+                                    <p>Saludos cordiales,<br>
+                                    <strong>El equipo de Recursos Humanos</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-summary" id="resultSummary">
+                <h3>✅ ¡Flujo Completado!</h3>
+                <p>El workflow procesó todas las personas de la lista</p>
+                <div class="result-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalProcessed">0</div>
+                        <div class="stat-label">Personas procesadas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="emailsSent">0</div>
+                        <div class="stat-label">Emails enviados</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de edición -->
+        <div class="modal-overlay" id="editModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">📝 Editar Datos del Excel</h3>
+                    <button class="modal-close" id="closeModal">✕</button>
+                </div>
+                <div class="edit-table" id="editTableContainer">
+                    <!-- Las filas se generarán dinámicamente -->
+                </div>
+                <button class="add-row-btn" id="addRowBtn">+ Agregar Persona</button>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" id="cancelEdit">Cancelar</button>
+                    <button class="modal-btn save" id="saveEdit">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos de ejemplo (mutable)
+        let peopleData = [
+            { name: 'María García', email: 'maria@empresa.com', birthday: '23/10' },
+            { name: 'Juan Pérez', email: 'juan@empresa.com', birthday: '15/03' },
+            { name: 'Ana Rodríguez', email: 'ana@empresa.com', birthday: '23/10' },
+            { name: 'Carlos López', email: 'carlos@empresa.com', birthday: '08/07' },
+            { name: 'Laura Martínez', email: 'laura@empresa.com', birthday: '23/10' }
+        ];
+
+        let currentIteration = 0;
+        let emailsSentCount = 0;
+        let isRunning = false;
+        let currentPerson = null;
+        let manualLoopEnabled = true;
+
+        const runButton = document.getElementById('runButton');
+        const resetButton = document.getElementById('resetButton');
+        const editButton = document.getElementById('editButton');
+        const flowNodes = document.querySelectorAll('.flow-node');
+        const workflowFlow = document.getElementById('workflowFlow');
+        const orientationToggle = document.getElementById('orientationToggle');
+        const manualLoopControl = document.getElementById('manualLoopControl');
+
+        // Obtener fecha actual en formato DD/MM
+        function getTodayFormatted() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            return `${day}/${month}`;
+        }
+
+        // Comparar si la fecha coincide con hoy
+        function isBirthdayToday(birthday) {
+            return birthday === getTodayFormatted();
+        }
+
+        // Toggle orientación
+        orientationToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                workflowFlow.classList.remove('vertical');
+                workflowFlow.classList.add('horizontal');
+                document.getElementById('iconVertical').classList.remove('active');
+                document.getElementById('iconHorizontal').classList.add('active');
+            } else {
+                workflowFlow.classList.remove('horizontal');
+                workflowFlow.classList.add('vertical');
+                document.getElementById('iconVertical').classList.add('active');
+                document.getElementById('iconHorizontal').classList.remove('active');
+            }
+        });
+
+        // Inicializar icono activo
+        document.getElementById('iconVertical').classList.add('active');
+
+        // Mostrar fecha actual en el nodo
+        document.getElementById('todayDate').textContent = getTodayFormatted();
+
+        // Toggle control manual del loop
+        manualLoopControl.addEventListener('change', (e) => {
+            manualLoopEnabled = e.target.checked;
+        });
+
+        // Modal de edición
+        editButton.addEventListener('click', () => {
+            openEditModal();
+        });
+
+        document.getElementById('closeModal').addEventListener('click', () => {
+            closeEditModal();
+        });
+
+        document.getElementById('cancelEdit').addEventListener('click', () => {
+            closeEditModal();
+        });
+
+        document.getElementById('saveEdit').addEventListener('click', () => {
+            saveEditedData();
+        });
+
+        document.getElementById('addRowBtn').addEventListener('click', () => {
+            addNewRow();
+        });
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('editModal').addEventListener('click', (e) => {
+            if (e.target.id === 'editModal') {
+                closeEditModal();
+            }
+        });
+
+        runButton.addEventListener('click', async () => {
+            if (isRunning) return;
+            
+            resetWorkflow();
+            isRunning = true;
+            runButton.disabled = true;
+            runButton.textContent = '⏳';
+
+            await runWorkflow();
+        });
+
+        resetButton.addEventListener('click', () => {
+            isRunning = false;
+            runButton.disabled = false;
+            runButton.textContent = '▶️';
+            resetWorkflow();
+        });
+
+        function resetWorkflow() {
+            currentIteration = 0;
+            emailsSentCount = 0;
+            flowNodes.forEach(node => node.classList.remove('active'));
+            document.getElementById('resultSummary').classList.remove('show');
+            document.getElementById('excelPanel').style.display = 'none';
+            document.getElementById('emailPanel').style.display = 'none';
+            document.getElementById('loopCounter').style.display = 'none';
+            document.getElementById('currentPersonCard').classList.remove('show');
+            document.getElementById('continueLoop').style.display = 'none';
+            document.getElementById('condition1Result').style.display = 'none';
+            document.getElementById('condition2Buttons').style.display = 'none';
+            document.getElementById('condition2Result').style.display = 'none';
+        }
+
+        async function runWorkflow() {
+            // Paso 0: Disparador
+            await activateNode(0);
+            await sleep(1000);
+            deactivateNode(0);
+
+            // Paso 1: Leer Excel
+            await activateNode(1);
+            await sleep(500);
+            showExcelData();
+            await sleep(1500);
+            deactivateNode(1);
+
+            // Paso 2: Loop - Iniciar
+            await activateNode(2);
+            await sleep(800);
+
+            // Iterar por cada persona
+            for (let i = 0; i < peopleData.length; i++) {
+                currentIteration = i + 1;
+                currentPerson = peopleData[i];
+                
+                // Actualizar contador y datos de persona actual
+                document.getElementById('loopCounter').style.display = 'block';
+                document.getElementById('loopNumber').textContent = currentIteration;
+                document.getElementById('currentPersonCard').classList.add('show');
+                document.getElementById('currentPersonName').textContent = currentPerson.name;
+                document.getElementById('currentPersonEmail').textContent = '📧 ' + currentPerson.email;
+                document.getElementById('currentPersonBirthday').textContent = '🎂 ' + currentPerson.birthday;
+                
+                highlightTableRow(i);
+
+                // Mostrar botón de continuar (si está habilitado el control manual) o esperar automáticamente
+                if (i > 0) {
+                    if (manualLoopEnabled) {
+                        await waitForContinue();
+                    } else {
+                        // Ocultar paneles anteriores automáticamente
+                        document.getElementById('condition1Result').style.display = 'none';
+                        document.getElementById('condition2Result').style.display = 'none';
+                        document.getElementById('emailPanel').style.display = 'none';
+                        await sleep(1000);
+                    }
+                } else {
+                    await sleep(800);
+                }
+
+                // Ejecutar pasos dentro del loop
+                await executeLoopIteration(i);
+            }
+
+            deactivateNode(2);
+
+            // Mostrar resultados finales
+            await sleep(500);
+            showFinalResults();
+
+            runButton.disabled = false;
+            runButton.textContent = '▶️';
+            isRunning = false;
+        }
+
+        async function executeLoopIteration(index) {
+            const person = peopleData[index];
+
+            // Paso 3: Condición - ¿Es hoy? (Automática)
+            await activateNode(3);
+            document.getElementById('approvalName').textContent = person.name;
+            document.getElementById('emailName').textContent = person.name;
+            
+            // Evaluar automáticamente si la fecha coincide con hoy
+            const birthdayMatches = isBirthdayToday(person.birthday);
+            
+            await sleep(500);
+            
+            // Mostrar resultado automático
+            const resultPanel = document.getElementById('condition1Result');
+            const badge = document.getElementById('condition1Badge');
+            resultPanel.style.display = 'block';
+            badge.textContent = birthdayMatches ? '✓ SÍ' : '✗ NO';
+            badge.className = `result-badge ${birthdayMatches ? 'yes' : 'no'}`;
+            
+            await sleep(1200);
+            
+            deactivateNode(3);
+
+            if (!birthdayMatches) {
+                return;
+            }
+
+            // Paso 4: Pedir aprobación
+            await activateNode(4);
+            await sleep(1200);
+            deactivateNode(4);
+
+            // Paso 5: Condición - ¿Aprobado?
+            await activateNode(5);
+            const isApproved = await askCondition('condition2Buttons', 'condition2Result', 'condition2Badge');
+            deactivateNode(5);
+
+            if (!isApproved) {
+                return;
+            }
+
+            // Paso 6: Enviar email
+            await activateNode(6);
+            showEmailPreview(person);
+            await sleep(2000);
+            emailsSentCount++;
+            deactivateNode(6);
+        }
+
+        function showExcelData() {
+            const tbody = document.getElementById('excelBody');
+            tbody.innerHTML = '';
+            
+            peopleData.forEach((person, index) => {
+                const row = document.createElement('tr');
+                row.id = `row-${index}`;
+                row.innerHTML = `
+                    <td>${person.name}</td>
+                    <td>${person.email}</td>
+                    <td>${person.birthday}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('excelPanel').style.display = 'block';
+        }
+
+        function showEmailPreview(person) {
+            document.getElementById('emailTo').textContent = `${person.name} <${person.email}>`;
+            document.getElementById('emailRecipientName').textContent = person.name.split(' ')[0];
+            document.getElementById('emailPanel').style.display = 'block';
+        }
+
+        function highlightTableRow(index) {
+            document.querySelectorAll('.excel-table tr').forEach(row => {
+                row.classList.remove('highlighted');
+            });
+
+            const row = document.getElementById(`row-${index}`);
+            if (row) {
+                row.classList.add('highlighted');
+            }
+        }
+
+        function askCondition(buttonsId, resultId, badgeId) {
+            return new Promise((resolve) => {
+                const buttonsDiv = document.getElementById(buttonsId);
+                const buttons = buttonsDiv.querySelectorAll('.condition-btn');
+                
+                buttonsDiv.style.display = 'flex';
+
+                buttons.forEach(button => {
+                    button.onclick = () => {
+                        const value = button.dataset.value === 'true';
+                        
+                        buttons.forEach(btn => btn.disabled = true);
+                        buttonsDiv.style.display = 'none';
+
+                        const resultPanel = document.getElementById(resultId);
+                        const badge = document.getElementById(badgeId);
+                        
+                        resultPanel.style.display = 'block';
+                        badge.textContent = value ? '✓ SÍ' : '✗ NO';
+                        badge.className = `result-badge ${value ? 'yes' : 'no'}`;
+
+                        setTimeout(() => {
+                            resolve(value);
+                        }, 800);
+                    };
+                });
+
+                buttons.forEach(btn => btn.disabled = false);
+            });
+        }
+
+        function waitForContinue() {
+            if (!manualLoopEnabled) {
+                return Promise.resolve();
+            }
+            
+            return new Promise((resolve) => {
+                const continueBtn = document.getElementById('continueLoop');
+                continueBtn.style.display = 'block';
+                continueBtn.disabled = false;
+
+                continueBtn.onclick = () => {
+                    continueBtn.disabled = true;
+                    continueBtn.style.display = 'none';
+                    
+                    document.getElementById('condition1Result').style.display = 'none';
+                    document.getElementById('condition2Result').style.display = 'none';
+                    document.getElementById('emailPanel').style.display = 'none';
+
+                    resolve();
+                };
+            });
+        }
+
+        async function activateNode(step) {
+            const node = document.querySelector(`[data-step="${step}"]`);
+            if (!node) return;
+
+            node.classList.add('active');
+
+            await sleep(100);
+        }
+
+        function deactivateNode(step) {
+            const node = document.querySelector(`[data-step="${step}"]`);
+            if (node) {
+                node.classList.remove('active');
+            }
+        }
+
+        function showFinalResults() {
+            document.getElementById('totalProcessed').textContent = peopleData.length;
+            document.getElementById('emailsSent').textContent = emailsSentCount;
+            document.getElementById('resultSummary').classList.add('show');
+            
+            document.getElementById('loopCounter').style.display = 'none';
+            document.getElementById('currentPersonCard').classList.remove('show');
+            
+            document.querySelectorAll('.excel-table tr').forEach(row => {
+                row.classList.remove('highlighted');
+            });
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Funciones del modal de edición
+        function openEditModal() {
+            renderEditTable();
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('show');
+        }
+
+        function renderEditTable() {
+            const container = document.getElementById('editTableContainer');
+            container.innerHTML = '';
+
+            peopleData.forEach((person, index) => {
+                const row = document.createElement('div');
+                row.className = 'edit-row';
+                row.dataset.index = index;
+                row.innerHTML = `
+                    <input type="text" placeholder="Nombre" value="${person.name}" data-field="name">
+                    <input type="email" placeholder="Email" value="${person.email}" data-field="email">
+                    <input type="text" placeholder="DD/MM" value="${person.birthday}" data-field="birthday" maxlength="5">
+                    <button class="delete-row-btn" onclick="deleteRow(${index})">🗑️</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function deleteRow(index) {
+            if (peopleData.length <= 1) {
+                alert('Debe haber al menos una persona en la lista');
+                return;
+            }
+            peopleData.splice(index, 1);
+            renderEditTable();
+        }
+
+        function addNewRow() {
+            peopleData.push({ name: '', email: '', birthday: '' });
+            renderEditTable();
+            // Hacer scroll al final
+            const container = document.getElementById('editTableContainer');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function saveEditedData() {
+            const rows = document.querySelectorAll('.edit-row');
+            const newData = [];
+
+            rows.forEach((row, index) => {
+                const name = row.querySelector('[data-field="name"]').value.trim();
+                const email = row.querySelector('[data-field="email"]').value.trim();
+                const birthday = row.querySelector('[data-field="birthday"]').value.trim();
+
+                if (name && email && birthday) {
+                    // Validar formato de fecha
+                    const dateRegex = /^\d{2}\/\d{2}$/;
+                    if (!dateRegex.test(birthday)) {
+                        alert(`La fecha de cumpleaños de "${name}" debe tener formato DD/MM`);
+                        return;
+                    }
+                    newData.push({ name, email, birthday });
+                } else if (name || email || birthday) {
+                    alert('Por favor complete todos los campos o elimine la fila');
+                    return;
+                }
+            });
+
+            if (newData.length === 0) {
+                alert('Debe haber al menos una persona en la lista');
+                return;
+            }
+
+            peopleData = newData;
+            closeEditModal();
+            
+            // Si la tabla de Excel ya está visible, actualizarla
+            if (document.getElementById('excelPanel').style.display === 'block') {
+                showExcelData();
+            }
+        }
+
+        // Hacer la función deleteRow global
+        window.deleteRow = deleteRow;
+    </script>
+</body>
+</html>
