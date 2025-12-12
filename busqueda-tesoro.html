@@ -290,6 +290,26 @@
             margin: var(--spacing-lg) 0;
         }
 
+        .restart-btn {
+            margin-top: var(--spacing-xl);
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.7);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+            transform: translateY(-2px);
+        }
+
         .victory-message {
             color: rgba(255, 255, 255, 0.9);
             font-size: 1.2rem;
@@ -438,6 +458,294 @@
             0% { transform: translateY(0) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
+
+        /* Timer de penalización */
+        .timer-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            background: rgba(255, 46, 91, 0.15);
+            border: 2px solid var(--warm-secondary-pink);
+            border-radius: var(--radius-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .timer-icon {
+            font-size: 1.5rem;
+            animation: pulse 1s infinite;
+        }
+
+        .timer-text {
+            color: var(--warm-secondary-pink);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .timer-countdown {
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+            background: var(--warm-secondary-pink);
+            padding: 4px 12px;
+            border-radius: var(--radius-sm);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .answer-input:disabled,
+        .submit-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Ecuaciones con símbolos */
+        .equations-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .equation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md) 0;
+            font-size: 1.3rem;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .equation:last-child {
+            border-bottom: none;
+        }
+
+        .equation .symbol {
+            font-size: 1.8rem;
+        }
+
+        .equation .result {
+            background: rgba(182, 54, 255, 0.3);
+            padding: 4px 12px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            color: var(--warm-secondary-yellow);
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .equation .question-mark {
+            background: linear-gradient(135deg, var(--warm-main-orange), var(--warm-secondary-pink));
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .final-equation {
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-lg) !important;
+            border-top: 2px dashed rgba(182, 54, 255, 0.5);
+            border-bottom: none !important;
+        }
+
+        /* Acertijo lógico */
+        .riddle-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .riddle-clue {
+            padding: var(--spacing-sm) var(--spacing-md);
+            margin-bottom: var(--spacing-xs);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-sm);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+            border-left: 3px solid var(--cold-main-violet);
+        }
+
+        .riddle-clue:first-child {
+            background: rgba(182, 54, 255, 0.2);
+            border-left-color: var(--warm-secondary-yellow);
+            font-weight: 600;
+        }
+
+        .clue-number {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: var(--cold-main-violet);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        /* Estilos para apodos (Desafío 5) */
+        .nicknames-container {
+            display: flex;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nickname-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+            max-width: 250px;
+        }
+
+        .nickname-photo {
+            font-size: 4rem;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .nickname-photo-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--cold-main-violet);
+            margin-bottom: var(--spacing-sm);
+            box-shadow: 0 0 20px rgba(182, 54, 255, 0.3);
+        }
+
+        .nickname-name {
+            color: var(--warm-secondary-yellow);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .nickname-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm);
+            color: white;
+            font-size: 1rem;
+            text-align: center;
+            width: 100%;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .nickname-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: none;
+        }
+
+        .nickname-input:focus {
+            outline: none;
+            border-color: var(--cold-main-violet);
+            box-shadow: 0 0 15px rgba(182, 54, 255, 0.3);
+        }
+
+        .nickname-input.success {
+            border-color: var(--warm-secondary-yellow);
+            box-shadow: 0 0 15px rgba(220, 223, 48, 0.3);
+        }
+
+        .nickname-input.error {
+            border-color: var(--warm-secondary-pink);
+        }
+
+        .nickname-input:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Estilos para el crucigrama */
+        .crossword-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .crossword-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            border-left: 4px solid var(--cold-main-violet);
+        }
+
+        .crossword-clue {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+            margin-bottom: var(--spacing-sm);
+            line-height: 1.5;
+        }
+
+        .crossword-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: var(--cold-main-violet);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        .crossword-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-sm);
+            color: white;
+            font-size: 1.1rem;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .crossword-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 8px;
+        }
+
+        .crossword-input:focus {
+            outline: none;
+            border-color: var(--cold-main-violet);
+            box-shadow: 0 0 15px rgba(182, 54, 255, 0.3);
+        }
+
+        .crossword-input.correct {
+            border-color: var(--warm-secondary-yellow);
+            background: rgba(220, 223, 48, 0.1);
+        }
+
+        .crossword-input.incorrect {
+            border-color: var(--warm-secondary-pink);
+            background: rgba(255, 46, 91, 0.1);
+        }
+
+        .crossword-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -447,7 +755,7 @@
     <div class="game-container">
         <header class="game-header">
             <h1 class="game-title">🏆 Búsqueda del Tesoro</h1>
-            <p class="game-subtitle">Fiesta de fin de año - Teamcubation 2024</p>
+            <p class="game-subtitle">Fiesta de fin de año - Teamcubation 2025</p>
         </header>
 
         <!-- Barra de progreso -->
@@ -494,69 +802,127 @@
             </div>
         </div>
 
-        <!-- DESAFÍO 3: Patrón lógico -->
+        <!-- DESAFÍO 3: Sistema de ecuaciones con símbolos -->
         <div class="challenge-card" id="challenge3">
             <div class="challenge-number">3</div>
-            <h2 class="challenge-title">🧩 El Patrón Oculto</h2>
+            <h2 class="challenge-title">🧩 Código de Símbolos</h2>
             <p class="challenge-description">
-                Observá la secuencia de letras. ¿Cuál es la letra que falta?
+                Cada símbolo representa un número. Descubrí el valor de cada uno y resolvé la ecuación final.
             </p>
             
-            <div class="logic-grid">
-                <div class="logic-cell highlight">A</div>
-                <div class="logic-cell">→</div>
-                <div class="logic-cell highlight">B</div>
-                <div class="logic-cell highlight">B</div>
-                <div class="logic-cell">→</div>
-                <div class="logic-cell highlight">D</div>
-                <div class="logic-cell highlight">D</div>
-                <div class="logic-cell">→</div>
-                <div class="logic-cell question">?</div>
+            <div class="equations-container">
+                <div class="equation">
+                    <span class="symbol">🚀</span> + <span class="symbol">🚀</span> + <span class="symbol">🚀</span> = <span class="result">24</span>
+                </div>
+                <div class="equation">
+                    <span class="symbol">💻</span> + <span class="symbol">💻</span> + <span class="symbol">🚀</span> = <span class="result">22</span>
+                </div>
+                <div class="equation">
+                    <span class="symbol">⭐</span> + <span class="symbol">💻</span> + <span class="symbol">💻</span> = <span class="result">17</span>
+                </div>
+                <div class="equation final-equation">
+                    <span class="symbol">🚀</span> × <span class="symbol">💻</span> − <span class="symbol">⭐</span> = <span class="result question-mark">?</span>
+                </div>
             </div>
 
             <div class="answer-section">
-                <input type="text" class="answer-input" id="answer3" placeholder="Escribí la letra..." maxlength="1" autocomplete="off">
+                <input type="number" class="answer-input" id="answer3" placeholder="Escribí el número..." autocomplete="off">
                 <button class="submit-btn" onclick="checkAnswer(3)">Verificar</button>
                 <div class="feedback" id="feedback3"></div>
             </div>
         </div>
 
-        <!-- DESAFÍO 4: Acertijo -->
+        <!-- DESAFÍO 4: Crucigrama -->
         <div class="challenge-card" id="challenge4">
             <div class="challenge-number">4</div>
-            <h2 class="challenge-title">🤔 El Acertijo del Equipo</h2>
+            <h2 class="challenge-title">📝 El Crucigrama del Booster</h2>
             <p class="challenge-description">
-                En un proyecto de Teamcubation hay 3 desarrolladores juniors y 2 seniors. Cada junior escribe 10 líneas de código por hora, y cada senior escribe 20. Si trabajan todos juntos durante 2 horas...
+                Completá todas las palabras del crucigrama. Todas están relacionadas con Teamcubation y la automatización.
             </p>
             
-            <div class="cipher-box" style="font-size: 1rem; letter-spacing: 0;">
-                ¿Cuántas líneas de código escriben en total?
+            <div class="crossword-container">
+                <div class="crossword-item">
+                    <div class="crossword-clue">
+                        <span class="crossword-number">1.</span>
+                        Servicio de Teamcubation que potencia equipos con IA 🚀
+                    </div>
+                    <input type="text" class="crossword-input" id="cross1" data-answer="BOOSTER" maxlength="7" placeholder="_ _ _ _ _ _ _" autocomplete="off">
+                </div>
+                
+                <div class="crossword-item">
+                    <div class="crossword-clue">
+                        <span class="crossword-number">2.</span>
+                        Flujo de trabajo que automatiza tareas paso a paso
+                    </div>
+                    <input type="text" class="crossword-input" id="cross2" data-answer="WORKFLOW" maxlength="8" placeholder="_ _ _ _ _ _ _ _" autocomplete="off">
+                </div>
+                
+                <div class="crossword-item">
+                    <div class="crossword-clue">
+                        <span class="crossword-number">3.</span>
+                        Serie de pasos ordenados para lograr un resultado
+                    </div>
+                    <input type="text" class="crossword-input" id="cross3" data-answer="PROCESO" maxlength="7" placeholder="_ _ _ _ _ _ _" autocomplete="off">
+                </div>
+                
+                <div class="crossword-item">
+                    <div class="crossword-clue">
+                        <span class="crossword-number">4.</span>
+                        Lo que parece cuando la automatización hace su trabajo ✨
+                    </div>
+                    <input type="text" class="crossword-input" id="cross4" data-answer="MAGIA" maxlength="5" placeholder="_ _ _ _ _" autocomplete="off">
+                </div>
+                
+                <div class="crossword-item">
+                    <div class="crossword-clue">
+                        <span class="crossword-number">5.</span>
+                        El arte de automatizar lo repetitivo (en inglés)
+                    </div>
+                    <input type="text" class="crossword-input" id="cross5" data-answer="AUTOMATION" maxlength="10" placeholder="_ _ _ _ _ _ _ _ _ _" autocomplete="off">
+                </div>
+                
+                <div class="crossword-item">
+                    <div class="crossword-clue">
+                        <span class="crossword-number">6.</span>
+                        Lo que sentimos cuando terminamos estos desafíos 😄
+                    </div>
+                    <input type="text" class="crossword-input" id="cross6" data-answer="FELICIDAD" maxlength="9" placeholder="_ _ _ _ _ _ _ _ _" autocomplete="off">
+                </div>
             </div>
 
             <div class="answer-section">
-                <input type="number" class="answer-input" id="answer4" placeholder="Escribí el número..." autocomplete="off">
-                <button class="submit-btn" onclick="checkAnswer(4)">Verificar</button>
+                <button class="submit-btn" onclick="checkCrossword()">Verificar Crucigrama</button>
                 <div class="feedback" id="feedback4"></div>
             </div>
         </div>
 
-        <!-- DESAFÍO 5: Mensaje final -->
+        <!-- DESAFÍO 5: Apodos históricos -->
         <div class="challenge-card" id="challenge5">
             <div class="challenge-number">5</div>
-            <h2 class="challenge-title">🌟 El Enigma Final</h2>
+            <h2 class="challenge-title">🌟 Los Apodos Legendarios</h2>
             <p class="challenge-description">
-                ¡Último desafío! Entrá a <a href="https://teamcubation.com" target="_blank" style="color: var(--cold-secondary-sky);">teamcubation.com</a> y encontrá la respuesta:
+                ¡Último desafío! En Teamcubation hay dos personas con apodos históricos. Descubrí cuáles son.
             </p>
             
+            <div class="nicknames-container">
+                <div class="nickname-card">
+                    <img src="imagenes/whead.jpg" alt="Mariano" class="nickname-photo-img">
+                    <div class="nickname-name">Mariano</div>
+                    <input type="text" class="nickname-input" id="nickname1" placeholder="Su apodo es..." autocomplete="off">
+                </div>
+                <div class="nickname-card">
+                    <img src="imagenes/flor diaz.jpeg" alt="Florencia" class="nickname-photo-img">
+                    <div class="nickname-name">Florencia</div>
+                    <input type="text" class="nickname-input" id="nickname2" placeholder="Su apodo es..." autocomplete="off">
+                </div>
+            </div>
+
             <div class="cipher-box" style="font-size: 1rem; letter-spacing: 0;">
-                En la página principal hay un texto que dice:<br><br>
-                "Creamos <strong>_______</strong> real mientras formamos talento"<br><br>
-                ¿Cuál es la palabra que falta?
+                🕵️ Preguntale a alguien del equipo si no los conocés...
             </div>
 
             <div class="answer-section">
-                <input type="text" class="answer-input" id="answer5" placeholder="Escribí tu respuesta..." autocomplete="off">
-                <button class="submit-btn" onclick="checkAnswer(5)">Verificar</button>
+                <button class="submit-btn" onclick="checkNicknames()">Verificar Apodos</button>
                 <div class="feedback" id="feedback5"></div>
             </div>
         </div>
@@ -575,6 +941,7 @@
             <p style="color: rgba(255,255,255,0.5); margin-top: var(--spacing-xl); font-size: 0.9rem;">
                 🎉 Feliz fin de año de parte de Teamcubation 🎉
             </p>
+            <button class="restart-btn" onclick="restartGame()">🔄 Reiniciar Juego</button>
         </div>
     </div>
 
@@ -582,19 +949,236 @@
         // Respuestas correctas
         const answers = {
             1: 'TEAMCUBATION',
-            2: 'TALENTO', // T-A-L-E-N-T-O
-            3: 'G',
-            4: '140',
-            5: 'SOFTWARE'
+            2: 'TALENTO',
+            3: '53'       // 🚀=8, 💻=7, ⭐=3 → 8×7−3=53
+            // Desafío 4: Crucigrama (validación especial)
+            // Desafío 5: Apodos (validación especial)
+        };
+
+        // Apodos para el desafío 5
+        const nicknames = {
+            mariano: 'CABEZA',
+            florencia: 'KEKA'
         };
 
         // Respuestas alternativas aceptables
-        const altAnswers = {
-            5: ['SOFTWARE', 'SOFWARE'] // Por errores de tipeo comunes
-        };
+        const altAnswers = {};
 
         let currentChallenge = 1;
         const totalChallenges = 5;
+        const INITIAL_PENALTY_TIME = 15; // segundos de penalización inicial
+        const STORAGE_KEY = 'teamcubation_treasure_hunt';
+        
+        // Funciones para manejar el contador de intentos incorrectos en localStorage
+        function getIncorrectAttempts(challengeNum) {
+            const key = `${STORAGE_KEY}_attempts_${challengeNum}`;
+            return parseInt(localStorage.getItem(key) || '0');
+        }
+
+        function setIncorrectAttempts(challengeNum, count) {
+            const key = `${STORAGE_KEY}_attempts_${challengeNum}`;
+            localStorage.setItem(key, count.toString());
+        }
+
+        function clearIncorrectAttempts(challengeNum) {
+            const key = `${STORAGE_KEY}_attempts_${challengeNum}`;
+            localStorage.removeItem(key);
+        }
+
+        // ==========================================
+        // SISTEMA DE PERSISTENCIA (localStorage)
+        // ==========================================
+        
+        function saveProgress() {
+            const data = {
+                currentChallenge: currentChallenge,
+                completed: currentChallenge > totalChallenges
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function savePenalty(challengeNum, endTime) {
+            const key = `${STORAGE_KEY}_penalty_${challengeNum}`;
+            localStorage.setItem(key, endTime.toString());
+        }
+
+        function clearPenalty(challengeNum) {
+            const key = `${STORAGE_KEY}_penalty_${challengeNum}`;
+            localStorage.removeItem(key);
+        }
+
+        function getPenaltyRemaining(challengeNum) {
+            const key = `${STORAGE_KEY}_penalty_${challengeNum}`;
+            const endTime = localStorage.getItem(key);
+            if (!endTime) return 0;
+            
+            const remaining = Math.ceil((parseInt(endTime) - Date.now()) / 1000);
+            return remaining > 0 ? remaining : 0;
+        }
+
+        function loadProgress() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (data) {
+                const parsed = JSON.parse(data);
+                currentChallenge = parsed.currentChallenge || 1;
+                
+                // Si ya completó todo, mostrar victoria
+                if (parsed.completed) {
+                    currentChallenge = totalChallenges + 1;
+                }
+            }
+        }
+
+        function initializeGame() {
+            loadProgress();
+            
+            // Ocultar todos los challenges y mostrar el actual
+            for (let i = 1; i <= totalChallenges; i++) {
+                const card = document.getElementById(`challenge${i}`);
+                if (card) {
+                    card.classList.remove('active');
+                }
+            }
+            
+            if (currentChallenge > totalChallenges) {
+                // Ya ganó
+                document.getElementById('victoryScreen').classList.add('active');
+                document.getElementById('progressText').textContent = '¡COMPLETADO!';
+                document.getElementById('progressBar').style.width = '100%';
+            } else {
+                document.getElementById(`challenge${currentChallenge}`).classList.add('active');
+                updateProgress();
+                
+                // Verificar si hay penalización activa
+                checkActivePenalty(currentChallenge);
+            }
+        }
+
+        function checkActivePenalty(challengeNum) {
+            const remaining = getPenaltyRemaining(challengeNum);
+            if (remaining > 0) {
+                // Caso especial para el crucigrama (desafío 4)
+                if (challengeNum === 4) {
+                    resumeCrosswordPenalty(remaining);
+                    return;
+                }
+                
+                // Caso especial para apodos (desafío 5)
+                if (challengeNum === 5) {
+                    resumeNicknamesPenalty(remaining);
+                    return;
+                }
+                
+                const input = document.getElementById(`answer${challengeNum}`);
+                const feedback = document.getElementById(`feedback${challengeNum}`);
+                const button = input?.parentElement?.querySelector('.submit-btn');
+                
+                if (input && button && feedback) {
+                    // Pasar la duración correcta para la penalización progresiva
+                    const attempts = getIncorrectAttempts(challengeNum);
+                    const penaltyDuration = attempts > 0 ? attempts * INITIAL_PENALTY_TIME : INITIAL_PENALTY_TIME; // Si no hay intentos guardados, usar la inicial
+                    resumePenaltyTimer(challengeNum, input, button, feedback, penaltyDuration);
+                }
+            }
+        }
+
+        // Reanudar penalización del crucigrama
+        function resumeCrosswordPenalty(remainingTime) {
+            const inputs = document.querySelectorAll('.crossword-input');
+            const feedback = document.getElementById('feedback4');
+            const button = document.querySelector('#challenge4 .submit-btn');
+            
+            inputs.forEach(input => input.disabled = true);
+            button.disabled = true;
+            
+            // Obtener el número de intentos para mostrar la penalización correcta
+            const attempts = getIncorrectAttempts(4);
+            const totalPenaltyApplied = attempts * INITIAL_PENALTY_TIME;
+
+            feedback.className = 'feedback show';
+            feedback.innerHTML = `
+                <div class="timer-container">
+                    <span class="timer-icon">⏱️</span>
+                    <span class="timer-text">Penalización activa (${totalPenaltyApplied}s). Esperá</span>
+                    <span class="timer-countdown" id="countdown4">${remainingTime}</span>
+                    <span class="timer-text">seg</span>
+                </div>
+            `;
+            
+            const countdown = document.getElementById('countdown4');
+            
+            const timer = setInterval(() => {
+                remainingTime--;
+                if (countdown) countdown.textContent = remainingTime;
+                
+                if (remainingTime <= 0) {
+                    clearInterval(timer);
+                    clearPenalty(4);
+                    
+                    inputs.forEach(input => {
+                        input.disabled = false;
+                        input.classList.remove('incorrect');
+                    });
+                    button.disabled = false;
+                    
+                    feedback.className = 'feedback show';
+                    feedback.innerHTML = '🔓 ¡Podés intentar de nuevo!';
+                    
+                    setTimeout(() => {
+                        feedback.className = 'feedback';
+                    }, 2000);
+                }
+            }, 1000);
+        }
+
+        // Reanudar penalización de apodos
+        function resumeNicknamesPenalty(remainingTime) {
+            const input1 = document.getElementById('nickname1');
+            const input2 = document.getElementById('nickname2');
+            const feedback = document.getElementById('feedback5');
+            const button = document.querySelector('#challenge5 .submit-btn');
+            
+            if (input1) input1.disabled = true;
+            if (input2) input2.disabled = true;
+            if (button) button.disabled = true;
+
+            // Obtener el número de intentos para mostrar la penalización correcta
+            const attempts = getIncorrectAttempts(5);
+            const totalPenaltyApplied = attempts * INITIAL_PENALTY_TIME;
+            
+            feedback.className = 'feedback show';
+            feedback.innerHTML = `
+                <div class="timer-container">
+                    <span class="timer-icon">⏱️</span>
+                    <span class="timer-text">Penalización activa (${totalPenaltyApplied}s). Esperá</span>
+                    <span class="timer-countdown" id="countdown5">${remainingTime}</span>
+                    <span class="timer-text">seg</span>
+                </div>
+            `;
+            
+            const countdown = document.getElementById('countdown5');
+            
+            const timer = setInterval(() => {
+                remainingTime--;
+                if (countdown) countdown.textContent = remainingTime;
+                
+                if (remainingTime <= 0) {
+                    clearInterval(timer);
+                    clearPenalty(5);
+                    
+                    if (input1) { input1.disabled = false; input1.value = ''; }
+                    if (input2) { input2.disabled = false; input2.value = ''; }
+                    if (button) button.disabled = false;
+                    
+                    feedback.className = 'feedback show';
+                    feedback.innerHTML = '🔓 ¡Podés intentar de nuevo!';
+                    
+                    setTimeout(() => {
+                        feedback.className = 'feedback';
+                    }, 2000);
+                }
+            }, 1000);
+        }
 
         // Crear partículas de fondo
         function createParticles() {
@@ -617,7 +1201,11 @@
         function checkAnswer(challengeNum) {
             const input = document.getElementById(`answer${challengeNum}`);
             const feedback = document.getElementById(`feedback${challengeNum}`);
+            const button = input.parentElement.querySelector('.submit-btn');
             const userAnswer = input.value.trim().toUpperCase();
+            
+            // Si no hay respuesta, no hacer nada
+            if (!userAnswer) return;
             
             let isCorrect = false;
             
@@ -639,19 +1227,79 @@
                 feedback.className = 'feedback show success';
                 feedback.innerHTML = '✅ ¡Correcto! ¡Excelente trabajo!';
                 
+                clearIncorrectAttempts(challengeNum); // Limpiar intentos al acertar
+
                 setTimeout(() => {
                     nextChallenge();
                 }, 1500);
             } else {
                 input.classList.add('error');
                 input.classList.remove('success');
-                feedback.className = 'feedback show error';
-                feedback.innerHTML = '❌ Incorrecto. ¡Seguí intentando!';
                 
-                setTimeout(() => {
-                    input.classList.remove('error');
-                }, 500);
+                // Incrementar intentos y calcular penalización
+                let attempts = getIncorrectAttempts(challengeNum) + 1;
+                setIncorrectAttempts(challengeNum, attempts);
+                const currentPenalty = attempts * INITIAL_PENALTY_TIME;
+
+                // Iniciar penalización
+                startPenaltyTimer(challengeNum, input, button, feedback, currentPenalty);
             }
+        }
+
+        // Timer de penalización
+        function startPenaltyTimer(challengeNum, input, button, feedback, penaltyDuration) {
+            const endTime = Date.now() + (penaltyDuration * 1000);
+            savePenalty(challengeNum, endTime);
+            
+            resumePenaltyTimer(challengeNum, input, button, feedback, penaltyDuration);
+        }
+
+        // Reanudar timer (para cuando se recarga la página)
+        function resumePenaltyTimer(challengeNum, input, button, feedback, remainingTime) {
+            // Deshabilitar input y botón
+            input.disabled = true;
+            button.disabled = true;
+            input.classList.remove('error');
+            
+            // Obtener el número de intentos para mostrar la penalización total aplicada
+            const attempts = getIncorrectAttempts(challengeNum);
+            const totalPenaltyApplied = attempts * INITIAL_PENALTY_TIME;
+
+            // Mostrar timer
+            feedback.className = 'feedback show';
+            feedback.innerHTML = `
+                <div class="timer-container">
+                    <span class="timer-icon">⏱️</span>
+                    <span class="timer-text">Penalización activa (${totalPenaltyApplied}s). Esperá</span>
+                    <span class="timer-countdown" id="countdown${challengeNum}">${remainingTime}</span>
+                    <span class="timer-text">seg</span>
+                </div>
+            `;
+            
+            const countdown = document.getElementById(`countdown${challengeNum}`);
+            
+            const timer = setInterval(() => {
+                remainingTime--;
+                if (countdown) countdown.textContent = remainingTime;
+                
+                if (remainingTime <= 0) {
+                    clearInterval(timer);
+                    clearPenalty(challengeNum);
+                    
+                    // Rehabilitar input y botón
+                    input.disabled = false;
+                    button.disabled = false;
+                    input.value = '';
+                    input.focus();
+                    
+                    feedback.className = 'feedback show';
+                    feedback.innerHTML = '🔓 ¡Podés intentar de nuevo!';
+                    
+                    setTimeout(() => {
+                        feedback.className = 'feedback';
+                    }, 2000);
+                }
+            }, 1000);
         }
 
         // Pasar al siguiente desafío
@@ -661,6 +1309,10 @@
                 currentChallenge++;
                 document.getElementById(`challenge${currentChallenge}`).classList.add('active');
                 updateProgress();
+                saveProgress();
+                
+                // Verificar si hay penalización activa en el nuevo challenge
+                checkActivePenalty(currentChallenge);
                 
                 // Scroll al nuevo desafío
                 document.getElementById(`challenge${currentChallenge}`).scrollIntoView({ 
@@ -674,7 +1326,98 @@
                 document.getElementById('progressText').textContent = '¡COMPLETADO!';
                 document.getElementById('progressBar').style.width = '100%';
                 
+                // Guardar que completó todo
+                currentChallenge++;
+                saveProgress();
+                
                 createConfetti();
+            }
+        }
+
+        // Verificar apodos (Desafío 5)
+        function checkNicknames() {
+            const input1 = document.getElementById('nickname1');
+            const input2 = document.getElementById('nickname2');
+            const feedback = document.getElementById('feedback5');
+            const button = document.querySelector('#challenge5 .submit-btn');
+            
+            const apodo1 = input1.value.trim().toUpperCase();
+            const apodo2 = input2.value.trim().toUpperCase();
+            
+            if (!apodo1 || !apodo2) {
+                feedback.className = 'feedback show error';
+                feedback.innerHTML = '⚠️ Completá los dos apodos';
+                return;
+            }
+            
+            const correctMariano = apodo1 === nicknames.mariano;
+            const correctFlorencia = apodo2 === nicknames.florencia;
+            
+            if (correctMariano && correctFlorencia) {
+                input1.classList.add('success');
+                input2.classList.add('success');
+                feedback.className = 'feedback show success';
+                feedback.innerHTML = '✅ ¡Correcto! ¡Los conocés bien!';
+                
+                setTimeout(() => {
+                    nextChallenge();
+                }, 1500);
+            } else {
+                input1.classList.add('error');
+                input2.classList.add('error');
+                
+                // Penalización
+                input1.disabled = true;
+                input2.disabled = true;
+                button.disabled = true;
+                
+                // Incrementar intentos y calcular penalización
+                let attempts = getIncorrectAttempts(5) + 1;
+                setIncorrectAttempts(5, attempts);
+                const currentPenalty = attempts * INITIAL_PENALTY_TIME;
+
+                const endTime = Date.now() + (currentPenalty * 1000);
+                savePenalty(5, endTime);
+                
+                let timeLeft = currentPenalty;
+                
+                feedback.className = 'feedback show';
+                feedback.innerHTML = `
+                    <div class="timer-container">
+                        <span class="timer-icon">⏱️</span>
+                        <span class="timer-text">Incorrecto. Esperá</span>
+                        <span class="timer-countdown" id="countdown5">${timeLeft}</span>
+                        <span class="timer-text">seg</span>
+                    </div>
+                `;
+                
+                const countdown = document.getElementById('countdown5');
+                
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    if (countdown) countdown.textContent = timeLeft;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        clearPenalty(5);
+                        
+                        input1.disabled = false;
+                        input2.disabled = false;
+                        button.disabled = false;
+                        input1.value = '';
+                        input2.value = '';
+                        input1.classList.remove('error');
+                        input2.classList.remove('error');
+                        input1.focus();
+                        
+                        feedback.className = 'feedback show';
+                        feedback.innerHTML = '🔓 ¡Podés intentar de nuevo!';
+                        
+                        setTimeout(() => {
+                            feedback.className = 'feedback';
+                        }, 2000);
+                    }
+                }, 1000);
             }
         }
 
@@ -716,11 +1459,128 @@
                     const challengeNum = activeInput.id.replace('answer', '');
                     checkAnswer(parseInt(challengeNum));
                 }
+                // También para los inputs de apodos
+                if (activeInput && activeInput.classList.contains('nickname-input')) {
+                    checkNicknames();
+                }
             }
         });
 
+        // Verificar crucigrama (Desafío 4)
+        function checkCrossword() {
+            const inputs = document.querySelectorAll('.crossword-input');
+            const feedback = document.getElementById('feedback4');
+            const button = document.querySelector('#challenge4 .submit-btn');
+            
+            let allCorrect = true;
+            let allFilled = true;
+            
+            inputs.forEach(input => {
+                const userAnswer = input.value.trim().toUpperCase();
+                const correctAnswer = input.dataset.answer;
+                
+                if (!userAnswer) {
+                    allFilled = false;
+                    input.classList.remove('correct', 'incorrect');
+                } else if (userAnswer === correctAnswer) {
+                    input.classList.add('correct');
+                    input.classList.remove('incorrect');
+                } else {
+                    input.classList.add('incorrect');
+                    input.classList.remove('correct');
+                    allCorrect = false;
+                }
+            });
+            
+            if (!allFilled) {
+                feedback.className = 'feedback show error';
+                feedback.innerHTML = '⚠️ Completá todas las palabras';
+                return;
+            }
+            
+            if (allCorrect) {
+                // Deshabilitar todos los inputs
+                inputs.forEach(input => input.disabled = true);
+                button.disabled = true;
+                
+                feedback.className = 'feedback show success';
+                feedback.innerHTML = '✅ ¡Crucigrama completado! ¡Excelente trabajo!';
+                
+                setTimeout(() => {
+                    nextChallenge();
+                }, 1500);
+            } else {
+                // Penalización
+                inputs.forEach(input => input.disabled = true);
+                button.disabled = true;
+
+                // Incrementar intentos y calcular penalización
+                let attempts = getIncorrectAttempts(4) + 1;
+                setIncorrectAttempts(4, attempts);
+                const currentPenalty = attempts * INITIAL_PENALTY_TIME;
+                
+                const endTime = Date.now() + (currentPenalty * 1000);
+                savePenalty(4, endTime);
+                
+                let timeLeft = currentPenalty;
+                
+                feedback.className = 'feedback show';
+                feedback.innerHTML = `
+                    <div class="timer-container">
+                        <span class="timer-icon">⏱️</span>
+                        <span class="timer-text">Hay errores. Esperá</span>
+                        <span class="timer-countdown" id="countdown4">${timeLeft}</span>
+                        <span class="timer-text">seg</span>
+                    </div>
+                `;
+                
+                const countdown = document.getElementById('countdown4');
+                
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    if (countdown) countdown.textContent = timeLeft;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        clearPenalty(4);
+                        
+                        inputs.forEach(input => {
+                            input.disabled = false;
+                            input.classList.remove('incorrect');
+                            // Mantener los correctos
+                            if (!input.classList.contains('correct')) {
+                                input.value = '';
+                            }
+                        });
+                        button.disabled = false;
+                        
+                        feedback.className = 'feedback show';
+                        feedback.innerHTML = '🔓 ¡Podés intentar de nuevo! Las correctas se mantienen.';
+                        
+                        setTimeout(() => {
+                            feedback.className = 'feedback';
+                        }, 3000);
+                    }
+                }, 1000);
+            }
+        }
+
+        // Reiniciar juego
+        function restartGame() {
+            // Limpiar todo el localStorage relacionado al juego
+            localStorage.removeItem(STORAGE_KEY);
+            for (let i = 1; i <= totalChallenges; i++) {
+                localStorage.removeItem(`${STORAGE_KEY}_penalty_${i}`);
+                localStorage.removeItem(`${STORAGE_KEY}_attempts_${i}`); // Limpiar intentos incorrectos
+            }
+            
+            // Recargar la página
+            location.reload();
+        }
+
         // Inicializar
         createParticles();
+        initializeGame();
     </script>
 </body>
 </html>
