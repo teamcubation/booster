@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 Búsqueda del Tesoro - Teamcubation</title>
+    <link rel="stylesheet" href="teamcubation.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: var(--spacing-md);
+            min-height: 100vh;
+        }
+
+        /* Header del juego */
+        .game-header {
+            text-align: center;
+            padding: var(--spacing-xl) var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .game-title {
+            font-size: clamp(1.8rem, 6vw, 2.5rem);
+            background: linear-gradient(135deg, var(--warm-main-orange), var(--warm-secondary-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--spacing-sm);
+            text-shadow: 0 0 60px rgba(255, 73, 51, 0.3);
+        }
+
+        .game-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 4px;
+            margin-bottom: var(--spacing-xl);
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: linear-gradient(90deg, var(--cold-main-violet), var(--warm-main-orange));
+            border-radius: 50px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 20px rgba(182, 54, 255, 0.5);
+        }
+
+        .progress-text {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-top: var(--spacing-sm);
+            font-weight: 600;
+        }
+
+        /* Desafío card */
+        .challenge-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            animation: slideIn 0.6s ease-out;
+            display: none;
+        }
+
+        .challenge-card.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .challenge-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--cold-main-violet), var(--cold-secondary-violet));
+            border-radius: 50%;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: var(--spacing-md);
+            box-shadow: 0 0 30px rgba(182, 54, 255, 0.4);
+        }
+
+        .challenge-title {
+            color: white;
+            font-size: 1.4rem;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .challenge-description {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            margin-bottom: var(--spacing-lg);
+            font-size: 1rem;
+        }
+
+        .cipher-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px dashed rgba(182, 54, 255, 0.5);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+            font-family: 'Courier New', monospace;
+            font-size: clamp(1rem, 4vw, 1.4rem);
+            color: var(--warm-secondary-yellow);
+            letter-spacing: 3px;
+            word-break: break-all;
+        }
+
+        .hint-box {
+            background: rgba(255, 162, 50, 0.1);
+            border-left: 4px solid var(--warm-secondary-orange);
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .hint-box p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .hint-box strong {
+            color: var(--warm-secondary-orange);
+        }
+
+        /* Input de respuesta */
+        .answer-section {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .answer-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .answer-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--cold-main-violet);
+            box-shadow: 0 0 20px rgba(182, 54, 255, 0.3);
+        }
+
+        .answer-input.error {
+            border-color: var(--warm-secondary-pink);
+            animation: shake 0.5s ease-out;
+        }
+
+        .answer-input.success {
+            border-color: var(--warm-secondary-yellow);
+            box-shadow: 0 0 30px rgba(220, 223, 48, 0.5);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--cold-main-violet), var(--cold-secondary-violet));
+            color: white;
+            border: none;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(182, 54, 255, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Feedback */
+        .feedback {
+            text-align: center;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-top: var(--spacing-md);
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .feedback.error {
+            background: rgba(255, 46, 91, 0.2);
+            color: var(--warm-secondary-pink);
+        }
+
+        .feedback.success {
+            background: rgba(220, 223, 48, 0.2);
+            color: var(--warm-secondary-yellow);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Victoria */
+        .victory-screen {
+            display: none;
+            text-align: center;
+            padding: var(--spacing-2xl);
+            animation: victoryPulse 0.8s ease-out;
+        }
+
+        .victory-screen.active {
+            display: block;
+        }
+
+        @keyframes victoryPulse {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .victory-emoji {
+            font-size: 6rem;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .victory-title {
+            font-size: clamp(2rem, 8vw, 3rem);
+            background: linear-gradient(135deg, var(--warm-secondary-yellow), var(--warm-main-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: var(--spacing-lg) 0;
+        }
+
+        .victory-message {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            line-height: 1.8;
+            max-width: 500px;
+            margin: 0 auto var(--spacing-xl);
+        }
+
+        .victory-action {
+            background: linear-gradient(135deg, var(--warm-main-orange), var(--warm-secondary-pink));
+            color: white;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border-radius: var(--radius-xl);
+            font-size: 1.3rem;
+            font-weight: 800;
+            display: inline-block;
+            animation: pulseGlow 2s infinite;
+            text-transform: uppercase;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 73, 51, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 73, 51, 0.8); }
+        }
+
+        /* Partículas decorativas */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--cold-main-violet);
+            border-radius: 50%;
+            animation: float 15s infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Elementos de lógica visual */
+        .logic-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .logic-cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logic-cell.highlight {
+            border-color: var(--cold-main-violet);
+            background: rgba(182, 54, 255, 0.2);
+        }
+
+        .logic-cell.question {
+            background: linear-gradient(135deg, var(--warm-main-orange), var(--warm-secondary-pink));
+            font-weight: 800;
+        }
+
+        /* Tabla decodificadora */
+        .decode-table {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+            gap: 4px;
+            margin-bottom: var(--spacing-lg);
+            background: rgba(0, 0, 0, 0.3);
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-md);
+        }
+
+        .decode-item {
+            text-align: center;
+            padding: 8px 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .decode-item .letter {
+            color: var(--warm-secondary-yellow);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .decode-item .number {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.7rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .game-container {
+                padding: var(--spacing-sm);
+            }
+
+            .challenge-card {
+                padding: var(--spacing-lg);
+            }
+
+            .cipher-box {
+                font-size: 0.9rem;
+                letter-spacing: 1px;
+                padding: var(--spacing-md);
+            }
+
+            .victory-emoji {
+                font-size: 4rem;
+            }
+        }
+
+        /* Confetti effect */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            animation: confettiFall 4s linear forwards;
+            z-index: 1000;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Partículas de fondo -->
+    <div class="particles" id="particles"></div>
+
+    <div class="game-container">
+        <header class="game-header">
+            <h1 class="game-title">🏆 Búsqueda del Tesoro</h1>
+            <p class="game-subtitle">Fiesta de fin de año - Teamcubation 2024</p>
+        </header>
+
+        <!-- Barra de progreso -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+        </div>
+        <p class="progress-text" id="progressText">Desafío 1 de 5</p>
+
+        <!-- DESAFÍO 1: Cifrado César -->
+        <div class="challenge-card active" id="challenge1">
+            <div class="challenge-number">1</div>
+            <h2 class="challenge-title">🔐 El Código Secreto</h2>
+            <p class="challenge-description">
+                Un mensaje encriptado llegó a tu equipo. Descifrá el código para avanzar.
+            </p>
+            
+            <div class="cipher-box">
+                WHDPFXEDWLRQ
+            </div>
+
+            <div class="answer-section">
+                <input type="text" class="answer-input" id="answer1" placeholder="Escribí tu respuesta..." autocomplete="off">
+                <button class="submit-btn" onclick="checkAnswer(1)">Verificar</button>
+                <div class="feedback" id="feedback1"></div>
+            </div>
+        </div>
+
+        <!-- DESAFÍO 2: Código numérico -->
+        <div class="challenge-card" id="challenge2">
+            <div class="challenge-number">2</div>
+            <h2 class="challenge-title">🔢 Números con Significado</h2>
+            <p class="challenge-description">
+                Decodificá el siguiente mensaje para descubrir qué cultivamos en Teamcubation.
+            </p>
+            
+            <div class="cipher-box">
+                20 - 1 - 12 - 5 - 14 - 20 - 15
+            </div>
+
+            <div class="answer-section">
+                <input type="text" class="answer-input" id="answer2" placeholder="Escribí tu respuesta..." autocomplete="off">
+                <button class="submit-btn" onclick="checkAnswer(2)">Verificar</button>
+                <div class="feedback" id="feedback2"></div>
+            </div>
+        </div>
+
+        <!-- DESAFÍO 3: Patrón lógico -->
+        <div class="challenge-card" id="challenge3">
+            <div class="challenge-number">3</div>
+            <h2 class="challenge-title">🧩 El Patrón Oculto</h2>
+            <p class="challenge-description">
+                Observá la secuencia de letras. ¿Cuál es la letra que falta?
+            </p>
+            
+            <div class="logic-grid">
+                <div class="logic-cell highlight">A</div>
+                <div class="logic-cell">→</div>
+                <div class="logic-cell highlight">B</div>
+                <div class="logic-cell highlight">B</div>
+                <div class="logic-cell">→</div>
+                <div class="logic-cell highlight">D</div>
+                <div class="logic-cell highlight">D</div>
+                <div class="logic-cell">→</div>
+                <div class="logic-cell question">?</div>
+            </div>
+
+            <div class="answer-section">
+                <input type="text" class="answer-input" id="answer3" placeholder="Escribí la letra..." maxlength="1" autocomplete="off">
+                <button class="submit-btn" onclick="checkAnswer(3)">Verificar</button>
+                <div class="feedback" id="feedback3"></div>
+            </div>
+        </div>
+
+        <!-- DESAFÍO 4: Acertijo -->
+        <div class="challenge-card" id="challenge4">
+            <div class="challenge-number">4</div>
+            <h2 class="challenge-title">🤔 El Acertijo del Equipo</h2>
+            <p class="challenge-description">
+                En un proyecto de Teamcubation hay 3 desarrolladores juniors y 2 seniors. Cada junior escribe 10 líneas de código por hora, y cada senior escribe 20. Si trabajan todos juntos durante 2 horas...
+            </p>
+            
+            <div class="cipher-box" style="font-size: 1rem; letter-spacing: 0;">
+                ¿Cuántas líneas de código escriben en total?
+            </div>
+
+            <div class="answer-section">
+                <input type="number" class="answer-input" id="answer4" placeholder="Escribí el número..." autocomplete="off">
+                <button class="submit-btn" onclick="checkAnswer(4)">Verificar</button>
+                <div class="feedback" id="feedback4"></div>
+            </div>
+        </div>
+
+        <!-- DESAFÍO 5: Mensaje final -->
+        <div class="challenge-card" id="challenge5">
+            <div class="challenge-number">5</div>
+            <h2 class="challenge-title">🌟 El Enigma Final</h2>
+            <p class="challenge-description">
+                ¡Último desafío! Entrá a <a href="https://teamcubation.com" target="_blank" style="color: var(--cold-secondary-sky);">teamcubation.com</a> y encontrá la respuesta:
+            </p>
+            
+            <div class="cipher-box" style="font-size: 1rem; letter-spacing: 0;">
+                En la página principal hay un texto que dice:<br><br>
+                "Creamos <strong>_______</strong> real mientras formamos talento"<br><br>
+                ¿Cuál es la palabra que falta?
+            </div>
+
+            <div class="answer-section">
+                <input type="text" class="answer-input" id="answer5" placeholder="Escribí tu respuesta..." autocomplete="off">
+                <button class="submit-btn" onclick="checkAnswer(5)">Verificar</button>
+                <div class="feedback" id="feedback5"></div>
+            </div>
+        </div>
+
+        <!-- Pantalla de victoria -->
+        <div class="victory-screen" id="victoryScreen">
+            <div class="victory-emoji">🏆</div>
+            <h1 class="victory-title">¡GANARON!</h1>
+            <p class="victory-message">
+                ¡Felicitaciones! Resolvieron todos los desafíos y demostraron que trabajan increíble en equipo.
+            </p>
+            <div class="victory-action">
+                🥃 CORRAN A BUSCAR LA BOTELLA DE JÄGER<br>
+                <span style="font-size: 0.9rem; font-weight: 400;">¡Cada miembro del grupo tiene que hacer un shot!</span>
+            </div>
+            <p style="color: rgba(255,255,255,0.5); margin-top: var(--spacing-xl); font-size: 0.9rem;">
+                🎉 Feliz fin de año de parte de Teamcubation 🎉
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Respuestas correctas
+        const answers = {
+            1: 'TEAMCUBATION',
+            2: 'TALENTO', // T-A-L-E-N-T-O
+            3: 'G',
+            4: '140',
+            5: 'SOFTWARE'
+        };
+
+        // Respuestas alternativas aceptables
+        const altAnswers = {
+            5: ['SOFTWARE', 'SOFWARE'] // Por errores de tipeo comunes
+        };
+
+        let currentChallenge = 1;
+        const totalChallenges = 5;
+
+        // Crear partículas de fondo
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                
+                const colors = ['#B636FF', '#FF4933', '#00B2FF', '#DCDF30'];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                container.appendChild(particle);
+            }
+        }
+
+        // Verificar respuesta
+        function checkAnswer(challengeNum) {
+            const input = document.getElementById(`answer${challengeNum}`);
+            const feedback = document.getElementById(`feedback${challengeNum}`);
+            const userAnswer = input.value.trim().toUpperCase();
+            
+            let isCorrect = false;
+            
+            // Verificar respuesta principal
+            if (userAnswer === answers[challengeNum].toUpperCase()) {
+                isCorrect = true;
+            }
+            
+            // Verificar respuestas alternativas
+            if (!isCorrect && altAnswers[challengeNum]) {
+                isCorrect = altAnswers[challengeNum].some(alt => 
+                    userAnswer === alt.toUpperCase()
+                );
+            }
+
+            if (isCorrect) {
+                input.classList.remove('error');
+                input.classList.add('success');
+                feedback.className = 'feedback show success';
+                feedback.innerHTML = '✅ ¡Correcto! ¡Excelente trabajo!';
+                
+                setTimeout(() => {
+                    nextChallenge();
+                }, 1500);
+            } else {
+                input.classList.add('error');
+                input.classList.remove('success');
+                feedback.className = 'feedback show error';
+                feedback.innerHTML = '❌ Incorrecto. ¡Seguí intentando!';
+                
+                setTimeout(() => {
+                    input.classList.remove('error');
+                }, 500);
+            }
+        }
+
+        // Pasar al siguiente desafío
+        function nextChallenge() {
+            if (currentChallenge < totalChallenges) {
+                document.getElementById(`challenge${currentChallenge}`).classList.remove('active');
+                currentChallenge++;
+                document.getElementById(`challenge${currentChallenge}`).classList.add('active');
+                updateProgress();
+                
+                // Scroll al nuevo desafío
+                document.getElementById(`challenge${currentChallenge}`).scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            } else {
+                // Victoria
+                document.getElementById(`challenge${currentChallenge}`).classList.remove('active');
+                document.getElementById('victoryScreen').classList.add('active');
+                document.getElementById('progressText').textContent = '¡COMPLETADO!';
+                document.getElementById('progressBar').style.width = '100%';
+                
+                createConfetti();
+            }
+        }
+
+        // Actualizar barra de progreso
+        function updateProgress() {
+            const progress = ((currentChallenge - 1) / totalChallenges) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Desafío ${currentChallenge} de ${totalChallenges}`;
+        }
+
+        // Crear confetti para la victoria
+        function createConfetti() {
+            const colors = ['#FF4933', '#DCDF30', '#B636FF', '#00B2FF', '#FF2E5B', '#FFA232'];
+            
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDuration = (3 + Math.random() * 2) + 's';
+                    confetti.style.width = (5 + Math.random() * 10) + 'px';
+                    confetti.style.height = (5 + Math.random() * 10) + 'px';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }, i * 30);
+            }
+        }
+
+        // Permitir enviar con Enter
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const activeInput = document.activeElement;
+                if (activeInput && activeInput.classList.contains('answer-input')) {
+                    const challengeNum = activeInput.id.replace('answer', '');
+                    checkAnswer(parseInt(challengeNum));
+                }
+            }
+        });
+
+        // Inicializar
+        createParticles();
+    </script>
+</body>
+</html>
+

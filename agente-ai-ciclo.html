@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ciclo de un Agente AI - Booster</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root {
+            --warm-main-orange: #FF4933;
+            --cold-main-violet: #B636FF;
+            --cold-secondary-sky: #00B2FF;
+            --light-gray: #F5F5F5;
+            --white: #FFFFFF;
+            --dark-gray: #333333;
+            --medium-gray: #666666;
+            --font-title: 'Plus Jakarta Sans', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--white);
+            color: var(--dark-gray);
+            line-height: 1.5;
+            padding: 0.5rem;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 0.75rem 1rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-family: var(--font-title);
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            color: var(--cold-main-violet);
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            font-size: clamp(0.85rem, 2vw, 1rem);
+            color: var(--medium-gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .analogy-box {
+            background: var(--light-gray);
+            border-left: 4px solid var(--warm-main-orange);
+            padding: 0.75rem 1rem;
+            margin: 0.75rem auto;
+            max-width: 900px;
+            border-radius: 8px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .analogy-box p {
+            margin: 0;
+            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+            line-height: 1.5;
+        }
+
+        .scenario-selector {
+            background: var(--light-gray);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            margin: 0.75rem auto;
+            max-width: 900px;
+            text-align: center;
+        }
+
+        .scenario-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .scenario-btn {
+            background: var(--white);
+            border: 2px solid var(--cold-main-violet);
+            color: var(--cold-main-violet);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            font-family: var(--font-body);
+            font-weight: 500;
+        }
+
+        .scenario-btn:hover {
+            background: var(--cold-main-violet);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .scenario-btn.active {
+            background: var(--cold-main-violet);
+            color: white;
+        }
+
+        .cycle-container {
+            display: flex;
+            gap: 0.75rem;
+            margin: 0.75rem 0;
+            align-items: stretch;
+        }
+
+        .cycle-step {
+            flex: 1;
+            background: var(--white);
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            padding: 1rem;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            max-height: calc(100vh - 200px);
+        }
+
+        .cycle-step.active {
+            border-color: var(--cold-main-violet);
+            box-shadow: 0 8px 24px rgba(182, 54, 255, 0.15);
+        }
+
+        .step-header {
+            text-align: center;
+            margin-bottom: 0.75rem;
+            position: relative;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--cold-main-violet);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-title);
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin: 0 auto 0.5rem;
+        }
+
+        .step-title {
+            font-family: var(--font-title);
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: var(--cold-main-violet);
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+            display: inline-block;
+        }
+
+        .step-title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .step-icon {
+            display: none;
+        }
+
+        .prompt-button {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--cold-main-violet);
+            color: white;
+            border: 2px solid var(--cold-main-violet);
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(182, 54, 255, 0.3);
+            flex-shrink: 0;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .prompt-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 3px 10px rgba(182, 54, 255, 0.5);
+            background: var(--warm-main-orange);
+            border-color: var(--warm-main-orange);
+        }
+
+        .step-description {
+            font-size: clamp(0.75rem, 1.2vw, 0.85rem);
+            color: var(--medium-gray);
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .demo-area {
+            background: var(--light-gray);
+            border-radius: 8px;
+            padding: 0.75rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 0;
+            position: relative;
+            overflow: hidden;
+            overflow-y: auto;
+        }
+
+        .demo-content {
+            display: none;
+            width: 100%;
+            text-align: center;
+        }
+
+        .demo-content.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .perceive-item {
+            background: var(--white);
+            border: 2px solid var(--cold-main-violet);
+            border-radius: 6px;
+            padding: 0.5rem;
+            margin: 0.15rem 0;
+            width: 100%;
+            max-width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .perceive-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 2px 8px rgba(182, 54, 255, 0.2);
+        }
+
+        .perceive-item.selected {
+            border-color: var(--warm-main-orange);
+            background: rgba(255, 73, 51, 0.1);
+            animation: none;
+        }
+
+        .perceive-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .perceive-text {
+            font-weight: 600;
+            color: var(--dark-gray);
+            font-size: 0.7rem;
+            line-height: 1.2;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.02); opacity: 0.9; }
+        }
+
+        /* Modal para System Prompt */
+        .prompt-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .prompt-modal-overlay.show {
+            display: flex;
+        }
+
+        .prompt-modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease-out;
+            position: relative;
+        }
+
+        .prompt-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .prompt-modal-title {
+            font-family: var(--font-title);
+            font-size: 1.1rem;
+            color: var(--cold-main-violet);
+            font-weight: 800;
+        }
+
+        .prompt-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--medium-gray);
+            padding: 0.25rem 0.5rem;
+            transition: all 0.3s ease;
+            line-height: 1;
+        }
+
+        .prompt-modal-close:hover {
+            color: var(--dark-gray);
+            transform: scale(1.1);
+        }
+
+        .system-prompt-text {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            line-height: 1.6;
+            font-style: italic;
+            background: var(--light-gray);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--cold-main-violet);
+        }
+
+        .reasoning-bubble {
+            background: var(--white);
+            border: 2px solid var(--cold-main-violet);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            width: 100%;
+            text-align: left;
+            display: none;
+        }
+
+        .reasoning-bubble.active {
+            display: block;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .reasoning-text {
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+            line-height: 1.5;
+        }
+
+        .reasoning-text .step {
+            margin: 0.25rem 0;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .reasoning-text .step::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--cold-main-violet);
+            font-weight: bold;
+        }
+
+        .action-result {
+            width: 100%;
+            display: none;
+        }
+
+        .action-result.active {
+            display: block;
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        /* Email Preview (reutilizado de workflow.html) */
+        .email-preview {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 0.7rem;
+        }
+
+        .email-header {
+            background: #f8f9fa;
+            padding: 8px 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .email-field {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+            font-size: 0.65rem;
+        }
+
+        .email-field:last-child {
+            margin-bottom: 0;
+        }
+
+        .email-label {
+            font-weight: 700;
+            color: #4a5568;
+            width: 50px;
+            flex-shrink: 0;
+        }
+
+        .email-value {
+            color: #2d3748;
+            flex: 1;
+        }
+
+        .email-body {
+            padding: 10px;
+            line-height: 1.5;
+            color: #2d3748;
+            font-size: 0.7rem;
+            background: white;
+        }
+
+        .email-body p {
+            margin: 0 0 6px 0;
+        }
+
+        .email-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Excel Table (reutilizado de workflow.html) */
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.65rem;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .excel-table th {
+            background: #B636FF;
+            color: white;
+            padding: 6px 4px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.6rem;
+        }
+
+        .excel-table td {
+            padding: 6px 4px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .excel-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .excel-table tr.new-row {
+            background: #fff3cd;
+            font-weight: 600;
+            animation: highlightRow 0.5s ease-out;
+        }
+
+        @keyframes highlightRow {
+            from { background: #ffc107; }
+            to { background: #fff3cd; }
+        }
+
+        /* Teams Message Bubble */
+        .teams-message {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            max-width: 100%;
+        }
+
+        .teams-message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .teams-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #B636FF 0%, #6D00FF 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+
+        .teams-sender {
+            font-weight: 700;
+            font-size: 0.7rem;
+            color: #2d3748;
+        }
+
+        .teams-time {
+            font-size: 0.6rem;
+            color: #718096;
+            margin-left: auto;
+        }
+
+        .teams-bubble {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 0.7rem;
+            color: #2d3748;
+            line-height: 1.4;
+            margin-top: 4px;
+        }
+
+        .arrow-connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--cold-main-violet);
+            opacity: 0.5;
+            flex-shrink: 0;
+            width: 30px;
+            position: relative;
+        }
+
+        .d3-flow-line {
+            stroke: var(--cold-main-violet);
+            stroke-width: 2;
+            fill: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .d3-flow-line.active {
+            opacity: 0.6;
+            animation: flowAnimation 1.5s ease-in-out infinite;
+        }
+
+        .d3-flow-circle {
+            fill: var(--cold-main-violet);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .d3-flow-circle.active {
+            opacity: 1;
+            animation: pulseCircle 1.5s ease-in-out infinite;
+        }
+
+        @keyframes flowAnimation {
+            0%, 100% { stroke-dashoffset: 0; }
+            50% { stroke-dashoffset: -20; }
+        }
+
+        @keyframes pulseCircle {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        .d3-reasoning-node {
+            fill: var(--cold-main-violet);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .d3-reasoning-node.active {
+            opacity: 1;
+            animation: nodePulse 0.8s ease-out;
+        }
+
+        @keyframes nodePulse {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .controls {
+            text-align: center;
+            margin: 0.75rem 0;
+        }
+
+        .play-button {
+            background: var(--warm-main-orange);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: var(--font-body);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(255, 73, 51, 0.3);
+        }
+
+        .play-button::before {
+            content: '';
+        }
+
+        .play-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 73, 51, 0.4);
+        }
+
+        .play-button:active {
+            transform: translateY(0);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .waiting-text {
+            color: var(--medium-gray);
+            font-style: italic;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 1024px) {
+            .cycle-container {
+                flex-direction: column;
+            }
+
+            .arrow-connector {
+                transform: rotate(90deg);
+                width: 100%;
+                padding: 0.5rem 0;
+            }
+
+            .cycle-step {
+                max-height: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .scenario-buttons {
+                flex-direction: column;
+            }
+
+            .scenario-btn {
+                width: 100%;
+            }
+
+            .cycle-step {
+                max-height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>¿Cómo funciona un Agente AI?</h1>
+            <p class="subtitle">Descubrí el ciclo que sigue un agente de inteligencia artificial para tomar decisiones y actuar</p>
+        </div>
+
+        <div class="scenario-selector">
+            <h3 style="font-family: var(--font-title); color: var(--cold-main-violet); margin-bottom: 0.5rem; font-size: 0.9rem;">Elegí qué quiere percibir el agente:</h3>
+            <div class="scenario-buttons">
+                <button class="scenario-btn active" data-scenario="email">📧 Nuevo Email</button>
+                <button class="scenario-btn" data-scenario="form">📝 Nueva Respuesta en Formulario</button>
+                <button class="scenario-btn" data-scenario="sharepoint">📁 Nuevo Archivo en SharePoint</button>
+            </div>
+        </div>
+
+        <div class="cycle-container">
+            <!-- Paso 1: Percibir -->
+            <div class="cycle-step" id="step-perceive">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-title-container">
+                        <h2 class="step-title">Percibir</h2>
+                    </div>
+                </div>
+                <p class="step-description">
+                    El agente recibe información del mundo que lo rodea. Puede detectar nuevos emails, respuestas en formularios o archivos nuevos en SharePoint.
+                </p>
+                <div class="demo-area">
+                    <div class="demo-content active" id="demo-perceive">
+                        <div class="perceive-item" data-type="email">
+                            <span class="perceive-icon">📧</span>
+                            <span class="perceive-text">Nuevo Email</span>
+                        </div>
+                        <div class="perceive-item" data-type="form">
+                            <span class="perceive-icon">📝</span>
+                            <span class="perceive-text">Nueva Respuesta en Formulario</span>
+                        </div>
+                        <div class="perceive-item" data-type="sharepoint">
+                            <span class="perceive-icon">📁</span>
+                            <span class="perceive-text">Nuevo Archivo en SharePoint</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-connector" id="arrow-1">
+                <svg width="30" height="100" viewBox="0 0 30 100" style="position: absolute;">
+                    <path class="d3-flow-line" id="flow-line-1" d="M 15 0 L 15 100" stroke-dasharray="5,5" />
+                    <circle class="d3-flow-circle" id="flow-circle-1" cx="15" cy="50" r="4" />
+                </svg>
+                <span style="opacity: 0.3;">→</span>
+            </div>
+
+            <!-- Paso 2: Razonar -->
+            <div class="cycle-step" id="step-think">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title-container">
+                        <h2 class="step-title">Razonar</h2>
+                        <button class="prompt-button" id="prompt-button" title="Ver System Prompt">ℹ️</button>
+                    </div>
+                </div>
+                <p class="step-description">
+                    El agente analiza lo que percibió usando sus instrucciones (system prompt) para entender qué debe hacer.
+                </p>
+                <div class="demo-area">
+                    <div class="demo-content" id="demo-think">
+                        <svg id="reasoning-visualization" width="100%" height="80" style="margin: 0.5rem 0;"></svg>
+                        <div class="reasoning-bubble" id="reasoning-bubble">
+                            <div class="reasoning-text" id="reasoning-text"></div>
+                        </div>
+                        <div class="waiting-text" id="waiting-text">Esperando que perciba algo...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-connector" id="arrow-2">
+                <svg width="30" height="100" viewBox="0 0 30 100" style="position: absolute;">
+                    <path class="d3-flow-line" id="flow-line-2" d="M 15 0 L 15 100" stroke-dasharray="5,5" />
+                    <circle class="d3-flow-circle" id="flow-circle-2" cx="15" cy="50" r="4" />
+                </svg>
+                <span style="opacity: 0.3;">→</span>
+            </div>
+
+            <!-- Paso 3: Accionar -->
+            <div class="cycle-step" id="step-act">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-title-container">
+                        <h2 class="step-title">Accionar</h2>
+                    </div>
+                </div>
+                <p class="step-description">
+                    Basándose en su razonamiento, el agente ejecuta una acción concreta para resolver la situación.
+                </p>
+                <div class="demo-area">
+                    <div class="demo-content" id="demo-act">
+                        <div class="action-result" id="action-result">
+                            <!-- Contenido dinámico según el tipo de acción -->
+                        </div>
+                        <div class="waiting-text">Esperando que razone...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="play-button" id="play-button">Ver el ciclo completo</button>
+        </div>
+    </div>
+
+    <!-- Modal para System Prompt -->
+    <div class="prompt-modal-overlay" id="prompt-modal">
+        <div class="prompt-modal-content">
+            <div class="prompt-modal-header">
+                <h3 class="prompt-modal-title">System Prompt</h3>
+                <button class="prompt-modal-close" id="close-prompt-modal">✕</button>
+            </div>
+            <div class="system-prompt-text" id="system-prompt-text-modal">
+                Instrucciones del agente...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const scenarios = {
+            email: {
+                perceive: { icon: '📧', text: 'Nuevo Email' },
+                systemPrompt: 'Eres un asistente inteligente que monitorea diferentes tipos de eventos. TUS REGLAS: 1) Si recibes un EMAIL marcado como urgente o con palabras clave importantes, debes notificar inmediatamente por Teams al equipo. 2) Si recibes una RESPUESTA EN FORMULARIO que es negativa o indica un problema, debes enviar un email de seguimiento al responsable. 3) Si detectas un ARCHIVO NUEVO en SharePoint, debes leerlo, extraer los datos importantes y cargarlos en una planilla de Excel. Analiza cada evento y ejecuta la acción correspondiente.',
+                reasoning: [
+                    'Recibí un nuevo email',
+                    'Analizo el contenido y el remitente',
+                    'Detecto que está marcado como URGENTE',
+                    'Según mis instrucciones, debo notificar por Teams'
+                ],
+                act: { type: 'teams', data: { sender: 'Agente AI', message: '⚠️ Email urgente recibido de cliente@empresa.com. Asunto: "Requerimiento inmediato". Revisar con prioridad.' } }
+            },
+            form: {
+                perceive: { icon: '📝', text: 'Nueva Respuesta en Formulario' },
+                systemPrompt: 'Eres un asistente inteligente que monitorea diferentes tipos de eventos. TUS REGLAS: 1) Si recibes un EMAIL marcado como urgente o con palabras clave importantes, debes notificar inmediatamente por Teams al equipo. 2) Si recibes una RESPUESTA EN FORMULARIO que es negativa o indica un problema, debes enviar un email de seguimiento al responsable. 3) Si detectas un ARCHIVO NUEVO en SharePoint, debes leerlo, extraer los datos importantes y cargarlos en una planilla de Excel. Analiza cada evento y ejecuta la acción correspondiente.',
+                reasoning: [
+                    'Recibí una nueva respuesta en el formulario',
+                    'Analizo el contenido de la respuesta',
+                    'Detecto que la respuesta es NEGATIVA',
+                    'Según mis instrucciones, debo enviar un email de seguimiento'
+                ],
+                act: { type: 'email', data: { to: 'responsable@empresa.com', subject: 'Seguimiento: Respuesta negativa en formulario', body: 'Hola,\n\nSe recibió una respuesta negativa en el formulario de evaluación.\n\nDetalles:\n- Fecha: ' + new Date().toLocaleDateString('es-AR') + '\n- Respuesta: Negativa\n\nPor favor revisar y contactar al cliente.\n\nSaludos,\nAgente AI' } }
+            },
+            sharepoint: {
+                perceive: { icon: '📁', text: 'Nuevo Archivo en SharePoint' },
+                systemPrompt: 'Eres un asistente inteligente que monitorea diferentes tipos de eventos. TUS REGLAS: 1) Si recibes un EMAIL marcado como urgente o con palabras clave importantes, debes notificar inmediatamente por Teams al equipo. 2) Si recibes una RESPUESTA EN FORMULARIO que es negativa o indica un problema, debes enviar un email de seguimiento al responsable. 3) Si detectas un ARCHIVO NUEVO en SharePoint, debes leerlo, extraer los datos importantes y cargarlos en una planilla de Excel. Analiza cada evento y ejecuta la acción correspondiente.',
+                reasoning: [
+                    'Detecté un nuevo archivo en SharePoint',
+                    'Leo el contenido del archivo',
+                    'Extraigo los datos importantes',
+                    'Según mis instrucciones, debo cargar los datos a Excel'
+                ],
+                act: { type: 'excel', data: { headers: ['Nombre', 'Email', 'Fecha'], rows: [
+                    ['Juan Pérez', 'juan@empresa.com', '2025-01-15'],
+                    ['María García', 'maria@empresa.com', '2025-01-16'],
+                    ['Carlos López', 'carlos@empresa.com', '2025-01-17']
+                ] } }
+            }
+        };
+
+        let currentScenario = 'email';
+        let isPlaying = false;
+        let selectedPerceiveItem = null;
+
+        // Cambiar escenario
+        document.querySelectorAll('.scenario-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentScenario = btn.dataset.scenario;
+                resetDemo();
+            });
+        });
+
+        // Click en items de percibir
+        document.querySelectorAll('.perceive-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (!isPlaying) {
+                    selectedPerceiveItem = item.dataset.type;
+                    document.querySelectorAll('.perceive-item').forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    currentScenario = item.dataset.type;
+                }
+            });
+        });
+
+        function resetDemo() {
+            // Resetear todos los pasos
+            document.querySelectorAll('.cycle-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.demo-content').forEach((content, index) => {
+                if (index === 0) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+
+            document.getElementById('reasoning-bubble').classList.remove('active');
+            document.getElementById('action-result').classList.remove('active');
+            document.getElementById('waiting-text').style.display = 'block';
+
+            // Resetear items de percibir
+            document.querySelectorAll('.perceive-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+
+            // Actualizar contenido según escenario
+            const scenario = scenarios[currentScenario];
+            
+            const systemPromptText = document.getElementById('system-prompt-text-modal');
+            systemPromptText.textContent = scenario.systemPrompt;
+
+            const reasoningText = document.getElementById('reasoning-text');
+            reasoningText.innerHTML = scenario.reasoning.map(step => 
+                `<div class="step">${step}</div>`
+            ).join('');
+
+            // Renderizar acción según tipo
+            renderAction(scenario.act);
+
+            isPlaying = false;
+            document.getElementById('play-button').textContent = 'Ver el ciclo completo';
+        }
+
+        // Función para renderizar acciones
+        function renderAction(action) {
+            const actionResult = document.getElementById('action-result');
+            
+            if (action.type === 'email') {
+                actionResult.innerHTML = `
+                    <div class="email-preview">
+                        <div class="email-header">
+                            <div class="email-field">
+                                <span class="email-label">Para:</span>
+                                <span class="email-value">${action.data.to}</span>
+                            </div>
+                            <div class="email-field">
+                                <span class="email-label">Asunto:</span>
+                                <span class="email-value">${action.data.subject}</span>
+                            </div>
+                        </div>
+                        <div class="email-body">
+                            ${action.data.body.split('\n').map(p => `<p>${p}</p>`).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (action.type === 'excel') {
+                const newRowIndex = action.data.rows.length - 1;
+                actionResult.innerHTML = `
+                    <table class="excel-table">
+                        <thead>
+                            <tr>
+                                ${action.data.headers.map(h => `<th>${h}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${action.data.rows.map((row, idx) => 
+                                `<tr class="${idx === newRowIndex ? 'new-row' : ''}">
+                                    ${row.map(cell => `<td>${cell}</td>`).join('')}
+                                </tr>`
+                            ).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else if (action.type === 'teams') {
+                actionResult.innerHTML = `
+                    <div class="teams-message">
+                        <div class="teams-message-header">
+                            <div class="teams-avatar">AI</div>
+                            <div class="teams-sender">${action.data.sender}</div>
+                            <div class="teams-time">Ahora</div>
+                        </div>
+                        <div class="teams-bubble">
+                            ${action.data.message}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Función para crear visualización D3 del razonamiento
+        function createReasoningVisualization() {
+            const svg = d3.select('#reasoning-visualization');
+            svg.selectAll('*').remove();
+
+            const width = svg.node().getBoundingClientRect().width || 200;
+            const height = 80;
+            const margin = { top: 10, right: 10, bottom: 10, left: 10 };
+
+            svg.attr('viewBox', `0 0 ${width} ${height}`)
+               .attr('preserveAspectRatio', 'xMidYMid meet');
+
+            const nodes = [
+                { id: 0, x: width * 0.2, y: height / 2, label: 'Input' },
+                { id: 1, x: width * 0.4, y: height / 2, label: 'Analizar' },
+                { id: 2, x: width * 0.6, y: height / 2, label: 'Decidir' },
+                { id: 3, x: width * 0.8, y: height / 2, label: 'Output' }
+            ];
+
+            const links = [
+                { source: 0, target: 1 },
+                { source: 1, target: 2 },
+                { source: 2, target: 3 }
+            ];
+
+            // Crear líneas
+            const line = d3.line()
+                .x(d => d.x)
+                .y(d => d.y);
+
+            const link = svg.append('g')
+                .selectAll('path')
+                .data(links)
+                .enter()
+                .append('path')
+                .attr('class', 'd3-flow-line')
+                .attr('d', d => {
+                    const source = nodes[d.source];
+                    const target = nodes[d.target];
+                    return `M ${source.x} ${source.y} L ${target.x} ${target.y}`;
+                })
+                .attr('stroke', '#B636FF')
+                .attr('stroke-width', 2)
+                .attr('fill', 'none')
+                .attr('opacity', 0);
+
+            // Crear nodos
+            const node = svg.append('g')
+                .selectAll('circle')
+                .data(nodes)
+                .enter()
+                .append('circle')
+                .attr('class', 'd3-reasoning-node')
+                .attr('cx', d => d.x)
+                .attr('cy', d => d.y)
+                .attr('r', 6)
+                .attr('fill', '#B636FF')
+                .attr('opacity', 0);
+
+            return { link, node };
+        }
+
+        // Función para animar el flujo entre pasos
+        function animateFlow(arrowId, delay = 0) {
+            setTimeout(() => {
+                const arrow = document.getElementById(arrowId);
+                if (!arrow) return;
+
+                const line = arrow.querySelector('.d3-flow-line');
+                const circle = arrow.querySelector('.d3-flow-circle');
+
+                if (line && circle) {
+                    line.classList.add('active');
+                    circle.classList.add('active');
+
+                    // Animar el círculo moviéndose
+                    const svg = arrow.querySelector('svg');
+                    if (svg) {
+                        const circleEl = d3.select(circle);
+                        circleEl
+                            .transition()
+                            .duration(1500)
+                            .ease(d3.easeLinear)
+                            .attr('cy', d => {
+                                const current = parseFloat(circleEl.attr('cy'));
+                                return current === 50 ? 100 : 50;
+                            })
+                            .on('end', () => {
+                                circleEl.attr('cy', 50);
+                            });
+                    }
+                }
+            }, delay);
+        }
+
+        // Función para animar el razonamiento
+        function animateReasoning() {
+            const { link, node } = createReasoningVisualization();
+
+            // Animar líneas
+            link.transition()
+                .delay((d, i) => i * 300)
+                .duration(500)
+                .attr('opacity', 0.6)
+                .attr('stroke-dasharray', '5,5')
+                .transition()
+                .duration(1500)
+                .ease(d3.easeLinear)
+                .attrTween('stroke-dashoffset', function() {
+                    const length = this.getTotalLength();
+                    return d3.interpolate(0, -length);
+                });
+
+            // Animar nodos
+            node.transition()
+                .delay((d, i) => i * 300)
+                .duration(500)
+                .attr('opacity', 1)
+                .attrTween('r', function() {
+                    return d3.interpolate(0, 6);
+                });
+        }
+
+        // Función para resetear animaciones
+        function resetAnimations() {
+            document.querySelectorAll('.d3-flow-line').forEach(line => {
+                line.classList.remove('active');
+            });
+            document.querySelectorAll('.d3-flow-circle').forEach(circle => {
+                circle.classList.remove('active');
+            });
+            const svg = document.getElementById('reasoning-visualization');
+            if (svg) {
+                svg.innerHTML = '';
+            }
+        }
+
+        // Función playCycle con animaciones D3
+        function playCycle() {
+            if (isPlaying) {
+                resetDemo();
+                resetAnimations();
+                return;
+            }
+
+            isPlaying = true;
+            document.getElementById('play-button').textContent = '⏸️ Reiniciar';
+
+            const scenario = scenarios[currentScenario];
+
+            // Seleccionar el item correspondiente
+            const perceiveItem = document.querySelector(`.perceive-item[data-type="${currentScenario}"]`);
+            document.querySelectorAll('.perceive-item').forEach(item => item.classList.remove('selected'));
+            perceiveItem.classList.add('selected');
+
+            // Paso 1: Percibir (ya está activo)
+            setTimeout(() => {
+                const step1 = document.getElementById('step-perceive');
+                step1.classList.add('active');
+            }, 300);
+
+            // Animar flujo hacia Paso 2
+            animateFlow('arrow-1', 1500);
+
+            // Paso 2: Razonar
+            setTimeout(() => {
+                const step2 = document.getElementById('step-think');
+                const demo2 = document.getElementById('demo-think');
+                const waitingText = document.getElementById('waiting-text');
+                step2.classList.add('active');
+                demo2.classList.add('active');
+                waitingText.style.display = 'none';
+                
+                setTimeout(() => {
+                    animateReasoning();
+                    const reasoningBubble = document.getElementById('reasoning-bubble');
+                    reasoningBubble.classList.add('active');
+                }, 500);
+            }, 2000);
+
+            // Animar flujo hacia Paso 3
+            animateFlow('arrow-2', 4500);
+
+            // Paso 3: Accionar
+            setTimeout(() => {
+                const step3 = document.getElementById('step-act');
+                const demo3 = document.getElementById('demo-act');
+                const actionResult = document.getElementById('action-result');
+                const waitingText = demo3.querySelector('.waiting-text');
+                step3.classList.add('active');
+                demo3.classList.add('active');
+                if (waitingText) waitingText.style.display = 'none';
+                
+                setTimeout(() => {
+                    actionResult.classList.add('active');
+                }, 500);
+            }, 5000);
+
+            // Reiniciar después de completar
+            setTimeout(() => {
+                isPlaying = false;
+                document.getElementById('play-button').textContent = 'Ver el ciclo completo';
+            }, 8000);
+        }
+
+        // Actualizar resetDemo para incluir reset de animaciones
+        const originalResetDemo = resetDemo;
+        resetDemo = function() {
+            originalResetDemo();
+            resetAnimations();
+        };
+
+        document.getElementById('play-button').addEventListener('click', playCycle);
+
+        // Modal del System Prompt
+        const promptButton = document.getElementById('prompt-button');
+        const promptModal = document.getElementById('prompt-modal');
+        const closePromptModal = document.getElementById('close-prompt-modal');
+
+        promptButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            promptModal.classList.add('show');
+        });
+
+        closePromptModal.addEventListener('click', () => {
+            promptModal.classList.remove('show');
+        });
+
+        promptModal.addEventListener('click', (e) => {
+            if (e.target === promptModal) {
+                promptModal.classList.remove('show');
+            }
+        });
+
+        // Inicializar con el escenario por defecto
+        resetDemo();
+    </script>
+</body>
+</html>

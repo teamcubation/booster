@@ -104,3 +104,5 @@ La paleta es **vibrante y accesible**, con un equilibrio entre tonos cálidos (p
 * No uses mas de 3 colores por cada contenido, tiene que mantener una estética minimalista.
 * No uses fondos con colores intensos, priorizá fondos blancos o grises claros.
 * Solo hacé contenido que tenga criterios de accesibilidad visual
+* Usá tailwind css
+* Usá d3.js
