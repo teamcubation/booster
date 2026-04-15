@@ -3,158 +3,128 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Cómo un LLM guarda conocimiento y encuentra respuestas (demo interactiva)</title>
-<meta name="description" content="Demostración visual y accesible de cómo un modelo LLM almacena conocimiento en un espacio vectorial y cómo un prompt 'apunta' al contenido relevante usando similitud de coseno, con parámetros de temperature, top-k y context." />
+<title>Cómo un LLM interpreta tu prompt y genera un embedding (demo interactiva)</title>
+<meta name="description" content="Demostración visual y accesible de cómo un modelo LLM descompone un prompt en palabras, mapea cada una a un vector y las promedia para obtener un embedding que luego se compara con el conocimiento usando similitud de coseno." />
 <link rel="stylesheet" href="teamcubation.css">
 <style>
+  :root{
+    --success-green:#10B981;
+    --success-green-soft:#D1FADF;
+  }
+
   html,body{height:100%}
-  body{margin:0; background:var(--light-gray); color:var(--dark-gray); font-family:var(--font-body); line-height:1.45; font-size:16px}
-  .app{display:grid; grid-template-rows:1fr auto; min-height:100vh}
-  header{position:relative; overflow:hidden; padding:var(--spacing-lg) var(--spacing-md); background:linear-gradient(135deg, var(--white) 0%, #f2ebf6 60%, #e8f8f0 100%); border-bottom:4px solid var(--medium-gray)}
-  .brand{display:flex; align-items:center; gap:var(--spacing-sm)}
-  .logo{width:42px; height:42px; border-radius:var(--radius-md); background:radial-gradient(circle at 30% 30%, var(--warm-main-orange), var(--cold-main-violet)); box-shadow:var(--shadow-md)}
-  h1{margin:0; font-weight:800; color:var(--cold-main-violet); letter-spacing:0.2px; font-size:clamp(20px,3.5vw,34px); font-family:var(--font-heading)}
-  .sub{max-width:900px; margin-top:var(--spacing-xs); font-size:clamp(14px,2.4vw,18px)}
+  body{margin:0; background:var(--light-gray); color:var(--dark-gray); font-family:var(--font-body); line-height:1.45; font-size:16px; overflow:hidden}
+  .app{display:grid; grid-template-rows:auto 1fr auto; height:100vh}
 
-  .tabs{display:flex; gap:var(--spacing-xs); padding:var(--spacing-sm) var(--spacing-md); flex-wrap:wrap}
-  .tab{background:var(--white); border:1.5px solid var(--medium-gray); color:var(--dark-gray); padding:var(--spacing-sm) var(--spacing-md); border-radius:999px; cursor:pointer; transition:var(--transition-base); font-weight:700; font-family:var(--font-heading)}
-  .tab[aria-selected="true"]{background:var(--cold-main-violet); color:var(--white); border-color:transparent; box-shadow:var(--shadow-md)}
-  .tab:focus-visible{outline:3px solid var(--warm-main-orange)}
+  .page-header{padding:10px var(--spacing-md) 0}
+  .page-header h1{margin:0; color:var(--cold-main-violet); font-family:var(--font-heading); font-weight:800; font-size:clamp(16px,1.8vw,22px)}
 
-  main{display:flex; flex-direction:column; gap:var(--spacing-md); padding:var(--spacing-md)}
+  main{display:grid; grid-template-columns:minmax(0, 2.2fr) minmax(320px, 1fr); gap:var(--spacing-sm); padding:var(--spacing-sm) var(--spacing-md) var(--spacing-sm); min-height:0; overflow:hidden}
+  @media (max-width: 900px){
+    body{overflow:auto}
+    .app{height:auto; min-height:100vh}
+    main{grid-template-columns:1fr; overflow:visible}
+    .canvas-panel .canvasBox{height:420px !important}
+    .controls-panel{overflow:visible !important; max-height:none !important}
+  }
 
-  .panel{background:var(--white); border-radius:var(--radius-xl); padding:var(--spacing-md); box-shadow:var(--shadow-md); display:flex; flex-direction:column; gap:var(--spacing-sm)}
-  .panel h2{margin:0; color:var(--cold-main-violet); font-size:clamp(18px,2.5vw,24px); font-family:var(--font-heading); font-weight:800}
+  .panel{background:var(--white); border-radius:var(--radius-lg); padding:var(--spacing-sm); box-shadow:var(--shadow-md); display:flex; flex-direction:column; gap:10px; min-height:0}
+  .panel h2{margin:0; color:var(--cold-main-violet); font-size:clamp(15px,1.5vw,18px); font-family:var(--font-heading); font-weight:800}
 
-  .canvasBox{position:relative; background:conic-gradient(from 0deg at 80% 20%, #fafafa, #fbfbff, #f8fffb, #fafafa); border:1px solid #ececf0; border-radius:16px; overflow:hidden; height:400px; width:100%}
-  .legend{display:flex; gap:12px; flex-wrap:wrap; padding:8px 0}
-  .pill{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px dashed #d9d9e0; background:#fff; font-size:13px}
-  .dot{width:12px; height:12px; border-radius:999px}
+  .canvas-panel{min-height:0}
+  .controls-panel{overflow-y:auto; gap:var(--spacing-sm)}
 
-  .controls{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px}
-  @media (max-width: 768px){ .controls{grid-template-columns:1fr} }
-  .card{background:#fff; border:1px solid #eee; border-radius:18px; padding:14px}
-  .card h3{margin:0 0 10px 0; color:var(--gris); font-size:16px}
+  .canvasBox{position:relative; background:conic-gradient(from 0deg at 80% 20%, #fafafa, #fbfbff, #f8fffb, #fafafa); border:1px solid #ececf0; border-radius:16px; overflow:hidden; flex:1; min-height:280px; width:100%}
+  .legend{display:flex; gap:8px; flex-wrap:wrap; padding:2px 0}
+  .pill{display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; border:1px dashed #d9d9e0; background:#fff; font-size:12px}
+  .dot{width:10px; height:10px; border-radius:999px}
+
+  .card{background:#fff; border:1px solid #eee; border-radius:14px; padding:12px}
+  .card h3{margin:0 0 8px 0; color:var(--dark-gray); font-size:15px}
   .row{display:flex; gap:10px; flex-wrap:wrap}
   label{font-weight:600}
-  input[type="text"], .chipInput{width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid #e5e5ea; font-size:16px}
-  input[type="range"]{width:100%}
-  .chips{display:flex; gap:var(--spacing-xs); flex-wrap:wrap}
+  input[type="text"], .chipInput{width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid #e5e5ea; font-size:16px; box-sizing:border-box}
+  .chips{display:flex; gap:var(--spacing-xs); flex-wrap:wrap; margin-top:10px; max-height:140px; overflow-y:auto; padding:6px; border:1px dashed var(--medium-gray); border-radius:12px; background:#fafafa}
   .chip{background:var(--white); border:1px solid var(--medium-gray); padding:6px 10px; border-radius:999px; font-size:13px; cursor:pointer; transition:var(--transition-fast)}
   .chip[aria-pressed="true"]{background:var(--cold-main-violet); color:var(--white); border-color:var(--cold-main-violet)}
 
-  .results{display:grid; gap:var(--spacing-sm)}
-  .result{display:flex; justify-content:space-between; align-items:center; background:var(--white); border:1px solid var(--medium-gray); border-radius:var(--radius-md); padding:var(--spacing-sm)}
-  .meterWrap{flex:1; height:8px; background:var(--medium-gray); border-radius:999px; margin-left:var(--spacing-sm); overflow:hidden}
-  .meter{height:100%; background:var(--cold-main-violet); width:0%}
+  /* Panel de desglose del embedding */
+  .breakdown-section{margin-bottom:12px}
+  .breakdown-section:last-child{margin-bottom:0}
+  .breakdown-label{font-size:13px; font-weight:700; color:var(--dark-gray); margin-bottom:6px}
+  .breakdown-tokens{display:flex; flex-wrap:wrap; gap:6px}
+  .token{display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:13px; border:1px solid transparent}
+  .token-recognized{background:#FFF2EE; border-color:#FFD4C7; color:#8A2B1A}
+  .token-recognized .token-vec{font-family:monospace; font-size:11px; opacity:0.8}
+  .token-ignored{background:var(--medium-gray); color:var(--dark-gray); text-decoration:line-through; opacity:0.7}
+  .breakdown-result{background:var(--success-green-soft); border-radius:10px; padding:10px 12px; margin-top:4px}
+  .breakdown-result .breakdown-label{color:#065f46}
+  .breakdown-vector{font-family:monospace; font-size:15px; font-weight:700; color:#065f46}
+  .breakdown-empty{font-size:13px; color:#999; font-style:italic}
+  .empty-hint{font-size:14px; color:#888; margin:0}
 
-  footer{padding:18px 16px; text-align:center; font-size:13px; color:#666}
+  footer{padding:6px 16px; text-align:center; font-size:11px; color:#888}
 
   .canvasBox svg{position:absolute; inset:0; width:100%; height:100%}
   .axis{stroke:#cfd1d6; stroke-width:1}
-  .grid{stroke:#f0f2f5; stroke-width:1}
-  .vec-prompt{stroke:var(--warm-main-orange); stroke-width:3; marker-end:url(#arrowNaranja)}
-  .vec-knowledge{stroke:var(--cold-main-violet); stroke-width:2.5; marker-end:url(#arrowVioleta)}
-  .vec-highlight{stroke:var(--cold-secondary-violet); stroke-width:3; marker-end:url(#arrowVerde)}
+  .grid-line{stroke:#f0f2f5; stroke-width:1}
+
+  /* Vectores */
+  .vec-prompt{stroke:var(--warm-main-orange); stroke-width:3; marker-end:url(#arrowOrange)}
+  .vec-word{stroke:var(--warm-secondary-orange); stroke-width:1.5; stroke-dasharray:5 3; opacity:0.7; marker-end:url(#arrowOrangeSoft)}
+  .vec-to-top{stroke:var(--success-green); stroke-width:1.5; stroke-dasharray:4 3; opacity:0.7}
+
+  /* Puntos de documentos */
   .point{fill:var(--white); stroke:var(--cold-main-violet); stroke-width:2}
-  .point.hot{stroke:var(--cold-secondary-violet)}
-  .angleArc{fill:none; stroke:var(--cold-secondary-violet); stroke-width:2; stroke-dasharray:5 4}
-  .label{font-size:12px; fill:var(--dark-gray); user-select:none}
-  .distance-line{stroke:#9ca3af; stroke-width:1.5; stroke-dasharray:4 3; opacity:0.6}
-  .distance-label{font-size:11px; fill:var(--dark-gray); font-weight:600; background:rgba(255,255,255,0.9); padding:2px 4px; border-radius:4px}
+  .point.top{fill:var(--success-green); stroke:var(--success-green)}
 
-  /* círculos concéntricos */
-  .ring-context{fill:none; stroke:var(--cold-main-violet); stroke-width:2; opacity:0.4; transition: r var(--transition-base), cx var(--transition-base), cy var(--transition-base)}
-  .ring-topk{fill:none; stroke:var(--cold-main-violet); stroke-dasharray:6 4; opacity:.6; transition: r var(--transition-base), cx var(--transition-base), cy var(--transition-base)}
-  .ring-temp{fill:rgba(182, 54, 255, 0.05); stroke:var(--cold-main-violet); stroke-width:1.5; opacity:0.8; transition: r var(--transition-base), cx var(--transition-base), cy var(--transition-base)}
-
-  .test-list{display:grid; gap:8px}
-  .test{display:flex; align-items:center; gap:8px; font-size:14px}
-  .badge{padding:2px 8px; border-radius:10px; font-weight:700; border:1px solid transparent}
-  .pass{background:#e6f5ee; color:#045d39; border-color:#a8ebcf}
-  .fail{background:#ffefee; color:#8b1a0e; border-color:#ffc6bf}
+  /* Labels */
+  .label{font-size:12px; fill:var(--dark-gray); user-select:none; pointer-events:none}
+  .label-word{font-size:11px; fill:var(--warm-main-orange); font-weight:600; user-select:none; pointer-events:none}
+  .label-sim{font-size:11px; fill:var(--cold-main-violet); font-weight:700; user-select:none; pointer-events:none}
+  .label-sim.top{fill:var(--success-green)}
 
   .fadeIn{animation:fade .6s ease both}
   @keyframes fade{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
-  .pulse{animation:pulse 1.4s ease-in-out infinite}
-  @keyframes pulse{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
   .sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0}
-
-  /* Animaciones para el vector y círculos */
-  @keyframes drawVector{
-    from{ stroke-dashoffset: inherit; }
-    to{ stroke-dashoffset: 0; }
-  }
-  
-  @keyframes growCircle{
-    from{ 
-      transform: scale(0);
-      opacity: 0;
-    }
-    to{ 
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
 </style>
 </head>
 <body>
 <div class="app">
+  <header class="page-header">
+    <h1>¿Cómo convierte el LLM tu prompt en un embedding?</h1>
+  </header>
+
   <main>
-    <!-- Panel de controles superior -->
-    <section class="panel">
-      <h2>Controles y Configuración</h2>
-      
-      <div class="controls">
-        <div class="card">
-          <h3>Concepto clave</h3>
-          <p>El <strong>context</strong> es el radio de búsqueda. El <strong>top‑k</strong> es cuántos tomás. La <strong>temperature</strong> agrega creatividad.</p>
-        </div>
-
-        <div class="card" id="step2">
-          <h3>Tu prompt</h3>
-          <label for="prompt">¿Qué querés preguntar?</label>
-          <input id="prompt" type="text" placeholder="Ej: explicame la fotosíntesis para un niño" aria-describedby="promptHelp" />
-          <small id="promptHelp">Se convierte en un vector promediando palabras clave.</small>
-          <div class="chips" id="vocab" aria-label="Sugerencias rápidas"></div>
-        </div>
-
-        <div class="card" id="params">
-          <h3>Parámetros</h3>
-          <div class="row">
-            <label for="temperature">Temperature: <span id="temperatureVal">0.7</span></label>
-            <input id="temperature" type="range" min="0" max="2" step="0.1" value="0.7" />
-          </div>
-          <div class="row">
-            <label for="topk">Top‑k: <span id="topkVal">3</span></label>
-            <input id="topk" type="range" min="1" max="5" step="1" value="3" />
-          </div>
-          <div class="row">
-            <label for="context">Context: <span id="contextVal">0.6</span></label>
-            <input id="context" type="range" min="0.2" max="1" step="0.05" value="0.6" />
-          </div>
-          <div class="row" style="margin-top:12px">
-            <button id="toggleDistances" class="chip" type="button" style="cursor:pointer; border:1.5px solid var(--gris)">
-              <span id="distancesIcon">👁️</span> Mostrar distancias
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Canvas ocupando todo el ancho -->
-    <section class="panel" aria-labelledby="vizTitle">
+    <!-- Canvas (izquierda) -->
+    <section class="panel canvas-panel" aria-labelledby="vizTitle">
       <h2 id="vizTitle">Espacio vectorial (mapa 2D simplificado)</h2>
       <div class="legend" aria-label="Leyenda de elementos">
-        <span class="pill"><span class="dot" style="background:var(--violeta)"></span> Conocimiento</span>
-        <span class="pill"><span class="dot" style="background:var(--naranja)"></span> Tu prompt</span>
-        <span class="pill"><span class="dot" style="background:var(--verde)"></span> Selección más relevante</span>
-        <span class="pill" title="Contexto máximo"><span class="dot" style="background:var(--verde)"></span> Context</span>
-        <span class="pill" title="Top‑k (cantidad)"><span class="dot" style="background:var(--violeta)"></span> Top‑k</span>
-        <span class="pill" title="Temperature (diversidad)"><span class="dot" style="background:var(--naranja)"></span> Temperature</span>
+        <span class="pill"><span class="dot" style="background:var(--cold-main-violet)"></span> Conocimiento</span>
+        <span class="pill"><span class="dot" style="background:var(--warm-secondary-orange); border:1px dashed var(--warm-main-orange)"></span> Vector de cada palabra</span>
+        <span class="pill"><span class="dot" style="background:var(--warm-main-orange)"></span> Embedding del prompt (promedio)</span>
+        <span class="pill"><span class="dot" style="background:var(--success-green)"></span> Documento más relevante</span>
       </div>
       <div class="canvasBox" id="plot" aria-live="polite" aria-label="Gráfico del espacio vectorial, usa los controles para interactuar."></div>
-      <p class="label fadeIn" id="hint">💡 Tip: mové los puntos o cambiá el prompt y mirá cómo cambian los anillos.</p>
+      <p class="label fadeIn" id="hint">💡 Tip: arrastrá un documento cerca de tu prompt o sumá palabras para ver cómo se promedia el vector.</p>
+    </section>
+
+    <!-- Controles (derecha) -->
+    <section class="panel controls-panel">
+      <div class="card">
+        <h3>Tu prompt</h3>
+        <label for="prompt">¿Qué querés preguntar?</label>
+        <input id="prompt" type="text" placeholder="Ej: explicame la fotosíntesis para un niño" aria-describedby="promptHelp" />
+        <small id="promptHelp">Cada palabra reconocida aporta un vector; el promedio es tu embedding.</small>
+        <div class="chips" id="vocab" aria-label="Sugerencias rápidas"></div>
+      </div>
+
+      <div class="card">
+        <h3>Proceso de embedding</h3>
+        <div id="breakdownContent">
+          <p class="empty-hint">Escribí algo o tocá un chip para ver cómo se construye el embedding paso a paso.</p>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -168,61 +138,118 @@
   const mag=v=>Math.hypot(v.x,v.y)||1e-9;
   const cosSim=(a,b)=> dot(a,b)/(mag(a)*mag(b));
   const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
-  const rnd=(min,max)=>min+Math.random()*(max-min);
 
   // ---------- Datos ----------
   const docs=[
     {id:'bio',  title:'Biología — Fotosíntesis', v:{x: 0.8, y: 0.5}},
     {id:'hist', title:'Historia — Revolución Francesa', v:{x:-0.7, y: 0.4}},
-    {id:'econ', title:'Economía — Inflación', v:{x:-0.6,y:-0.6}},
+    {id:'econ', title:'Economía — Inflación', v:{x:-0.85,y:-0.15}},
     {id:'prog', title:'Programación — Algoritmos', v:{x: 0.7, y:-0.5}},
     {id:'astro',title:'Astronomía — Estrellas', v:{x: 0.1, y: 0.9}},
+    {id:'dep',  title:'Deporte — Fútbol', v:{x:-0.3, y:-0.8}},
+    {id:'cine', title:'Cine — Hollywood', v:{x: 0.3, y:-0.85}},
   ];
 
+  // Vocabulario agrupado por dominio (cada grupo cae cerca de su documento en el espacio 2D):
+  //  - Biología (Q1, x+ y+)        → doc "Biología — Fotosíntesis" @ (0.8, 0.5)
+  //  - Astronomía (centro-arriba)  → doc "Astronomía — Estrellas"  @ (0.1, 0.9)
+  //  - Historia (Q2, x- y+)        → doc "Historia — Revolución Francesa" @ (-0.7, 0.4)
+  //  - Economía (izquierda, y≈0)   → doc "Economía — Inflación"    @ (-0.85, -0.15)
+  //  - Programación (Q4, x+ y-)    → doc "Programación — Algoritmos" @ (0.7, -0.5)
+  //  - Genéricas (cerca del origen): palabras de pregunta que no desvían fuerte.
   const vocab={
-    "fotosíntesis":{x:.85,y:.45},"plantas":{x:.8,y:.5},"niño":{x:.4,y:.2},"explicar":{x:.6,y:.1},
-    "historia":{x:-.7,y:.5},"revolución":{x:-.8,y:.4},"precios":{x:-.6,y:-.6},"inflación":{x:-.7,y:-.5},
-    "algoritmos":{x:.7,y:-.5},"código":{x:.6,y:-.6},"estrellas":{x:.1,y:.9},"universo":{x:.2,y:.8},
-    "paso":{x:.3,y:.1},"simple":{x:.5,y:.2}
+    // Biología
+    "fotosíntesis":{x:.85,y:.45}, "plantas":{x:.8,y:.5}, "hojas":{x:.75,y:.55}, "árboles":{x:.82,y:.48},
+    "flores":{x:.78,y:.52}, "semilla":{x:.7,y:.4}, "fruta":{x:.72,y:.38}, "clorofila":{x:.88,y:.42},
+    "oxígeno":{x:.8,y:.35}, "células":{x:.7,y:.45}, "adn":{x:.68,y:.5}, "genética":{x:.7,y:.52},
+    "evolución":{x:.65,y:.55}, "animales":{x:.75,y:.35}, "biología":{x:.8,y:.45}, "naturaleza":{x:.75,y:.5},
+    "ecosistema":{x:.65,y:.5}, "bosque":{x:.78,y:.58}, "organismo":{x:.7,y:.42}, "ambiente":{x:.65,y:.45},
+
+    // Astronomía
+    "estrellas":{x:.1,y:.9}, "universo":{x:.2,y:.85}, "planeta":{x:.05,y:.85}, "galaxia":{x:.15,y:.92},
+    "sol":{x:.2,y:.8}, "luna":{x:.0,y:.82}, "cometa":{x:.12,y:.88}, "cosmos":{x:.18,y:.9},
+    "espacio":{x:.1,y:.8}, "telescopio":{x:.05,y:.78}, "órbita":{x:.12,y:.82}, "nebulosa":{x:.15,y:.88},
+    "astronomía":{x:.1,y:.85}, "satélite":{x:.08,y:.75}, "astronauta":{x:.15,y:.78}, "meteorito":{x:.05,y:.88},
+
+    // Historia
+    "historia":{x:-.7,y:.5}, "revolución":{x:-.8,y:.4}, "guerra":{x:-.75,y:.45}, "rey":{x:-.7,y:.55},
+    "imperio":{x:-.78,y:.5}, "batalla":{x:-.72,y:.42}, "antiguo":{x:-.65,y:.5}, "medieval":{x:-.7,y:.48},
+    "siglo":{x:-.6,y:.45}, "napoleón":{x:-.82,y:.42}, "roma":{x:-.75,y:.55}, "egipto":{x:-.7,y:.52},
+    "faraón":{x:-.72,y:.58}, "independencia":{x:-.78,y:.38}, "monarquía":{x:-.75,y:.48}, "democracia":{x:-.65,y:.35},
+    "constitución":{x:-.6,y:.4},
+
+    // Economía (izquierda, cerca del eje X)
+    "inflación":{x:-.85,y:-.15}, "precios":{x:-.75,y:-.25}, "economía":{x:-.8,y:-.2}, "dinero":{x:-.7,y:-.2},
+    "banco":{x:-.75,y:-.15}, "mercado":{x:-.73,y:-.22}, "bolsa":{x:-.8,y:-.25}, "acciones":{x:-.85,y:-.22},
+    "dólar":{x:-.87,y:-.2}, "crisis":{x:-.83,y:-.1}, "impuestos":{x:-.7,y:-.15}, "salario":{x:-.65,y:-.2},
+    "deuda":{x:-.77,y:-.25}, "crédito":{x:-.73,y:-.15}, "moneda":{x:-.8,y:-.18}, "recesión":{x:-.85,y:-.13},
+    "comercio":{x:-.7,y:-.25},
+
+    // Programación
+    "algoritmos":{x:.7,y:-.5}, "código":{x:.6,y:-.6}, "programar":{x:.65,y:-.55}, "software":{x:.7,y:-.55},
+    "python":{x:.68,y:-.58}, "javascript":{x:.72,y:-.52}, "función":{x:.6,y:-.5}, "variable":{x:.55,y:-.55},
+    "bug":{x:.58,y:-.6}, "array":{x:.62,y:-.58}, "loop":{x:.6,y:-.55}, "clase":{x:.65,y:-.48},
+    "api":{x:.75,y:-.55}, "servidor":{x:.7,y:-.62}, "debug":{x:.62,y:-.62}, "git":{x:.72,y:-.58},
+    "backend":{x:.75,y:-.5}, "compilar":{x:.68,y:-.52},
+
+    // Genéricas (cerca del origen — modulan poco el promedio)
+    "explicar":{x:.1,y:.05}, "simple":{x:.15,y:.1}, "niño":{x:.1,y:.15}, "ejemplo":{x:.05,y:0},
+    "paso":{x:.08,y:.05}, "resumen":{x:0,y:.05}, "definición":{x:.0,y:.1}, "conceptos":{x:.05,y:.15},
+
+    // Deporte (Q3, lower-left) — separado del cluster de Economía para que no compitan.
+    "fútbol":{x:-.3,y:-.8}, "pelota":{x:-.28,y:-.82}, "gol":{x:-.32,y:-.78}, "cancha":{x:-.35,y:-.82},
+    "equipo":{x:-.25,y:-.78}, "club":{x:-.3,y:-.85}, "jugador":{x:-.28,y:-.75}, "partido":{x:-.32,y:-.8},
+    "campeón":{x:-.35,y:-.78}, "liga":{x:-.3,y:-.88}, "torneo":{x:-.25,y:-.82}, "deporte":{x:-.3,y:-.78},
+    "boca":{x:-.35,y:-.75}, "escudo":{x:-.38,y:-.8},
+
+    // Cine (Q4, lower-right) — al lado derecho, separado de Programación.
+    "cine":{x:.3,y:-.85}, "hollywood":{x:.28,y:-.9}, "película":{x:.32,y:-.82}, "actor":{x:.3,y:-.88},
+    "actriz":{x:.28,y:-.85}, "director":{x:.32,y:-.88}, "oscar":{x:.35,y:-.9}, "pantalla":{x:.28,y:-.8},
+    "escena":{x:.3,y:-.78}, "guion":{x:.32,y:-.85}, "estreno":{x:.28,y:-.92}, "taquilla":{x:.35,y:-.85},
+    "serie":{x:.25,y:-.82}
   };
 
+  // ---------- Normalización ----------
+  // Quita tildes y convierte a minúsculas, para matchear sin importar acentos/capitalización.
+  const normalize = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  // Tokeniza preservando letras Unicode (incluye á, ñ, ü, etc.) antes de normalizar.
+  const tokenize = s => (s.match(/\p{L}+/gu) || []);
+
+  // Lookup indexado por forma normalizada → preserva palabra "display" (con tildes) para UI.
+  const vocabLookup = {};
+  Object.keys(vocab).forEach(k => {
+    vocabLookup[normalize(k)] = { display: k, vector: vocab[k] };
+  });
+
   // ---------- Estado ----------
-  let showAngle=false;
-  let showDistances=false; // mostrar líneas de distancia
-  let temperature=0.7; // 0..2
-  let topK=3; // 1..5 (limita docs)
-  let contextScale=0.6; // 0.2..1 (radio relativo)
-  let lastPrompt = ''; // para detectar cambios en el prompt
+  let lastPrompt = '';
 
   // ---------- DOM ----------
   const plotEl=document.getElementById('plot');
   const promptEl=document.getElementById('prompt');
   const vocabEl=document.getElementById('vocab');
-  const tempSlider=document.getElementById('temperature');
-  const tempVal=document.getElementById('temperatureVal');
-  const topkSlider=document.getElementById('topk');
-  const topkVal=document.getElementById('topkVal');
-  const ctxSlider=document.getElementById('context');
-  const ctxVal=document.getElementById('contextVal');
+  const breakdownEl=document.getElementById('breakdownContent');
 
   // ---------- Chips vocab con toggle add/remove ----------
   function normalizeWhitespace(str){ return str.replace(/\s+/g,' ').trim(); }
   function addWordToPrompt(word){
     const base=promptEl.value.trim();
     const parts= base? base.split(/\s+/):[];
-    if(!parts.includes(word)) parts.push(word);
+    const normWord = normalize(word);
+    const exists = parts.some(p => normalize(p) === normWord);
+    if(!exists) parts.push(word);
     promptEl.value=normalizeWhitespace(parts.join(' '));
   }
   function removeWordFromPrompt(word){
-    const regex=new RegExp('(^|\\s)'+word+'(\\s|$)','gi');
-    const cleaned=promptEl.value.replace(regex,(m,p1,p2)=> (p1 && p1.trim()? ' ' : ''));
-    promptEl.value=normalizeWhitespace(cleaned);
+    const normWord = normalize(word);
+    const kept = promptEl.value.split(/\s+/).filter(p => normalize(p) !== normWord);
+    promptEl.value=normalizeWhitespace(kept.join(' '));
   }
   function syncChipsWithPrompt(){
-    const set=new Set(promptEl.value.toLowerCase().split(/[^áéíóúñü\w]+/).filter(Boolean));
+    const set=new Set(tokenize(promptEl.value).map(normalize));
     vocabKeys.forEach(k=>{
       const b=vocabEl.querySelector(`[data-key="${k}"]`);
-      if(b) b.setAttribute('aria-pressed', set.has(k)?'true':'false');
+      if(b) b.setAttribute('aria-pressed', set.has(normalize(k))?'true':'false');
     });
   }
   const vocabKeys=Object.keys(vocab).sort();
@@ -239,20 +266,17 @@
     vocabEl.appendChild(b);
   });
 
-
   // ---------- SVG ----------
   const svgNS='http://www.w3.org/2000/svg';
   const svg=document.createElementNS(svgNS,'svg'); plotEl.appendChild(svg);
   const defs=document.createElementNS(svgNS,'defs');
+  const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   defs.innerHTML=`
-    <marker id="arrowNaranja" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto-start-reverse">
-      <path d="M0,0 L12,6 L0,12 z" fill="${getComputedStyle(document.documentElement).getPropertyValue('--naranja')}"></path>
+    <marker id="arrowOrange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto-start-reverse">
+      <path d="M0,0 L12,6 L0,12 z" fill="${cssVar('--warm-main-orange')}"></path>
     </marker>
-    <marker id="arrowVioleta" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto-start-reverse">
-      <path d="M0,0 L12,6 L0,12 z" fill="${getComputedStyle(document.documentElement).getPropertyValue('--violeta')}"></path>
-    </marker>
-    <marker id="arrowVerde" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto-start-reverse">
-      <path d="M0,0 L12,6 L0,12 z" fill="${getComputedStyle(document.documentElement).getPropertyValue('--verde')}"></path>
+    <marker id="arrowOrangeSoft" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="${cssVar('--warm-secondary-orange')}" opacity="0.7"></path>
     </marker>`;
   svg.appendChild(defs);
   const gGrid=document.createElementNS(svgNS,'g');
@@ -263,12 +287,13 @@
   function drawGrid(){
     const w=plotEl.clientWidth, h=plotEl.clientHeight; svg.setAttribute('viewBox',`0 0 ${w} ${h}`); gGrid.innerHTML='';
     const center={x:w/2,y:h/2};
-    for(let x=0;x<=w;x+=w/10){ const l=line(x,0,x,h,'grid'); gGrid.appendChild(l); }
-    for(let y=0;y<=h;y+=h/10){ const l=line(0,y,w,y,'grid'); gGrid.appendChild(l); }
+    for(let x=0;x<=w;x+=w/10){ gGrid.appendChild(line(x,0,x,h,'grid-line')); }
+    for(let y=0;y<=h;y+=h/10){ gGrid.appendChild(line(0,y,w,y,'grid-line')); }
     gGrid.appendChild(line(0,center.y,w,center.y,'axis'));
     gGrid.appendChild(line(center.x,0,center.x,h,'axis'));
   }
   function line(x1,y1,x2,y2,cls){ const l=document.createElementNS(svgNS,'line'); l.setAttribute('x1',x1); l.setAttribute('y1',y1); l.setAttribute('x2',x2); l.setAttribute('y2',y2); l.setAttribute('class',cls); return l; }
+  function text(x,y,content,cls){ const t=document.createElementNS(svgNS,'text'); t.setAttribute('x',x); t.setAttribute('y',y); if(cls) t.setAttribute('class',cls); t.textContent=content; return t; }
   function toScreen(v){ const w=plotEl.clientWidth,h=plotEl.clientHeight; const cx=w/2,cy=h/2; const s=Math.min(w,h)*0.42; return {x:cx+v.x*s,y:cy-v.y*s,s, cx, cy}; }
   function fromScreen(p){ const w=plotEl.clientWidth,h=plotEl.clientHeight; const cx=w/2,cy=h/2; const s=Math.min(w,h)*0.42; return {x:(p.x-cx)/s, y:-(p.y-cy)/s}; }
 
@@ -279,203 +304,167 @@
   svg.addEventListener('pointerup',()=>dragging=null);
 
   // ---------- Embedding ----------
+  // Devuelve el vector final + el desglose de palabras reconocidas/ignoradas.
+  // El match es case-insensitive y sin tildes: "FOTOSÍNTESIS" == "fotosintesis" == "fotosíntesis".
   function embedPrompt(text){
-    const words=text.toLowerCase().split(/[^áéíóúñü\w]+/).filter(Boolean);
-    if(words.length===0) return {x:0,y:0};
-    let acc={x:0,y:0}, n=0;
-    for(const w of words){ const base=vocab[w]; if(base){ acc.x+=base.x; acc.y+=base.y; n++; } }
-    if(n===0){ // dirección estable para palabras desconocidas
-      const h=hash(text); const ang=(h%360)*Math.PI/180; const r=0.7; acc={x:Math.cos(ang)*r, y:Math.sin(ang)*r}; n=1;
+    const rawTokens = tokenize(text);
+    const recognized = [];
+    const ignored = [];
+    for(const raw of rawTokens){
+      const key = normalize(raw);
+      const entry = vocabLookup[key];
+      if(entry) recognized.push({word: entry.display, vector: entry.vector});
+      else ignored.push(raw.toLowerCase());
     }
-    acc.x/=n; acc.y/=n;
-    // normalizar si excede 1
-    const m=mag(acc); const scale=m>1?1/m:1; return {x:acc.x*scale, y:acc.y*scale};
+    if(recognized.length===0) return {vector:null, recognized, ignored};
+    let acc={x:0,y:0};
+    for(const r of recognized){ acc.x+=r.vector.x; acc.y+=r.vector.y; }
+    acc.x/=recognized.length; acc.y/=recognized.length;
+    const m=mag(acc); const scale=m>1?1/m:1;
+    return {vector:{x:acc.x*scale, y:acc.y*scale}, recognized, ignored};
   }
-  function hash(str){ let h=2166136261; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h+= (h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24) } return h>>>0; }
 
-  // ---------- Render ----------
-  function renderScene(pVec){
+  // ---------- Render: canvas ----------
+  function renderScene(embedding){
+    const {vector:pVec, recognized} = embedding;
     const currentPrompt = promptEl.value.trim();
-    const hasPrompt = currentPrompt.length > 0;
     const promptChanged = currentPrompt !== lastPrompt;
     lastPrompt = currentPrompt;
 
     gVec.innerHTML=''; gLbl.innerHTML='';
     const origin=toScreen({x:0,y:0});
-    const pEnd=toScreen(pVec);
 
-    // calcular radios (necesarios para distancias también)
-    const baseR = pEnd.s*0.5; // radio base de referencia
-    const rContext = baseR * contextScale; // 0.2..1 * base
-    const rTopk = rContext * (topK/5); // proporcional a topK
-    const rTemp = Math.min(rTopk, Math.max(10, rContext * (temperature/2) * 0.5)); // nunca supera rTopk
+    // Calcular similitudes si hay embedding
+    let ranked = [];
+    if(pVec){
+      ranked = docs.map(d=>({
+        ...d,
+        sim: cosSim(pVec, d.v),
+        end: toScreen(d.v)
+      })).sort((a,b)=> b.sim - a.sim);
+    }
+    const topId = ranked.length>0 ? ranked[0].id : null;
 
-    // vector del prompt (solo si hay texto)
-    if(hasPrompt){
-      const vLine=line(origin.cx,origin.cy,pEnd.x,pEnd.y,'vec-prompt'); 
-      
+    // Mini-vectores por cada palabra reconocida (solo cuando hay más de 1)
+    if(pVec && recognized.length > 1){
+      recognized.forEach(r=>{
+        const wEnd = toScreen(r.vector);
+        const wLine = line(origin.cx, origin.cy, wEnd.x, wEnd.y, 'vec-word');
+        gVec.appendChild(wLine);
+        const wLbl = text(wEnd.x + 6, wEnd.y + 14, r.word, 'label-word');
+        gLbl.appendChild(wLbl);
+      });
+    }
+
+    // Vector final del prompt (con animación si cambió)
+    if(pVec){
+      const pEnd = toScreen(pVec);
+      const vLine = line(origin.cx, origin.cy, pEnd.x, pEnd.y, 'vec-prompt');
       if(promptChanged){
-        // calcular longitud real para stroke-dasharray
         const length = Math.hypot(pEnd.x - origin.cx, pEnd.y - origin.cy);
         vLine.setAttribute('stroke-dasharray', length);
         vLine.setAttribute('stroke-dashoffset', length);
         gVec.appendChild(vLine);
-        
-        // animar el vector
-        requestAnimationFrame(() => {
-          vLine.setAttribute('stroke-dashoffset', '0');
+        requestAnimationFrame(()=>{
           vLine.style.transition = 'stroke-dashoffset 0.8s ease-out';
+          vLine.setAttribute('stroke-dashoffset','0');
         });
       } else {
-        // sin animación
         gVec.appendChild(vLine);
       }
 
-      // anillos: context (verde) > top-k (violeta) > temperature (naranja)
-      const cContext = circle(pEnd.x,pEnd.y,rContext,'ring-context');
-      const cTopk = circle(pEnd.x,pEnd.y,rTopk,'ring-topk');
-      const cTemp = circle(pEnd.x,pEnd.y,rTemp,'ring-temp');
-      
-      if(promptChanged){
-        // aplicar animaciones con delays solo cuando cambia el prompt
-        cContext.style.transformOrigin = `${pEnd.x}px ${pEnd.y}px`;
-        cContext.style.animation = 'growCircle 0.5s ease-out 0.8s both';
-        
-        cTopk.style.transformOrigin = `${pEnd.x}px ${pEnd.y}px`;
-        cTopk.style.animation = 'growCircle 0.5s ease-out 1s both';
-        
-        cTemp.style.transformOrigin = `${pEnd.x}px ${pEnd.y}px`;
-        cTemp.style.animation = 'growCircle 0.5s ease-out 1.2s both';
+      // Línea punteada al documento más relevante
+      if(ranked.length>0){
+        const top = ranked[0];
+        const connector = line(pEnd.x, pEnd.y, top.end.x, top.end.y, 'vec-to-top');
+        gVec.appendChild(connector);
       }
-      // si no cambió el prompt, los círculos solo usarán las transiciones CSS definidas
-      
-      gVec.appendChild(cContext);
-      gVec.appendChild(cTopk);
-      gVec.appendChild(cTemp);
     }
 
-    // calcular scores
-    let selected = [];
-    if(hasPrompt){
-      const scored = docs.map(d=>{
-        const sim = cosSim(pVec,d.v);
-        // distancia en pantalla a la punta del prompt
-        const end=toScreen(d.v);
-        const dist = Math.hypot(end.x-pEnd.x, end.y-pEnd.y);
-        // sampling con temperature: pequeña perturbación a la puntuación
-        const jitter = (temperature>0? rnd(-1,1)*0.05*temperature : 0);
-        return { id:d.id, title:d.title, v:d.v, sim: sim + jitter, dist, end };
-      });
+    // Documentos (con o sin prompt)
+    const list = pVec ? ranked : docs.map(d=>({...d, end:toScreen(d.v)}));
+    list.forEach(d=>{
+      const isTop = d.id === topId;
+      const c = document.createElementNS(svgNS,'circle');
+      c.setAttribute('cx', d.end.x); c.setAttribute('cy', d.end.y);
+      c.setAttribute('r', 8);
+      c.setAttribute('class', isTop ? 'point top' : 'point');
+      c.dataset.docid = d.id;
+      c.setAttribute('role','img');
+      c.setAttribute('aria-label', d.title);
+      gVec.appendChild(c);
 
-      // Filtrado por contexto: dentro del rContext
-      const inContext = scored.filter(s=> s.dist <= rContext);
-      selected = inContext.sort((a,b)=> b.sim - a.sim).slice(0, topK);
-
-      // pintar documentos (solo puntos, sin flechas)
-      scored.forEach(s=>{
-        const isSelected = selected.find(x=>x.id===s.id);
-        
-        // línea de distancia (si está activado)
-        if(showDistances){
-          // calcular el punto en el borde del círculo de temperatura
-          const dx = s.end.x - pEnd.x;
-          const dy = s.end.y - pEnd.y;
-          const dist = Math.hypot(dx, dy);
-          
-          // solo dibujar si hay distancia suficiente
-          if(dist > rTemp + 5){
-            // punto de inicio en el borde del círculo de temperatura
-            const startX = pEnd.x + (dx / dist) * rTemp;
-            const startY = pEnd.y + (dy / dist) * rTemp;
-            
-            const distLine = line(startX, startY, s.end.x, s.end.y, 'distance-line');
-            gVec.appendChild(distLine);
-            
-            // calcular similitud en porcentaje (entre 0 y 100)
-            const simPercent = Math.max(0, Math.min(100, Math.round(s.sim * 100)));
-            
-            // posición del label en el medio de la línea
-            const midX = (startX + s.end.x) / 2;
-            const midY = (startY + s.end.y) / 2;
-            
-            // fondo blanco para el texto
-            const rect = document.createElementNS(svgNS, 'rect');
-            rect.setAttribute('x', midX - 18);
-            rect.setAttribute('y', midY - 8);
-            rect.setAttribute('width', 36);
-            rect.setAttribute('height', 16);
-            rect.setAttribute('fill', 'rgba(255,255,255,0.9)');
-            rect.setAttribute('rx', 4);
-            gLbl.appendChild(rect);
-            
-            const distLabel = document.createElementNS(svgNS, 'text');
-            distLabel.setAttribute('x', midX);
-            distLabel.setAttribute('y', midY + 4);
-            distLabel.setAttribute('text-anchor', 'middle');
-            distLabel.setAttribute('class', 'distance-label');
-            distLabel.textContent = `${simPercent}%`;
-            gLbl.appendChild(distLabel);
-          }
-        }
-        
-        const c=document.createElementNS(svgNS,'circle'); c.setAttribute('cx',s.end.x); c.setAttribute('cy',s.end.y); c.setAttribute('r',8); c.setAttribute('class','point'); 
-        if(isSelected) c.style.fill = 'var(--verde)';
-        c.dataset.docid=s.id; c.setAttribute('role','img'); c.setAttribute('aria-label',s.title); gVec.appendChild(c);
-        const t=document.createElementNS(svgNS,'text'); t.setAttribute('x',s.end.x+8); t.setAttribute('y',s.end.y-6); t.setAttribute('class','label'); t.textContent=s.title; gLbl.appendChild(t);
-      });
-
-      // ángulo con el primero del ranking (si hay) 
-      if(showAngle && selected.length>0){
-        const focus=toScreen(selected[0].v);
-        const a1=Math.atan2(-(origin.cy - pEnd.y), pEnd.x-origin.cx);
-        const a2=Math.atan2(-(origin.cy - focus.y), focus.x-origin.cx);
-        drawAngle(origin.cx,origin.cy,a1,a2,40);
+      let titleText = d.title;
+      if(pVec){
+        const sim = Math.max(0, Math.round(d.sim * 100));
+        titleText = `${d.title} · ${sim}%`;
       }
-    } else {
-      // sin prompt, solo dibujar todos los documentos sin resaltado (solo puntos)
-      docs.forEach(d=>{
-        const end=toScreen(d.v);
-        const c=document.createElementNS(svgNS,'circle'); c.setAttribute('cx',end.x); c.setAttribute('cy',end.y); c.setAttribute('r',8); c.setAttribute('class','point'); c.dataset.docid=d.id; c.setAttribute('role','img'); c.setAttribute('aria-label',d.title); gVec.appendChild(c);
-        const t=document.createElementNS(svgNS,'text'); t.setAttribute('x',end.x+8); t.setAttribute('y',end.y-6); t.setAttribute('class','label'); t.textContent=d.title; gLbl.appendChild(t);
-      });
-    }
+      const titleLbl = text(d.end.x + 12, d.end.y - 4, titleText, isTop ? 'label-sim top' : 'label');
+      gLbl.appendChild(titleLbl);
+    });
   }
 
-  function circle(cx,cy,r,cls){ const c=document.createElementNS(svgNS,'circle'); c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',r); c.setAttribute('class',cls); return c; }
-  function drawAngle(cx,cy,a1,a2,r){ let da=a2-a1; while(da>Math.PI) da-=2*Math.PI; while(da<-Math.PI) da+=2*Math.PI; const large=Math.abs(da)>Math.PI?1:0; const sweep=da>0?1:0; const p1={x:cx+r*Math.cos(a1), y:cy+r*Math.sin(a1)}, p2={x:cx+r*Math.cos(a2), y:cy+r*Math.sin(a2)}; const path=document.createElementNS(svgNS,'path'); path.setAttribute('d',`M ${p1.x} ${p1.y} A ${r} ${r} 0 ${large} ${sweep} ${p2.x} ${p2.y}`); path.setAttribute('class','angleArc'); gVec.appendChild(path); const txt=document.createElementNS(svgNS,'text'); txt.setAttribute('x', cx+(r+16)*Math.cos((a1+a2)/2)); txt.setAttribute('y', cy+(r+16)*Math.sin((a1+a2)/2)); txt.setAttribute('class','label'); txt.textContent='ángulo'; gLbl.appendChild(txt); }
+  // ---------- Render: panel de desglose ----------
+  function renderBreakdown(embedding){
+    const {vector, recognized, ignored} = embedding;
+
+    if(recognized.length === 0 && ignored.length === 0){
+      breakdownEl.innerHTML = '<p class="empty-hint">Escribí algo o tocá un chip para ver cómo se construye el embedding paso a paso.</p>';
+      return;
+    }
+
+    let html = '';
+
+    html += `<div class="breakdown-section">
+      <div class="breakdown-label">1. Palabras reconocidas (${recognized.length})</div>
+      <div class="breakdown-tokens">`;
+    if(recognized.length === 0){
+      html += `<span class="breakdown-empty">— ninguna palabra del vocabulario</span>`;
+    } else {
+      recognized.forEach(r=>{
+        html += `<span class="token token-recognized"><strong>${r.word}</strong><span class="token-vec">(${r.vector.x.toFixed(2)}, ${r.vector.y.toFixed(2)})</span></span>`;
+      });
+    }
+    html += `</div></div>`;
+
+    if(ignored.length > 0){
+      html += `<div class="breakdown-section">
+        <div class="breakdown-label">2. Palabras ignoradas (fuera de vocabulario)</div>
+        <div class="breakdown-tokens">`;
+      ignored.forEach(w=>{
+        html += `<span class="token token-ignored">${w}</span>`;
+      });
+      html += `</div></div>`;
+    }
+
+    if(vector){
+      html += `<div class="breakdown-section breakdown-result">
+        <div class="breakdown-label">${ignored.length > 0 ? '3' : '2'}. Embedding resultante (promedio)</div>
+        <div class="breakdown-vector">(${vector.x.toFixed(2)}, ${vector.y.toFixed(2)})</div>
+      </div>`;
+    } else {
+      html += `<div class="breakdown-section">
+        <p class="empty-hint">Ninguna palabra reconocida — el modelo no puede generar un embedding. Probá con un chip del vocabulario.</p>
+      </div>`;
+    }
+
+    breakdownEl.innerHTML = html;
+  }
 
   // ---------- Eventos UI ----------
-  document.getElementById('prompt').addEventListener('input',()=>{ syncChipsWithPrompt(); update(); });
-  tempSlider.addEventListener('input',()=>{ temperature=Number(tempSlider.value); tempVal.textContent=temperature.toFixed(1); update(); });
-  topkSlider.addEventListener('input',()=>{ topK=Number(topkSlider.value); topkVal.textContent=String(topK); update(); });
-  ctxSlider.addEventListener('input',()=>{ contextScale=Number(ctxSlider.value); ctxVal.textContent=contextScale.toFixed(2); update(); });
-  
-  // Toggle de distancias
-  const toggleBtn = document.getElementById('toggleDistances');
-  const distIcon = document.getElementById('distancesIcon');
-  toggleBtn.addEventListener('click', ()=>{
-    showDistances = !showDistances;
-    toggleBtn.textContent = showDistances ? '🚫 Ocultar distancias' : '👁️ Mostrar distancias';
-    toggleBtn.style.background = showDistances ? 'var(--verde)' : '#fafafa';
-    toggleBtn.style.color = showDistances ? '#053b25' : 'var(--gris)';
-    update();
-  });
+  promptEl.addEventListener('input',()=>{ syncChipsWithPrompt(); update(); });
 
-  // ---------- Reset / Update ----------
-  function reset(){
-    docs[0].v={x: 0.8, y: 0.5}; docs[1].v={x:-0.7, y: 0.4}; docs[2].v={x:-0.6, y:-0.6}; docs[3].v={x: 0.7, y:-0.5}; docs[4].v={x: 0.1, y: 0.9};
-    promptEl.value=''; syncChipsWithPrompt();
-    lastPrompt = ''; // resetear el tracking del prompt
-    // set defaults
-    temperature=Number(tempSlider.value); topK=Number(topkSlider.value); contextScale=Number(ctxSlider.value);
-    tempVal.textContent=temperature.toFixed(1); topkVal.textContent=String(topK); ctxVal.textContent=contextScale.toFixed(2);
-    [...vocabEl.querySelectorAll('.chip')].forEach(c=>c.setAttribute('aria-pressed','false'));
+  // ---------- Update ----------
+  function update(){
+    drawGrid();
+    const embedding = embedPrompt(promptEl.value);
+    renderScene(embedding);
+    renderBreakdown(embedding);
   }
-  function update(){ drawGrid(); const pVec=embedPrompt(promptEl.value); renderScene(pVec); }
 
   // init
   const ro=new ResizeObserver(update); ro.observe(plotEl);
-  reset(); update();
+  update();
 })();
 </script>
 </body>
