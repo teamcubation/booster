@@ -87,24 +87,60 @@
         .d3-chart-container .bar {
             transition: fill var(--transition-base), opacity var(--transition-base);
             fill: var(--medium-gray);
+            opacity: 0.35;
+        }
+        .d3-chart-container .bar.cut-topp {
+            fill: var(--medium-gray);
+            opacity: 0.7;
+            stroke: var(--dark-gray);
+            stroke-width: 1.5px;
+            stroke-dasharray: 3,2;
         }
         .d3-chart-container .bar.candidate {
             fill: var(--cold-main-violet);
-            opacity: 0.6;
+            opacity: 0.85;
+            stroke: none;
+            stroke-dasharray: none;
         }
         .d3-chart-container .bar.selected {
             fill: var(--white);
             stroke: var(--black);
             stroke-width: 3px;
+            opacity: 1;
         }
         .d3-chart-container .bar.sampling {
             fill: var(--cold-main-violet) !important;
-            opacity: 0.85;
+            opacity: 1 !important;
+            stroke: none;
             filter: brightness(1.3) drop-shadow(0 0 8px var(--cold-main-violet));
             animation: samplePulse 0.3s ease-in-out;
         }
         .d3-chart-container .bar.final-selected {
             animation: selectToken 0.8s ease-out forwards;
+        }
+        .d3-chart-container .bar-ghost {
+            fill: none;
+            stroke: var(--dark-gray);
+            stroke-width: 1.5px;
+            stroke-dasharray: 4,3;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .d3-chart-container .cut-line {
+            stroke: var(--primary-orange, #d97706);
+            stroke-width: 1.5px;
+            stroke-dasharray: 5,3;
+            opacity: 0.75;
+            pointer-events: none;
+        }
+        .d3-chart-container .cut-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            fill: var(--primary-orange, #d97706);
+            pointer-events: none;
+        }
+        .d3-chart-container .axis text {
+            font-size: 0.7rem;
         }
         @keyframes samplePulse {
             0%, 100% { 
@@ -207,180 +243,443 @@
         .bg-neutral-light {
             background-color: var(--white);
         }
+
+        /* Botones disabled unificados */
+        button[disabled],
+        button:disabled {
+            opacity: 0.5 !important;
+            cursor: not-allowed !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        button[disabled]:hover,
+        button:disabled:hover {
+            opacity: 0.5 !important;
+            transform: none !important;
+        }
+
+        /* Presets */
+        .preset-group {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .preset-btn {
+            flex: 1;
+            padding: 8px 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--medium-gray);
+            background: var(--white);
+            color: var(--dark-gray);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+        .preset-btn:hover {
+            border-color: var(--cold-main-violet);
+            color: var(--cold-main-violet);
+        }
+        .preset-btn.active {
+            background: var(--cold-main-violet);
+            color: var(--white);
+            border-color: var(--cold-main-violet);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Chips para selector de prompt/dominio */
+        .prompt-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .prompt-chip {
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 999px;
+            border: 1px solid var(--medium-gray);
+            background: var(--white);
+            color: var(--dark-gray);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+        .prompt-chip:hover {
+            border-color: var(--cold-main-violet);
+            color: var(--cold-main-violet);
+        }
+        .prompt-chip.active {
+            background: var(--cold-main-violet);
+            color: var(--white);
+            border-color: var(--cold-main-violet);
+        }
+
+        /* Leyenda del gráfico */
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            font-size: 0.7rem;
+            color: var(--dark-gray);
+            margin-top: 6px;
+            justify-content: center;
+            padding: 6px 4px 0;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-swatch {
+            display: inline-block;
+            width: 16px;
+            height: 10px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        .legend-swatch.candidate {
+            background: var(--cold-main-violet);
+            opacity: 0.85;
+        }
+        .legend-swatch.cut-topp {
+            background: var(--medium-gray);
+            border: 1.5px dashed var(--dark-gray);
+            opacity: 0.7;
+        }
+        .legend-swatch.cut-topk {
+            background: var(--medium-gray);
+            opacity: 0.35;
+        }
+        .legend-swatch.ghost {
+            background: transparent;
+            border: 1.5px dashed var(--dark-gray);
+            opacity: 0.7;
+            height: 12px;
+        }
+
+        /* Etiquetas auxiliares de control */
+        .control-hint {
+            font-size: 0.7rem;
+            color: var(--dark-gray);
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        /* Toolbar horizontal de controles (Propuesta 1) */
+        .demo-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px;
+            row-gap: 10px;
+        }
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toolbar-divider {
+            width: 1px;
+            align-self: stretch;
+            background: var(--medium-gray);
+            margin: 0 2px;
+        }
+        .toolbar-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--dark-gray);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        /* Slider inline: label + slider + valor */
+        .slider-inline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1 1 200px;
+            min-width: 180px;
+            max-width: 280px;
+        }
+        .slider-inline .slider-label-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            white-space: nowrap;
+            min-width: 52px;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            color: var(--dark-gray);
+        }
+        .slider-inline input[type="range"] {
+            flex: 1;
+            min-width: 60px;
+            height: 4px;
+            background: var(--medium-gray);
+            border-radius: 4px;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+        .slider-inline input[type="range"]::-webkit-slider-thumb {
+            width: 16px;
+            height: 16px;
+            margin-top: -6px;
+        }
+        .slider-inline input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+        }
+        .slider-inline .slider-value {
+            font-variant-numeric: tabular-nums;
+            font-size: 0.78rem;
+            font-weight: 700;
+            min-width: 34px;
+            text-align: right;
+            color: var(--cold-main-violet);
+        }
+
+        /* Presets dentro del toolbar: no-flex, más compactos */
+        .demo-toolbar .preset-group {
+            gap: 4px;
+            margin-top: 0;
+        }
+        .demo-toolbar .preset-btn {
+            flex: 0 0 auto;
+            padding: 6px 12px;
+            font-size: 0.72rem;
+        }
+
+        /* Reset compacto */
+        .reset-compact {
+            padding: 7px 14px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            background-color: var(--white);
+            border: 2px solid var(--cold-main-violet);
+            color: var(--cold-main-violet);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            white-space: nowrap;
+            margin-left: auto;
+        }
+        .reset-compact:hover {
+            background-color: var(--cold-main-violet);
+            color: var(--white);
+        }
+
+        /* Info tooltip (hover sobre ⓘ) */
+        .info-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        .info-btn {
+            cursor: help;
+            font-size: 0.82rem;
+            color: var(--dark-gray);
+            opacity: 0.5;
+            background: none;
+            border: none;
+            padding: 0 2px;
+            line-height: 1;
+        }
+        .info-btn:hover,
+        .info-btn:focus-visible {
+            opacity: 1;
+            outline: none;
+        }
+        .info-tip {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--black);
+            color: var(--white);
+            font-size: 0.7rem;
+            font-weight: 400;
+            padding: 6px 10px;
+            border-radius: 6px;
+            width: 220px;
+            z-index: 30;
+            display: none;
+            box-shadow: var(--shadow-md);
+            pointer-events: none;
+            white-space: normal;
+            line-height: 1.4;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+        .info-wrap:hover .info-tip,
+        .info-btn:focus-visible + .info-tip {
+            display: block;
+        }
+
+        /* Prompt compacto en una línea */
+        .prompt-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--white);
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--radius-md);
+            padding: 6px 10px;
+            min-width: 0;
+        }
+        .prompt-selector.compact-chips {
+            margin-bottom: 0;
+            flex-shrink: 0;
+            gap: 4px;
+        }
+        .prompt-selector.compact-chips .prompt-chip {
+            padding: 3px 10px;
+            font-size: 0.7rem;
+        }
+        .prompt-divider {
+            width: 1px;
+            align-self: stretch;
+            background: var(--medium-gray);
+            flex-shrink: 0;
+        }
+        .prompt-line {
+            flex: 1;
+            min-width: 0;
+            padding: 4px 6px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            color: var(--dark-gray);
+            line-height: 1.4;
+            font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+        }
+        .prompt-line::-webkit-scrollbar {
+            height: 4px;
+        }
+        .prompt-line::-webkit-scrollbar-thumb {
+            background: var(--medium-gray);
+            border-radius: 2px;
+        }
+        .prompt-line #generated-text {
+            color: var(--cold-main-violet);
+            font-weight: 600;
+        }
     </style>
 </head>
 <body class="min-h-screen p-2 sm:p-4 md:p-6">
     <div id="app" class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        <header class="p-4 sm:p-6 bg-purple-light border-b border-gray-200">
-            <h1 class="text-2xl sm:text-3xl font-bold">Panel Interactivo de Parámetros de IA Generativa</h1>
-            <p class="mt-1 text-sm">Guía interactiva técnica sobre Top-K, Top-P y Temperatura.</p>
+        <header class="px-4 py-3 sm:px-6 sm:py-4 bg-purple-light border-b border-gray-200">
+            <h1 class="text-xl sm:text-2xl font-bold">Cómo un LLM elige la siguiente palabra</h1>
+            <p class="mt-0.5 text-xs sm:text-sm">Aprendé cómo Top-K, Top-P y Temperatura moldean la salida de un LLM.</p>
         </header>
 
-        <div class="p-4 sm:p-6">
-            <!-- Pestañas -->
-            <div class="flex border-b border-gray-300 mb-6">
-                <button id="tab-demo" class="tab-button active text-sm sm:text-base font-semibold py-2 px-4 rounded-t-lg -mb-px">Demo interactiva</button>
-                <button id="tab-concepts" class="tab-button text-sm sm:text-base font-semibold py-2 px-4 rounded-t-lg -mb-px">Explicaciones conceptuales</button>
-            </div>
-
-            <!-- Contenido de Pestañas -->
+        <div class="px-4 py-3 sm:px-6 sm:py-4">
             <div id="content-demo">
-                <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                    <!-- Controles -->
-                    <div class="lg:col-span-2 bg-neutral-light p-5 rounded-xl shadow-md">
-                        <h2 class="text-xl font-bold mb-4 border-b pb-2">Controles de generación</h2>
-
-                        <!-- Temperatura -->
-                        <div class="mb-6">
-                            <label for="temperature" class="block font-semibold mb-1">Temperatura: <span id="temperature-value" class="font-bold">0.70</span></label>
-                            <p class="text-xs text-gray-500 mb-2">Controla qué tan predecible o creativa es la IA. Valores más altos = más creatividad.</p>
-                            <input type="range" id="temperature" min="0.1" max="2.0" step="0.05" value="0.7" class="w-full h-1.5 bg-secondary-green rounded-lg appearance-none cursor-pointer slider-thumb">
-                        </div>
-
-                        <!-- Top K -->
-                        <div class="mb-6">
-                            <label for="top_k" class="block font-semibold mb-1">Top-K: <span id="top_k-value" class="font-bold">20</span></label>
-                            <p class="text-xs text-gray-500 mb-2">Cantidad de opciones (tokens) más probables a considerar.</p>
-                            <input type="range" id="top_k" min="1" max="50" step="1" value="20" class="w-full h-1.5 bg-secondary-green rounded-lg appearance-none cursor-pointer slider-thumb">
-                        </div>
-
-                        <!-- Top P -->
-                        <div class="mb-6">
-                            <label for="top_p" class="block font-semibold mb-1">Top-P (Núcleo): <span id="top_p-value" class="font-bold">0.90</span></label>
-                            <p class="text-xs text-gray-500 mb-2">Porcentaje de certeza para incluir opciones (0.9 = 90%).</p>
-                            <input type="range" id="top_p" min="0.01" max="1.0" step="0.01" value="0.9" class="w-full h-1.5 bg-secondary-green rounded-lg appearance-none cursor-pointer slider-thumb">
-                        </div>
-
-                        <div class="mt-6">
-                            <button id="reset-btn" class="w-full py-2 px-4 rounded-lg hover:bg-opacity-90 transition-colors">Reiniciar texto</button>
+                <!-- Toolbar horizontal de controles -->
+                <div class="bg-neutral-light px-4 py-3 rounded-xl shadow-md mb-4 demo-toolbar">
+                    <div class="toolbar-group">
+                        <span class="toolbar-label">
+                            Presets
+                            <span class="info-wrap">
+                                <button type="button" class="info-btn" aria-label="Qué son los presets" tabindex="0">ⓘ</button>
+                                <span class="info-tip" role="tooltip">Configuraciones rápidas que mueven los tres parámetros juntos.</span>
+                            </span>
+                        </span>
+                        <div class="preset-group" role="group" aria-label="Presets de configuración">
+                            <button type="button" class="preset-btn" data-preset="preciso">Preciso</button>
+                            <button type="button" class="preset-btn" data-preset="balanceado">Balanceado</button>
+                            <button type="button" class="preset-btn" data-preset="creativo">Creativo</button>
                         </div>
                     </div>
 
-                    <!-- Área principal -->
-                    <div class="lg:col-span-3">
-                        <div class="bg-neutral-light p-5 rounded-xl shadow-md mb-6">
-                            <label class="block font-semibold mb-2">Tu prompt:</label>
-                            <div id="output-display" class="w-full p-3 bg-white border border-gray-200 rounded-lg min-h-[120px] text-lg leading-relaxed">
-                                <span id="prompt-text">Había una vez, en una tierra lejana, vivía un</span><span id="generated-text"></span><span class="inline-block w-0.5 h-6 bg-primary-purple animate-pulse ml-0.5"></span>
-                            </div>
+                    <div class="toolbar-divider" aria-hidden="true"></div>
+
+                    <div class="slider-inline">
+                        <span class="slider-label-group">
+                            <label for="temperature">Temp</label>
+                            <span class="info-wrap">
+                                <button type="button" class="info-btn" aria-label="Qué es temperatura" tabindex="0">ⓘ</button>
+                                <span class="info-tip" role="tooltip">Controla qué tan predecible o creativa es la IA. Valores más altos = más creatividad.</span>
+                            </span>
+                        </span>
+                        <input type="range" id="temperature" min="0.1" max="2.0" step="0.05" value="1.0" class="slider-thumb" aria-label="Temperatura, entre 0.1 y 2.0">
+                        <span class="slider-value" id="temperature-value">1.00</span>
+                    </div>
+
+                    <div class="slider-inline">
+                        <span class="slider-label-group">
+                            <label for="top_k">Top-K</label>
+                            <span class="info-wrap">
+                                <button type="button" class="info-btn" aria-label="Qué es Top-K" tabindex="0">ⓘ</button>
+                                <span class="info-tip" role="tooltip">Cantidad de opciones (tokens) más probables a considerar.</span>
+                            </span>
+                        </span>
+                        <input type="range" id="top_k" min="1" max="50" step="1" value="20" class="slider-thumb" aria-label="Top-K, entre 1 y 50">
+                        <span class="slider-value" id="top_k-value">20</span>
+                    </div>
+
+                    <div class="slider-inline">
+                        <span class="slider-label-group">
+                            <label for="top_p">Top-P</label>
+                            <span class="info-wrap">
+                                <button type="button" class="info-btn" aria-label="Qué es Top-P" tabindex="0">ⓘ</button>
+                                <span class="info-tip" role="tooltip">Porcentaje de certeza acumulada para incluir opciones (0.9 = 90%).</span>
+                            </span>
+                        </span>
+                        <input type="range" id="top_p" min="0.01" max="1.0" step="0.01" value="0.9" class="slider-thumb" aria-label="Top-P, entre 0.01 y 1.0">
+                        <span class="slider-value" id="top_p-value">0.90</span>
+                    </div>
+
+                    <button id="reset-btn" class="reset-compact">Borrar generación</button>
+                </div>
+
+                <!-- Prompt bar: chips + output en una sola línea -->
+                <div class="prompt-bar mb-3">
+                    <div id="prompt-selector" class="prompt-selector compact-chips" role="group" aria-label="Seleccionar prompt de ejemplo">
+                        <button type="button" class="prompt-chip active" data-domain="fantasia">Fantasía</button>
+                        <button type="button" class="prompt-chip" data-domain="tecnico">Técnico</button>
+                        <button type="button" class="prompt-chip" data-domain="cotidiano">Cotidiano</button>
+                    </div>
+                    <div class="prompt-divider" aria-hidden="true"></div>
+                    <div id="output-display" class="prompt-line" aria-live="polite">
+                        <span id="prompt-text">Había una vez, en una tierra lejana, vivía un</span><span id="generated-text"></span>
+                    </div>
+                </div>
+
+                <!-- Chart card: ocupa todo el ancho -->
+                <div class="bg-neutral-light p-4 rounded-xl shadow-md">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
+                        <h2 class="text-base font-bold">Probabilidades del siguiente token</h2>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button id="prepare-btn" class="flex-1 sm:flex-none py-1.5 px-3 text-sm font-semibold rounded-lg transition-colors shadow-md">
+                                Analizar opciones
+                            </button>
+                            <button id="select-btn" class="flex-1 sm:flex-none py-1.5 px-3 text-sm font-semibold rounded-lg transition-colors shadow-md" disabled>
+                                Seleccionar token
+                            </button>
                         </div>
-                        <div class="bg-neutral-light p-5 rounded-xl shadow-md">
-                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
-                                <h2 class="text-xl font-bold">Probabilidades del siguiente token</h2>
-                                <div class="flex gap-2 w-full sm:w-auto">
-                                    <button id="prepare-btn" class="flex-1 sm:flex-none py-2 px-4 font-semibold rounded-lg transition-colors shadow-md">
-                                        Analizar opciones
-                                    </button>
-                                    <button id="select-btn" class="flex-1 sm:flex-none py-2 px-4 font-semibold rounded-lg transition-colors shadow-md" disabled>
-                                        Seleccionar token
-                                    </button>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 mb-2">Visualización paso a paso. Las barras en <span class="font-semibold" style="color: var(--cold-main-violet);">violeta</span> son las candidatas para selección.</p>
-                            <div id="selection-status" class="text-center py-2 mb-2 rounded-lg font-semibold text-sm transition-all duration-300" style="min-height: 36px; opacity: 0;">
-                                <span id="status-text"></span>
-                            </div>
-                            <div id="chart-container" class="d3-chart-container w-full h-80"></div>
-                        </div>
+                    </div>
+                    <div id="selection-status" class="text-center py-1 mb-2 rounded-lg font-semibold text-xs transition-all duration-300" style="min-height: 28px; opacity: 0;">
+                        <span id="status-text"></span>
+                    </div>
+                    <div id="chart-container" class="d3-chart-container w-full h-72"></div>
+                    <div class="chart-legend" aria-label="Leyenda del gráfico">
+                        <div class="legend-item"><span class="legend-swatch candidate"></span><span>Candidato final</span></div>
+                        <div class="legend-item"><span class="legend-swatch cut-topp"></span><span>Descartado por Top-P</span></div>
+                        <div class="legend-item"><span class="legend-swatch cut-topk"></span><span>Descartado por Top-K</span></div>
+                        <div class="legend-item"><span class="legend-swatch ghost"></span><span>Probabilidad original (sin temperatura)</span></div>
                     </div>
                 </div>
             </div>
 
-            <div id="content-concepts" class="hidden">
-                <div class="space-y-4">
-                    <!-- Accordion Item 1 -->
-                    <div class="accordion-item bg-neutral-light rounded-lg shadow-sm">
-                        <div class="accordion-header flex justify-between items-center p-4 cursor-pointer">
-                            <h3 class="text-lg font-semibold">Tokens</h3>
-                            <svg class="accordion-icon w-6 h-6 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                        <div class="accordion-content">
-                            <div class="p-4 border-t border-gray-200 prose max-w-none text-sm">
-                                <p>Imaginá que la IA lee el texto como si fuera un rompecabezas de piezas. Los <strong>tokens</strong> son esas piezas individuales. A veces una pieza es una palabra completa como "casa", otras veces es solo un pedacito como "des-" o "anti-". La IA no lee letras sueltas como nosotros, sino que va juntando estas piezas para entender el mensaje.</p>
-                                <p class="mt-2"><strong>Ejemplo práctico:</strong> La frase "descontento" podría dividirse en dos tokens: "des" + "contento", mientras que "feliz" podría ser un solo token completo.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Accordion Item 2 -->
-                    <div class="accordion-item bg-neutral-light rounded-lg shadow-sm">
-                        <div class="accordion-header flex justify-between items-center p-4 cursor-pointer">
-                            <h3 class="text-lg font-semibold">Temperatura</h3>
-                            <svg class="accordion-icon w-6 h-6 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                        <div class="accordion-content">
-                            <div class="p-4 border-t border-gray-200 prose max-w-none text-sm">
-                                <p>Pensá en la <strong>temperatura</strong> como la perilla de "creatividad" de la IA. Es como cuando le pedís a alguien que complete una historia:</p>
-                                <ul class="list-disc ml-5 mt-2">
-                                    <li><strong>Temperatura baja (0.3):</strong> La IA siempre elige la opción más obvia y segura. Es como una persona re predecible que siempre dice lo esperado. Útil para respuestas precisas y consistentes.</li>
-                                    <li><strong>Temperatura media (0.7-1.0):</strong> Balance entre predecible y sorprendente. La IA puede elegir opciones interesantes sin volverse demasiado rara.</li>
-                                    <li><strong>Temperatura alta (1.5+):</strong> La IA se pone más "aventurera" y arriesgada. Como un poeta improvisando, puede crear cosas muy originales pero a veces medio sin sentido.</li>
-                                </ul>
-                                <p class="mt-2"><strong>Analogía:</strong> Si le preguntás a alguien "¿Qué mascota me recomendás?", con temperatura baja siempre te va a decir "perro" o "gato". Con temperatura alta capaz te sugiere "un dragón barbudo" o "una alpaca miniatura".</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Accordion Item 3 -->
-                    <div class="accordion-item bg-neutral-light rounded-lg shadow-sm">
-                        <div class="accordion-header flex justify-between items-center p-4 cursor-pointer">
-                            <h3 class="text-lg font-semibold">Top-K</h3>
-                            <svg class="accordion-icon w-6 h-6 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                        <div class="accordion-content">
-                            <div class="p-4 border-t border-gray-200 prose max-w-none text-sm">
-                                <p>Imaginá que la IA tiene una lista de 1000 palabras posibles para continuar tu frase. <strong>Top-K</strong> es como decirle: "Mirá solo las mejores K opciones y elegí entre esas".</p>
-                                <p class="mt-2"><strong>Ejemplo visual:</strong> Si escribiste "Me gusta comer..." y configurás Top-K = 5, la IA solo va a considerar las 5 opciones más populares como: "pizza", "pasta", "helado", "ensalada", "sushi". Se saltea las otras 995 opciones menos probables como "tornillos" o "nubes".</p>
-                                <ul class="list-disc ml-5 mt-2">
-                                    <li><strong>Top-K bajo (5-10):</strong> Opciones re seguras y predecibles.</li>
-                                    <li><strong>Top-K medio (20-30):</strong> Más variedad manteniendo coherencia.</li>
-                                    <li><strong>Top-K alto (50+):</strong> Mayor diversidad, pero puede incluir opciones medio raras.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Accordion Item 4 -->
-                    <div class="accordion-item bg-neutral-light rounded-lg shadow-sm">
-                        <div class="accordion-header flex justify-between items-center p-4 cursor-pointer">
-                            <h3 class="text-lg font-semibold">Top-P (Muestreo Núcleo)</h3>
-                            <svg class="accordion-icon w-6 h-6 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                        <div class="accordion-content">
-                            <div class="p-4 border-t border-gray-200 prose max-w-none text-sm">
-                                <p><strong>Top-P</strong> funciona diferente a Top-K. En lugar de contar opciones, va sumando "confianza" hasta llegar a un porcentaje.</p>
-                                <p class="mt-2"><strong>Analogía del presupuesto:</strong> Imaginá que tenés un presupuesto del 90% de certeza (Top-P = 0.9). La IA va sumando las opciones más probables hasta "gastar" ese 90%:</p>
-                                <ul class="list-disc ml-5 mt-2">
-                                    <li>Pizza: 50% de certeza (Total: 50%)</li>
-                                    <li>Pasta: 25% de certeza (Total: 75%)</li>
-                                    <li>Helado: 15% de certeza (Total: 90%) ✓ ¡Presupuesto completo!</li>
-                                    <li>Sushi: 5% (ya no se considera)</li>
-                                </ul>
-                                <p class="mt-2">Con Top-P = 0.9, la IA elegiría entre Pizza, Pasta o Helado. Si hubiera una opción muy dominante (Pizza 85%), incluiría menos opciones. Es más inteligente que Top-K porque se adapta a cada situación.</p>
-                                <p class="mt-2"><strong>En la práctica:</strong> Top-P = 0.9 es como decir "dame opciones que en conjunto representen el 90% de probabilidad de andar bien".</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Accordion Item 5 -->
-                    <div class="accordion-item bg-neutral-light rounded-lg shadow-sm">
-                        <div class="accordion-header flex justify-between items-center p-4 cursor-pointer">
-                            <h3 class="text-lg font-semibold">Mecanismo operativo de los LLMs</h3>
-                            <svg class="accordion-icon w-6 h-6 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                        <div class="accordion-content">
-                            <div class="p-4 border-t border-gray-200 prose max-w-none text-sm">
-                                <p>¿Cómo funciona la IA cuando escribe? Imaginá que está completando una frase palabra por palabra, pensando mucho en cada paso. Acá está el proceso simplificado:</p>
-                                <ol class="list-decimal ml-5 mt-2 space-y-2">
-                                    <li><strong>Lee tu mensaje:</strong> La IA toma lo que escribiste y lo divide en piezas chicas (tokens) para entenderlo mejor.</li>
-                                    <li><strong>Analiza el contexto:</strong> Como cuando estás leyendo una historia y te acordás de lo importante, la IA revisa todas las palabras anteriores y detecta qué es relevante para seguir.</li>
-                                    <li><strong>Piensa en opciones:</strong> Genera una lista mental de todas las palabras que podrían venir después, cada una con un "puntaje" de qué tan apropiada es.</li>
-                                    <li><strong>Aplica los filtros:</strong> Usa Temperatura, Top-K y Top-P para decidir qué tan creativa o predecible tiene que ser. Es como elegir entre "lo seguro" o "lo interesante".</li>
-                                    <li><strong>Elige una palabra:</strong> De todas las opciones que quedaron, selecciona una (no siempre la más probable, por eso a veces sorprende).</li>
-                                    <li><strong>Agrega y repite:</strong> La palabra elegida se suma al texto, y todo el proceso arranca de nuevo para la siguiente palabra.</li>
-                                </ol>
-                                <p class="mt-3"><strong>Analogía completa:</strong> Es como un escritor que va palabra por palabra, leyendo todo lo que ya escribió antes de decidir la próxima palabra, considerando varias opciones y eligiendo la que mejor encaja con el tono que quiere darle (serio, creativo, técnico, etc.).</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
     </div>
@@ -388,11 +687,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- Elementos UI ---
-            const tabDemo = document.getElementById('tab-demo');
-            const tabConcepts = document.getElementById('tab-concepts');
-            const contentDemo = document.getElementById('content-demo');
-            const contentConcepts = document.getElementById('content-concepts');
-
             const tempSlider = document.getElementById('temperature');
             const tempValue = document.getElementById('temperature-value');
             const topKSlider = document.getElementById('top_k');
@@ -402,76 +696,240 @@
 
             const promptTextEl = document.getElementById('prompt-text');
             const generatedTextEl = document.getElementById('generated-text');
+            const outputDisplay = document.getElementById('output-display');
             const prepareBtn = document.getElementById('prepare-btn');
             const selectBtn = document.getElementById('select-btn');
             const resetBtn = document.getElementById('reset-btn');
             const selectionStatus = document.getElementById('selection-status');
             const statusText = document.getElementById('status-text');
 
-            const initialPrompt = "Había una vez, en una tierra lejana, vivía un";
-            
-            // Estado para guardar entre pasos
-            let currentCandidates = null;
-            let currentTempProbs = null;
-
-            // --- Lógica de pestañas ---
-            tabDemo.addEventListener('click', () => {
-                tabDemo.classList.add('active');
-                tabConcepts.classList.remove('active');
-                contentDemo.classList.remove('hidden');
-                contentConcepts.classList.add('hidden');
-            });
-
-            tabConcepts.addEventListener('click', () => {
-                tabConcepts.classList.add('active');
-                tabDemo.classList.remove('active');
-                contentConcepts.classList.remove('hidden');
-                contentDemo.classList.add('hidden');
-            });
-
-            // --- Acordeón ---
-            document.querySelectorAll('.accordion-header').forEach(header => {
-                header.addEventListener('click', () => {
-                    const accordionItem = header.parentElement;
-                    accordionItem.classList.toggle('open');
-                });
-            });
-
-            // --- Simulación ---
-            const vocab = {
-                'default': [
-                    { token: ' el', prob: 0.3 }, { token: ' un', prob: 0.2 }, { token: ' y', prob: 0.15 },
-                    { token: ' fue', prob: 0.1 }, { token: ' con', prob: 0.08 }, { token: ' él', prob: 0.05 },
-                    { token: ' ella', prob: 0.04 }, { token: ' eso', prob: 0.03 }, { token: ' que', prob: 0.02 },
-                    { token: ' para', prob: 0.01 }, { token: '.', prob: 0.01 }, { token: ',', prob: 0.01 }
-                ],
-                'un': [
-                    { token: ' príncipe', prob: 0.25 }, { token: ' rey', prob: 0.20 }, { token: ' valiente caballero', prob: 0.15 },
-                    { token: ' dragón', prob: 0.10 }, { token: ' panadero humilde', prob: 0.08 }, { token: ' mágico', prob: 0.05 },
-                    { token: ' solitario', prob: 0.04 }, { token: ' poderoso', prob: 0.03 }, { token: ' misterioso', prob: 0.02 },
-                    { token: ' pequeño', prob: 0.02 }, { token: ' gigante', prob: 0.01 }, { token: ' parlante', prob: 0.01 }
-                ],
-                'caballero': [
-                    { token: ' que', prob: 0.3 }, { token: ' montaba', prob: 0.2 }, { token: ' luchó', prob: 0.15 },
-                    { token: ' salvó', prob: 0.1 }, { token: ' descubrió', prob: 0.08 }, { token: ' llamado', prob: 0.05 },
-                    { token: '.', prob: 0.05 }, { token: ',', prob: 0.04 }, { token: ' y', prob: 0.03 }
-                ],
-                'princesa': [
-                    { token: ' que', prob: 0.3 }, { token: ' vivía', prob: 0.2 }, { token: ' fue', prob: 0.15 },
-                    { token: ' soñaba', prob: 0.1 }, { token: ' llamada', prob: 0.08 }, { token: ' tenía', prob: 0.05 },
-                    { token: '.', prob: 0.05 }, { token: ',', prob: 0.04 }, { token: ' y', prob: 0.03 }
-                ],
-                'dragón': [
-                    { token: ' que', prob: 0.3 }, { token: ' custodiaba', prob: 0.2 }, { token: ' respiraba', prob: 0.15 },
-                    { token: ' vivía', prob: 0.1 }, { token: ' aterrorizaba', prob: 0.08 }, { token: ' dormía', prob: 0.05 },
-                    { token: '.', prob: 0.05 }, { token: ',', prob: 0.04 }, { token: ' y', prob: 0.03 }
-                ]
+            // Presets: configuraciones que mueven los 3 parámetros juntos
+            const presets = {
+                preciso:    { temperature: 0.2, top_k: 10, top_p: 0.5 },
+                balanceado: { temperature: 0.7, top_k: 20, top_p: 0.9 },
+                creativo:   { temperature: 1.3, top_k: 40, top_p: 0.95 }
             };
 
+            // Dominios: cada uno define su prompt y su vocabulario contextual
+            const domains = {
+                fantasia: {
+                    prompt: "Había una vez, en una tierra lejana, vivía un",
+                    vocab: {
+                        'default': [
+                            { token: ' el', prob: 0.18 }, { token: ' un', prob: 0.14 }, { token: ' y', prob: 0.12 },
+                            { token: ' que', prob: 0.10 }, { token: ' con', prob: 0.08 }, { token: ' en', prob: 0.07 },
+                            { token: ' de', prob: 0.06 }, { token: ' por', prob: 0.05 }, { token: ' hacia', prob: 0.04 },
+                            { token: ' fue', prob: 0.04 }, { token: ' entonces', prob: 0.03 }, { token: ' al', prob: 0.03 },
+                            { token: ' mágico', prob: 0.02 }, { token: ' oscuro', prob: 0.02 }, { token: '.', prob: 0.01 }, { token: ',', prob: 0.01 }
+                        ],
+                        'un': [
+                            { token: ' príncipe', prob: 0.22 }, { token: ' rey', prob: 0.18 }, { token: ' valiente caballero', prob: 0.14 },
+                            { token: ' dragón', prob: 0.10 }, { token: ' panadero humilde', prob: 0.07 }, { token: ' mago', prob: 0.06 },
+                            { token: ' herrero', prob: 0.05 }, { token: ' bufón', prob: 0.04 }, { token: ' solitario', prob: 0.04 },
+                            { token: ' misterioso', prob: 0.03 }, { token: ' pequeño', prob: 0.03 }, { token: ' parlante', prob: 0.02 },
+                            { token: ' anciano', prob: 0.02 }
+                        ],
+                        'una': [
+                            { token: ' princesa', prob: 0.30 }, { token: ' bruja', prob: 0.18 }, { token: ' hada', prob: 0.15 },
+                            { token: ' sirena', prob: 0.10 }, { token: ' espada', prob: 0.08 }, { token: ' torre', prob: 0.07 },
+                            { token: ' cueva', prob: 0.05 }, { token: ' niña', prob: 0.04 }, { token: ' tormenta', prob: 0.03 }
+                        ],
+                        'príncipe': [
+                            { token: ' que', prob: 0.28 }, { token: ' llamado', prob: 0.18 }, { token: ' valiente', prob: 0.12 },
+                            { token: ' encantado', prob: 0.10 }, { token: ' joven', prob: 0.08 }, { token: ' guerrero', prob: 0.07 },
+                            { token: ',', prob: 0.06 }, { token: '.', prob: 0.05 }, { token: ' y', prob: 0.04 }, { token: ' pero', prob: 0.02 }
+                        ],
+                        'rey': [
+                            { token: ' que', prob: 0.26 }, { token: ' sabio', prob: 0.18 }, { token: ' tirano', prob: 0.12 },
+                            { token: ' del', prob: 0.10 }, { token: ' poderoso', prob: 0.08 }, { token: ' llamado', prob: 0.07 },
+                            { token: ',', prob: 0.06 }, { token: ' y', prob: 0.06 }, { token: '.', prob: 0.04 }, { token: ' anciano', prob: 0.03 }
+                        ],
+                        'caballero': [
+                            { token: ' que', prob: 0.28 }, { token: ' montaba', prob: 0.18 }, { token: ' luchó', prob: 0.12 },
+                            { token: ' salvó', prob: 0.10 }, { token: ' descubrió', prob: 0.08 }, { token: ' llamado', prob: 0.06 },
+                            { token: ' errante', prob: 0.05 }, { token: '.', prob: 0.05 }, { token: ',', prob: 0.04 }, { token: ' y', prob: 0.04 }
+                        ],
+                        'princesa': [
+                            { token: ' que', prob: 0.28 }, { token: ' vivía', prob: 0.18 }, { token: ' fue', prob: 0.12 },
+                            { token: ' soñaba', prob: 0.10 }, { token: ' llamada', prob: 0.08 }, { token: ' tenía', prob: 0.06 },
+                            { token: ' valiente', prob: 0.05 }, { token: '.', prob: 0.05 }, { token: ',', prob: 0.04 }, { token: ' y', prob: 0.04 }
+                        ],
+                        'dragón': [
+                            { token: ' que', prob: 0.26 }, { token: ' custodiaba', prob: 0.18 }, { token: ' respiraba', prob: 0.14 },
+                            { token: ' vivía', prob: 0.10 }, { token: ' aterrorizaba', prob: 0.08 }, { token: ' dormía', prob: 0.06 },
+                            { token: ' ancestral', prob: 0.05 }, { token: '.', prob: 0.05 }, { token: ',', prob: 0.04 }, { token: ' y', prob: 0.04 }
+                        ],
+                        'mago': [
+                            { token: ' que', prob: 0.28 }, { token: ' anciano', prob: 0.16 }, { token: ' poderoso', prob: 0.14 },
+                            { token: ' llamado', prob: 0.10 }, { token: ' oscuro', prob: 0.08 }, { token: ' solitario', prob: 0.06 },
+                            { token: ',', prob: 0.06 }, { token: '.', prob: 0.05 }, { token: ' y', prob: 0.04 }, { token: ' misterioso', prob: 0.03 }
+                        ],
+                        'bosque': [
+                            { token: ' encantado', prob: 0.30 }, { token: ' oscuro', prob: 0.20 }, { token: ' profundo', prob: 0.15 },
+                            { token: ' mágico', prob: 0.10 }, { token: ' donde', prob: 0.08 }, { token: ' que', prob: 0.07 },
+                            { token: ',', prob: 0.05 }, { token: '.', prob: 0.03 }, { token: ' antiguo', prob: 0.02 }
+                        ],
+                        'castillo': [
+                            { token: ' antiguo', prob: 0.22 }, { token: ' en', prob: 0.16 }, { token: ' encantado', prob: 0.14 },
+                            { token: ' del', prob: 0.12 }, { token: ' sobre', prob: 0.10 }, { token: ' de', prob: 0.08 },
+                            { token: ',', prob: 0.07 }, { token: '.', prob: 0.05 }, { token: ' oscuro', prob: 0.03 }, { token: ' abandonado', prob: 0.03 }
+                        ],
+                        'que': [
+                            { token: ' vivía', prob: 0.16 }, { token: ' tenía', prob: 0.14 }, { token: ' habitaba', prob: 0.10 },
+                            { token: ' se', prob: 0.10 }, { token: ' nunca', prob: 0.08 }, { token: ' siempre', prob: 0.07 },
+                            { token: ' un', prob: 0.07 }, { token: ' el', prob: 0.06 }, { token: ' había', prob: 0.06 },
+                            { token: ' hablaba', prob: 0.05 }, { token: ' custodiaba', prob: 0.04 }, { token: ' soñaba', prob: 0.04 }, { token: ' recorría', prob: 0.03 }
+                        ]
+                    }
+                },
+                tecnico: {
+                    prompt: "Para optimizar el rendimiento de una base de datos, conviene",
+                    vocab: {
+                        'default': [
+                            { token: ' el', prob: 0.14 }, { token: ' la', prob: 0.12 }, { token: ' de', prob: 0.11 },
+                            { token: ' un', prob: 0.09 }, { token: ' que', prob: 0.08 }, { token: ' y', prob: 0.07 },
+                            { token: ' se', prob: 0.06 }, { token: ' con', prob: 0.05 }, { token: ' para', prob: 0.05 },
+                            { token: ' en', prob: 0.05 }, { token: ' las', prob: 0.04 }, { token: ' los', prob: 0.04 },
+                            { token: ' una', prob: 0.04 }, { token: '.', prob: 0.03 }, { token: ',', prob: 0.03 }
+                        ],
+                        'conviene': [
+                            { token: ' aplicar', prob: 0.22 }, { token: ' utilizar', prob: 0.18 }, { token: ' analizar', prob: 0.14 },
+                            { token: ' crear', prob: 0.12 }, { token: ' revisar', prob: 0.10 }, { token: ' separar', prob: 0.08 },
+                            { token: ' implementar', prob: 0.06 }, { token: ' monitorear', prob: 0.05 }, { token: ' cachear', prob: 0.03 },
+                            { token: ' particionar', prob: 0.02 }
+                        ],
+                        'aplicar': [
+                            { token: ' índices', prob: 0.28 }, { token: ' técnicas', prob: 0.16 }, { token: ' un', prob: 0.12 },
+                            { token: ' el', prob: 0.10 }, { token: ' filtros', prob: 0.08 }, { token: ' caching', prob: 0.08 },
+                            { token: ' particionado', prob: 0.06 }, { token: ' normalización', prob: 0.05 }, { token: ' compresión', prob: 0.04 },
+                            { token: ' replicación', prob: 0.03 }
+                        ],
+                        'utilizar': [
+                            { token: ' índices', prob: 0.26 }, { token: ' una', prob: 0.14 }, { token: ' un', prob: 0.12 },
+                            { token: ' caché', prob: 0.11 }, { token: ' vistas', prob: 0.10 }, { token: ' consultas', prob: 0.08 },
+                            { token: ' réplicas', prob: 0.07 }, { token: ' transacciones', prob: 0.06 }, { token: ' herramientas', prob: 0.04 },
+                            { token: ' procedimientos', prob: 0.02 }
+                        ],
+                        'analizar': [
+                            { token: ' el', prob: 0.22 }, { token: ' los', prob: 0.18 }, { token: ' las', prob: 0.14 },
+                            { token: ' queries', prob: 0.12 }, { token: ' planes', prob: 0.10 }, { token: ' métricas', prob: 0.08 },
+                            { token: ' logs', prob: 0.06 }, { token: ' cuellos', prob: 0.05 }, { token: ' patrones', prob: 0.03 },
+                            { token: ' bloqueos', prob: 0.02 }
+                        ],
+                        'índices': [
+                            { token: ' en', prob: 0.22 }, { token: ' sobre', prob: 0.18 }, { token: ' compuestos', prob: 0.14 },
+                            { token: ' para', prob: 0.12 }, { token: ' que', prob: 0.10 }, { token: ',', prob: 0.08 },
+                            { token: ' adecuados', prob: 0.06 }, { token: ' parciales', prob: 0.05 }, { token: '.', prob: 0.03 },
+                            { token: ' selectivos', prob: 0.02 }
+                        ],
+                        'consultas': [
+                            { token: ' que', prob: 0.18 }, { token: ' lentas', prob: 0.16 }, { token: ' SQL', prob: 0.14 },
+                            { token: ' complejas', prob: 0.12 }, { token: ' frecuentes', prob: 0.10 }, { token: ' optimizadas', prob: 0.08 },
+                            { token: ',', prob: 0.07 }, { token: ' pesadas', prob: 0.06 }, { token: '.', prob: 0.05 }, { token: ' puntuales', prob: 0.04 }
+                        ],
+                        'caché': [
+                            { token: ' para', prob: 0.22 }, { token: ' en', prob: 0.18 }, { token: ' distribuido', prob: 0.14 },
+                            { token: ' de', prob: 0.12 }, { token: ' que', prob: 0.10 }, { token: ' local', prob: 0.08 },
+                            { token: ',', prob: 0.06 }, { token: '.', prob: 0.05 }, { token: ' compartido', prob: 0.03 }, { token: ' inteligente', prob: 0.02 }
+                        ],
+                        'el': [
+                            { token: ' rendimiento', prob: 0.16 }, { token: ' sistema', prob: 0.14 }, { token: ' tiempo', prob: 0.12 },
+                            { token: ' uso', prob: 0.10 }, { token: ' acceso', prob: 0.09 }, { token: ' plan', prob: 0.08 },
+                            { token: ' costo', prob: 0.07 }, { token: ' número', prob: 0.06 }, { token: ' resultado', prob: 0.05 },
+                            { token: ' análisis', prob: 0.05 }, { token: ' motor', prob: 0.04 }, { token: ' mantenimiento', prob: 0.04 }
+                        ],
+                        'que': [
+                            { token: ' permite', prob: 0.18 }, { token: ' mejora', prob: 0.14 }, { token: ' reduce', prob: 0.12 },
+                            { token: ' optimiza', prob: 0.10 }, { token: ' facilita', prob: 0.09 }, { token: ' se', prob: 0.08 },
+                            { token: ' afecta', prob: 0.07 }, { token: ' consume', prob: 0.06 }, { token: ' acelera', prob: 0.05 },
+                            { token: ' evita', prob: 0.05 }, { token: ' minimiza', prob: 0.03 }, { token: ' garantiza', prob: 0.03 }
+                        ]
+                    }
+                },
+                cotidiano: {
+                    prompt: "Ayer fui al supermercado y compré",
+                    vocab: {
+                        'default': [
+                            { token: ' y', prob: 0.14 }, { token: ' con', prob: 0.11 }, { token: ' un', prob: 0.10 },
+                            { token: ' una', prob: 0.09 }, { token: ' de', prob: 0.09 }, { token: ' para', prob: 0.07 },
+                            { token: ' en', prob: 0.07 }, { token: ' la', prob: 0.06 }, { token: ' el', prob: 0.06 },
+                            { token: ' que', prob: 0.05 }, { token: ' porque', prob: 0.04 }, { token: ' también', prob: 0.04 },
+                            { token: ' después', prob: 0.03 }, { token: '.', prob: 0.03 }, { token: ',', prob: 0.02 }
+                        ],
+                        'compré': [
+                            { token: ' pan', prob: 0.18 }, { token: ' leche', prob: 0.16 }, { token: ' frutas', prob: 0.12 },
+                            { token: ' verduras', prob: 0.10 }, { token: ' un', prob: 0.08 }, { token: ' queso', prob: 0.07 },
+                            { token: ' huevos', prob: 0.07 }, { token: ' pasta', prob: 0.06 }, { token: ' café', prob: 0.05 },
+                            { token: ' galletitas', prob: 0.04 }, { token: ' un poco', prob: 0.03 }, { token: ' algunas', prob: 0.02 },
+                            { token: ' yogur', prob: 0.02 }
+                        ],
+                        'pan': [
+                            { token: ' fresco', prob: 0.22 }, { token: ',', prob: 0.18 }, { token: ' integral', prob: 0.14 },
+                            { token: ' y', prob: 0.12 }, { token: ' de', prob: 0.10 }, { token: ' casero', prob: 0.08 },
+                            { token: '.', prob: 0.06 }, { token: ' lactal', prob: 0.05 }, { token: ' para', prob: 0.03 }, { token: ' francés', prob: 0.02 }
+                        ],
+                        'leche': [
+                            { token: ' descremada', prob: 0.22 }, { token: ',', prob: 0.16 }, { token: ' entera', prob: 0.14 },
+                            { token: ' y', prob: 0.12 }, { token: ' de', prob: 0.10 }, { token: ' en', prob: 0.08 },
+                            { token: '.', prob: 0.06 }, { token: ' sin', prob: 0.05 }, { token: ' vegetal', prob: 0.04 }, { token: ' chocolatada', prob: 0.03 }
+                        ],
+                        'frutas': [
+                            { token: ' frescas', prob: 0.22 }, { token: ',', prob: 0.18 }, { token: ' y', prob: 0.14 },
+                            { token: ' de', prob: 0.10 }, { token: ' variadas', prob: 0.10 }, { token: ' maduras', prob: 0.08 },
+                            { token: '.', prob: 0.06 }, { token: ' orgánicas', prob: 0.05 }, { token: ' para', prob: 0.04 }, { token: ' de estación', prob: 0.03 }
+                        ],
+                        'y': [
+                            { token: ' después', prob: 0.14 }, { token: ' también', prob: 0.12 }, { token: ' luego', prob: 0.10 },
+                            { token: ' un', prob: 0.10 }, { token: ' una', prob: 0.09 }, { token: ' volví', prob: 0.08 },
+                            { token: ' algunas', prob: 0.07 }, { token: ' me', prob: 0.07 }, { token: ' de paso', prob: 0.06 },
+                            { token: ' aprovechá', prob: 0.05 }, { token: ' mientras', prob: 0.05 }, { token: ' varias', prob: 0.04 }, { token: ' ya', prob: 0.03 }
+                        ],
+                        'un': [
+                            { token: ' kilo', prob: 0.20 }, { token: ' poco', prob: 0.16 }, { token: ' paquete', prob: 0.12 },
+                            { token: ' par', prob: 0.10 }, { token: ' queso', prob: 0.08 }, { token: ' pollo', prob: 0.07 },
+                            { token: ' vino', prob: 0.06 }, { token: ' yogur', prob: 0.05 }, { token: ' helado', prob: 0.05 },
+                            { token: ' chocolate', prob: 0.04 }, { token: ' detergente', prob: 0.04 }, { token: ' pack', prob: 0.03 }
+                        ],
+                        'una': [
+                            { token: ' docena', prob: 0.20 }, { token: ' botella', prob: 0.16 }, { token: ' bolsa', prob: 0.14 },
+                            { token: ' cerveza', prob: 0.10 }, { token: ' pizza', prob: 0.09 }, { token: ' lata', prob: 0.08 },
+                            { token: ' caja', prob: 0.07 }, { token: ' palta', prob: 0.06 }, { token: ' sandía', prob: 0.05 }, { token: ' gaseosa', prob: 0.05 }
+                        ],
+                        'que': [
+                            { token: ' estaba', prob: 0.18 }, { token: ' tenía', prob: 0.14 }, { token: ' me', prob: 0.12 },
+                            { token: ' se', prob: 0.10 }, { token: ' había', prob: 0.09 }, { token: ' venía', prob: 0.08 },
+                            { token: ' no', prob: 0.07 }, { token: ' quería', prob: 0.07 }, { token: ' siempre', prob: 0.05 },
+                            { token: ' usé', prob: 0.04 }, { token: ' faltaba', prob: 0.04 }, { token: ' necesitaba', prob: 0.02 }
+                        ]
+                    }
+                }
+            };
+
+            // Estado
+            let currentDomain = 'fantasia';
+            let currentCandidates = null;
+            let currentTempProbs = null;
+            let currentBaseProbs = null;
+            let currentK = 20;
+
+            // Auto-scroll del prompt a la derecha cuando se agrega texto nuevo
+            function scrollPromptToEnd() {
+                if (outputDisplay) outputDisplay.scrollLeft = outputDisplay.scrollWidth;
+            }
+
+            // --- Simulación ---
             function getContext(text) {
                 const words = text.trim().split(/\s+/);
                 const lastWord = words[words.length - 1].toLowerCase().replace(/[^a-záéíóúñü]/g, '');
+                const vocab = domains[currentDomain].vocab;
                 return vocab[lastWord] || vocab['default'];
+            }
+
+            // Normaliza probabilidades para que sumen 1 (por si el vocab definido no suma exacto)
+            function normalize(probs) {
+                const sum = probs.reduce((acc, p) => acc + p.prob, 0);
+                if (sum === 0) return probs;
+                return probs.map(p => ({ ...p, prob: p.prob / sum }));
             }
 
             function applyTemperature(probabilities, temp) {
@@ -522,19 +980,31 @@
                 topPValue.textContent = p.toFixed(2);
 
                 const fullText = promptTextEl.textContent + generatedTextEl.textContent;
-                const baseProbs = [...getContext(fullText)];
+                const baseProbs = normalize([...getContext(fullText)]);
                 const tempProbs = applyTemperature(baseProbs, temp);
                 const candidates = getCandidates(tempProbs, k, p);
 
-                updateChart(tempProbs, candidates);
+                updateChart(baseProbs, tempProbs, candidates, k);
+                syncPresetHighlight(temp, k, p);
+            }
+
+            // Resalta el preset activo si los valores coinciden con alguno
+            function syncPresetHighlight(temp, k, p) {
+                const match = Object.entries(presets).find(([_, v]) =>
+                    Math.abs(v.temperature - temp) < 0.01 &&
+                    v.top_k === k &&
+                    Math.abs(v.top_p - p) < 0.01
+                );
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.classList.toggle('active', match && btn.dataset.preset === match[0]);
+                });
             }
 
             // PASO 1: Preparar y mostrar opciones
             async function prepareTokenSelection() {
-                // Deshabilitar botones durante el proceso
-                disableButton(prepareBtn);
-                disableButton(selectBtn);
-                
+                prepareBtn.disabled = true;
+                selectBtn.disabled = true;
+
                 showStatus('⚙️ Calculando probabilidades...', 'var(--secondary-green)');
 
                 const temp = parseFloat(tempSlider.value);
@@ -542,33 +1012,27 @@
                 const p = parseFloat(topPSlider.value);
 
                 const fullText = promptTextEl.textContent + generatedTextEl.textContent;
-                const baseProbs = [...getContext(fullText)];
+                const baseProbs = normalize([...getContext(fullText)]);
                 const tempProbs = applyTemperature(baseProbs, temp);
                 const candidates = getCandidates(tempProbs, k, p);
 
                 if (candidates.length > 0) {
-                    // Guardar estado para el siguiente paso
                     currentCandidates = candidates;
                     currentTempProbs = tempProbs;
-                    
-                    // Actualizar visualización
-                    updateChart(tempProbs, candidates);
-                    
+                    currentBaseProbs = baseProbs;
+                    currentK = k;
+
+                    updateChart(baseProbs, tempProbs, candidates, k);
+
                     await sleep(300);
-                    
-                    // Mostrar candidatos con animación suave
                     await animateShowCandidates(candidates);
-                    
-                    // Habilitar botón de selección
-                    enableButton(selectBtn);
-                    enableButton(prepareBtn);
-                    
-                    showStatus(`✅ ${candidates.length} candidatos listos para selección`, 'var(--secondary-green)');
-                    
-                    await sleep(2000);
-                    hideStatus();
+
+                    prepareBtn.disabled = false;
+                    selectBtn.disabled = false;
+
+                    showStatus(`✅ ${candidates.length} candidato${candidates.length > 1 ? 's' : ''} listo${candidates.length > 1 ? 's' : ''} — presioná "Seleccionar token"`, 'var(--secondary-green)');
                 } else {
-                    enableButton(prepareBtn);
+                    prepareBtn.disabled = false;
                     showStatus('⚠️ No hay candidatos disponibles', 'var(--primary-orange)');
                 }
             }
@@ -580,54 +1044,37 @@
                     return;
                 }
 
-                // Deshabilitar botones
-                disableButton(prepareBtn);
-                disableButton(selectBtn);
+                prepareBtn.disabled = true;
+                selectBtn.disabled = true;
 
-                // Animar el proceso de selección
                 await animateTokenSelection(currentCandidates);
-                
+
                 const selectedToken = sampleToken(currentCandidates);
                 generatedTextEl.textContent += selectedToken;
-                
-                // Mostrar token seleccionado con animación
-                await animateFinalSelection(currentTempProbs, currentCandidates, selectedToken);
+                scrollPromptToEnd();
 
-                // Limpiar estado
+                await animateFinalSelection(currentBaseProbs, currentTempProbs, currentCandidates, currentK, selectedToken);
+
                 currentCandidates = null;
                 currentTempProbs = null;
+                currentBaseProbs = null;
 
-                // Habilitar solo el botón de preparar
-                enableButton(prepareBtn);
-            }
-
-            function disableButton(btn) {
-                btn.disabled = true;
-                btn.style.opacity = '0.5';
-                btn.style.cursor = 'not-allowed';
-            }
-
-            function enableButton(btn) {
-                btn.disabled = false;
-                btn.style.opacity = '1';
-                btn.style.cursor = 'pointer';
+                prepareBtn.disabled = false;
             }
 
             async function animateShowCandidates(candidates) {
                 const candidateTokens = candidates.map(c => c.token);
-                
-                showStatus('🔍 Identificando candidatos...', 'var(--primary-orange)');
-                
-                // Pulsar suavemente todas las candidatas
+
+                // Pulso breve para identificar candidatas
                 svg.selectAll(".bar").classed("sampling", false);
                 candidateTokens.forEach(token => {
                     svg.selectAll(".bar")
                         .filter(d => d.token === token)
                         .classed("sampling", true);
                 });
-                
-                await sleep(800);
-                
+
+                await sleep(600);
+
                 svg.selectAll(".bar").classed("sampling", false);
             }
 
@@ -668,24 +1115,18 @@
                 svg.selectAll(".bar").classed("sampling", false);
             }
 
-            async function animateFinalSelection(data, candidates, selectedToken) {
-                // Mostrar token seleccionado
-                showStatus(`✨ Token seleccionado: "${selectedToken}"`, 'var(--secondary-green)');
-                
-                updateChart(data, candidates, selectedToken);
-                
-                // Agregar animación final al token seleccionado
+            async function animateFinalSelection(baseProbs, tempProbs, candidates, k, selectedToken) {
+                showStatus(`✨ Token seleccionado: "${selectedToken.trim() || selectedToken}"`, 'var(--secondary-green)');
+
+                updateChart(baseProbs, tempProbs, candidates, k, selectedToken);
+
                 svg.selectAll(".bar")
                     .filter(d => d.token === selectedToken)
                     .classed("final-selected", true);
-                
+
                 await sleep(800);
-                
+
                 svg.selectAll(".bar").classed("final-selected", false);
-                
-                // Ocultar status después de un momento
-                await sleep(500);
-                hideStatus();
             }
 
             function showStatus(message, color) {
@@ -707,82 +1148,200 @@
             // --- Gráfico D3 ---
             const margin = { top: 20, right: 20, bottom: 80, left: 40 };
             const container = d3.select("#chart-container");
-            const width = container.node().getBoundingClientRect().width - margin.left - margin.right;
-            const height = container.node().getBoundingClientRect().height - margin.top - margin.bottom;
+            let width = container.node().getBoundingClientRect().width - margin.left - margin.right;
+            let height = container.node().getBoundingClientRect().height - margin.top - margin.bottom;
 
-            const svg = container.append("svg")
+            const svgRoot = container.append("svg")
                 .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
+                .attr("height", height + margin.top + margin.bottom);
+
+            const svg = svgRoot.append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
 
-            const x = d3.scaleBand().range([0, width]).padding(0.1);
+            const x = d3.scaleBand().range([0, width]).padding(0.15);
             const y = d3.scaleLinear().range([height, 0]);
 
-            const xAxis = svg.append("g").attr("transform", `translate(0,${height})`);
-            const yAxis = svg.append("g");
+            const xAxis = svg.append("g").attr("class", "axis axis-x").attr("transform", `translate(0,${height})`);
+            const yAxis = svg.append("g").attr("class", "axis axis-y");
+
+            // Grupos para capas: ghost (atrás) < bars (adelante) < overlays (líneas de corte)
+            const ghostLayer = svg.append("g").attr("class", "ghost-layer");
+            const barsLayer = svg.append("g").attr("class", "bars-layer");
+            const overlayLayer = svg.append("g").attr("class", "overlay-layer");
 
             const tooltip = d3.select("body").append("div").attr("class", "tooltip");
 
-            function updateChart(data, candidates, selectedToken = null) {
-                const displayData = data.slice(0, 15); // Mostrar top 15
+            function updateChart(baseProbs, tempProbs, candidates, k, selectedToken = null) {
+                // Responsive: menos barras en viewport angosto
+                const maxBars = window.innerWidth < 640 ? 10 : 15;
+                const displayTemp = tempProbs.slice(0, maxBars);
+                const displayTokens = displayTemp.map(d => d.token);
+
+                // Índices de los tokens mostrados en la distribución original (mismo orden)
+                const baseByToken = new Map(baseProbs.map(p => [p.token, p.prob]));
+                const displayBase = displayTokens.map(tok => ({
+                    token: tok,
+                    prob: baseByToken.get(tok) ?? 0
+                }));
+
                 const candidateTokens = new Set(candidates.map(c => c.token));
 
-                x.domain(displayData.map(d => d.token));
-                y.domain([0, d3.max(displayData, d => d.prob)]);
+                // Y domain cubre ambos (post-temperatura y original) para que nada sobresalga
+                const yMax = Math.max(
+                    d3.max(displayTemp, d => d.prob) || 0,
+                    d3.max(displayBase, d => d.prob) || 0
+                );
 
-                xAxis.transition().duration(300).call(d3.axisBottom(x))
+                x.domain(displayTokens);
+                y.domain([0, yMax * 1.05]);
+
+                xAxis.transition().duration(300).call(d3.axisBottom(x).tickFormat(tok => {
+                    // Mostrar token con guion bajo visible en lugar de espacio inicial
+                    if (tok.startsWith(' ')) return '␣' + tok.slice(1);
+                    return tok;
+                }))
                     .selectAll("text")
                     .attr("transform", "rotate(-45)")
                     .style("text-anchor", "end");
 
                 yAxis.transition().duration(300).call(d3.axisLeft(y).ticks(5, ".0%"));
 
-                const bars = svg.selectAll(".bar").data(displayData, d => d.token);
-
-                bars.exit().remove();
-
-                bars.enter().append("rect")
-                    .attr("class", "bar")
+                // --- Ghost bars (distribución original, contorno punteado) ---
+                const ghosts = ghostLayer.selectAll(".bar-ghost").data(displayBase, d => d.token);
+                ghosts.exit().remove();
+                ghosts.enter().append("rect")
+                    .attr("class", "bar-ghost")
                     .attr("x", d => x(d.token))
                     .attr("width", x.bandwidth())
                     .attr("y", height)
                     .attr("height", 0)
-                    .merge(bars)
+                    .merge(ghosts)
+                    .transition().duration(300)
+                    .attr("x", d => x(d.token))
+                    .attr("width", x.bandwidth())
+                    .attr("y", d => y(d.prob))
+                    .attr("height", d => height - y(d.prob));
+
+                // --- Solid bars (distribución post-temperatura, con estados) ---
+                const bars = barsLayer.selectAll(".bar").data(displayTemp, d => d.token);
+
+                bars.exit().remove();
+
+                const barsEnter = bars.enter().append("rect")
+                    .attr("class", "bar")
+                    .attr("x", d => x(d.token))
+                    .attr("width", x.bandwidth())
+                    .attr("y", height)
+                    .attr("height", 0);
+
+                barsEnter.merge(bars)
                     .on("mouseover", (event, d) => {
-                        tooltip.transition().duration(200).style("opacity", .9);
-                        tooltip.html(`Token: "${d.token}"<br/>Prob: ${(d.prob * 100).toFixed(2)}%`)
-                            .style("left", (event.pageX + 5) + "px")
-                            .style("top", (event.pageY - 28) + "px");
+                        const baseP = baseByToken.get(d.token) ?? 0;
+                        tooltip.transition().duration(150).style("opacity", .95);
+                        tooltip.html(
+                            `Token: "${d.token}"<br/>` +
+                            `Prob original: ${(baseP * 100).toFixed(2)}%<br/>` +
+                            `Post-temperatura: ${(d.prob * 100).toFixed(2)}%`
+                        )
+                            .style("left", (event.clientX + window.scrollX + 10) + "px")
+                            .style("top", (event.clientY + window.scrollY - 40) + "px");
                     })
                     .on("mouseout", () => {
-                        tooltip.transition().duration(500).style("opacity", 0);
+                        tooltip.transition().duration(300).style("opacity", 0);
                     })
                     .transition().duration(300)
                     .attr("x", d => x(d.token))
                     .attr("width", x.bandwidth())
                     .attr("y", d => y(d.prob))
                     .attr("height", d => height - y(d.prob))
-                    .attr("fill", "var(--green-light)")
-                    .attr("class", d => {
+                    .attr("class", (d, i) => {
                         let classes = "bar";
-                        if (candidateTokens.has(d.token)) classes += " candidate";
+                        if (candidateTokens.has(d.token)) {
+                            classes += " candidate";
+                        } else if (i < k) {
+                            // Estaba en Top-K pero no sobrevivió a Top-P
+                            classes += " cut-topp";
+                        }
+                        // else: i >= k → fuera de Top-K (estilo default)
                         if (d.token === selectedToken) classes += " selected";
                         return classes;
                     });
+
+                // --- Línea de corte Top-K ---
+                overlayLayer.selectAll("*").remove();
+                if (k < displayTemp.length) {
+                    const cutX = x(displayTokens[k]) - (x.step() - x.bandwidth()) / 2;
+                    overlayLayer.append("line")
+                        .attr("class", "cut-line")
+                        .attr("x1", cutX)
+                        .attr("x2", cutX)
+                        .attr("y1", 0)
+                        .attr("y2", height);
+                    overlayLayer.append("text")
+                        .attr("class", "cut-label")
+                        .attr("x", cutX + 4)
+                        .attr("y", 12)
+                        .text(`← Top-K = ${k}`);
+                }
             }
 
+            // Redibujar en resize
+            window.addEventListener('resize', () => {
+                const newW = container.node().getBoundingClientRect().width - margin.left - margin.right;
+                if (Math.abs(newW - width) < 4) return;
+                width = newW;
+                svgRoot.attr("width", width + margin.left + margin.right);
+                x.range([0, width]);
+                updateStateAndViz();
+            });
+
             // --- Listeners ---
+            function invalidatePreparedState() {
+                if (currentCandidates) {
+                    currentCandidates = null;
+                    currentTempProbs = null;
+                    currentBaseProbs = null;
+                    selectBtn.disabled = true;
+                    showStatus('Parámetros cambiaron — analizá de nuevo las opciones', 'var(--primary-orange)');
+                }
+            }
+
             [tempSlider, topKSlider, topPSlider].forEach(slider => {
                 slider.addEventListener('input', () => {
                     updateStateAndViz();
-                    // Si cambian parámetros, limpiar estado y deshabilitar botón de selección
-                    if (currentCandidates) {
-                        currentCandidates = null;
-                        currentTempProbs = null;
-                        disableButton(selectBtn);
-                        hideStatus();
-                    }
+                    invalidatePreparedState();
+                });
+            });
+
+            // Presets
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const preset = presets[btn.dataset.preset];
+                    if (!preset) return;
+                    tempSlider.value = preset.temperature;
+                    topKSlider.value = preset.top_k;
+                    topPSlider.value = preset.top_p;
+                    updateStateAndViz();
+                    invalidatePreparedState();
+                });
+            });
+
+            // Selector de prompt / dominio
+            document.querySelectorAll('.prompt-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    const domain = chip.dataset.domain;
+                    if (!domains[domain]) return;
+                    document.querySelectorAll('.prompt-chip').forEach(c => c.classList.toggle('active', c === chip));
+                    currentDomain = domain;
+                    promptTextEl.textContent = domains[domain].prompt;
+                    generatedTextEl.textContent = '';
+                    currentCandidates = null;
+                    currentTempProbs = null;
+                    currentBaseProbs = null;
+                    selectBtn.disabled = true;
+                    hideStatus();
+                    if (outputDisplay) outputDisplay.scrollLeft = 0;
+                    updateStateAndViz();
                 });
             });
 
@@ -793,13 +1352,16 @@
                 generatedTextEl.textContent = '';
                 currentCandidates = null;
                 currentTempProbs = null;
-                disableButton(selectBtn);
+                currentBaseProbs = null;
+                selectBtn.disabled = true;
                 hideStatus();
+                if (outputDisplay) outputDisplay.scrollLeft = 0;
                 updateStateAndViz();
             });
 
             // Estado inicial
-            promptTextEl.textContent = initialPrompt;
+            promptTextEl.textContent = domains[currentDomain].prompt;
+            selectBtn.disabled = true;
             updateStateAndViz();
         });
     </script>
