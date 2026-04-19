@@ -421,21 +421,33 @@
         .slider-inline input[type="range"] {
             flex: 1;
             min-width: 60px;
-            height: 4px;
+            height: 6px;
             background: var(--medium-gray);
             border-radius: 4px;
             appearance: none;
             -webkit-appearance: none;
             cursor: pointer;
+            border: 1px solid rgba(0, 0, 0, 0.08);
         }
         .slider-inline input[type="range"]::-webkit-slider-thumb {
-            width: 16px;
-            height: 16px;
-            margin-top: -6px;
+            width: 18px;
+            height: 18px;
+            margin-top: -7px;
+            background: var(--cold-main-violet);
+            border: 2px solid var(--white);
+            box-shadow: 0 0 0 1.5px var(--cold-main-violet), 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         .slider-inline input[type="range"]::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
+            background: var(--cold-main-violet);
+            border: 2px solid var(--white);
+            box-shadow: 0 0 0 1.5px var(--cold-main-violet), 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .slider-inline input[type="range"]::-moz-range-progress {
+            background: var(--cold-main-violet);
+            height: 6px;
+            border-radius: 4px;
         }
         .slider-inline .slider-value {
             font-variant-numeric: tabular-nums;
@@ -970,6 +982,14 @@
                 return normalizedCandidates[normalizedCandidates.length - 1].token;
             }
 
+            function updateSliderFill(slider) {
+                const min = parseFloat(slider.min);
+                const max = parseFloat(slider.max);
+                const val = parseFloat(slider.value);
+                const pct = ((val - min) / (max - min)) * 100;
+                slider.style.background = `linear-gradient(to right, var(--cold-main-violet) 0%, var(--cold-main-violet) ${pct}%, var(--medium-gray) ${pct}%, var(--medium-gray) 100%)`;
+            }
+
             function updateStateAndViz() {
                 const temp = parseFloat(tempSlider.value);
                 const k = parseInt(topKSlider.value);
@@ -978,6 +998,10 @@
                 tempValue.textContent = temp.toFixed(2);
                 topKValue.textContent = k;
                 topPValue.textContent = p.toFixed(2);
+
+                updateSliderFill(tempSlider);
+                updateSliderFill(topKSlider);
+                updateSliderFill(topPSlider);
 
                 const fullText = promptTextEl.textContent + generatedTextEl.textContent;
                 const baseProbs = normalize([...getContext(fullText)]);
