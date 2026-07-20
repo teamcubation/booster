@@ -8,34 +8,37 @@
     <style>
         /* Estilos específicos de contenidos */
         .content-grid {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: var(--spacing-md);
             margin-top: var(--spacing-xl);
         }
 
         .content-card {
             display: flex;
-            align-items: center;
-            gap: var(--spacing-lg);
-            animation: fadeInLeft 0.5s ease-out;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            text-align: left;
+            animation: fadeInUp 0.5s ease-out;
             animation-fill-mode: both;
         }
 
         .content-card:hover {
-            transform: translateX(8px);
-            box-shadow: 0 8px 30px rgba(182, 54, 255, 0.15);
-            border-color: var(--cold-main-violet);
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(182, 54, 255, 0.18);
+            border: 1px solid var(--cold-main-violet);
         }
 
         .card-icon {
-            font-size: 3rem;
+            font-size: 1.9rem;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            width: 80px;
-            height: 80px;
+            width: 56px;
+            height: 56px;
             background: var(--cold-main-violet);
             border-radius: var(--radius-md);
         }
@@ -45,44 +48,41 @@
         }
 
         .card-title {
-            font-size: 1.5rem;
+            font-size: 1.05rem;
             margin-bottom: var(--spacing-xs);
             color: var(--cold-main-violet);
             font-weight: 700;
+            line-height: 1.25;
         }
 
         .card-description {
             color: var(--dark-gray);
-            font-size: 0.95rem;
-            line-height: 1.6;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            opacity: 0.9;
         }
 
-        .content-card:nth-child(1) { animation-delay: 0.1s; }
-        .content-card:nth-child(2) { animation-delay: 0.2s; }
-        .content-card:nth-child(3) { animation-delay: 0.3s; }
-        .content-card:nth-child(4) { animation-delay: 0.4s; }
-        .content-card:nth-child(5) { animation-delay: 0.5s; }
-        .content-card:nth-child(6) { animation-delay: 0.6s; }
-
-        @media (max-width: 768px) {
-            .content-card {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .card-icon {
-                width: 70px;
-                height: 70px;
-                font-size: 2.5rem;
-            }
-        }
+        .content-card:nth-child(1) { animation-delay: 0.05s; }
+        .content-card:nth-child(2) { animation-delay: 0.1s; }
+        .content-card:nth-child(3) { animation-delay: 0.15s; }
+        .content-card:nth-child(4) { animation-delay: 0.2s; }
+        .content-card:nth-child(5) { animation-delay: 0.25s; }
+        .content-card:nth-child(6) { animation-delay: 0.3s; }
 
         @media (max-width: 480px) {
-            .card-icon {
-                width: 60px;
-                height: 60px;
-                font-size: 2rem;
+            .content-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: var(--spacing-sm);
             }
+            .content-card {
+                padding: var(--spacing-sm);
+            }
+            .card-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 1.6rem;
+            }
+            .card-title { font-size: 0.95rem; }
         }
     </style>
 </head>
@@ -140,6 +140,16 @@
                     <h2 class="card-title">Ciclo de un Agente AI</h2>
                     <p class="card-description">
                         Descubrí cómo funciona un agente de inteligencia artificial a través de su ciclo de percibir, pensar y accionar. Una demostración interactiva y visual del proceso completo.
+                    </p>
+                </div>
+            </a>
+
+            <a href="agente-componentes.html" class="card content-card">
+                <span class="card-icon">🧩</span>
+                <div class="card-content">
+                    <h2 class="card-title">Anatomía de un Agente AI</h2>
+                    <p class="card-description">
+                        Explorá las 4 piezas de un agente —prompt de sistema, prompt de usuario (chat, mail, schedule, webhook), herramientas y modelo LLM— y mirá cómo se combinan paso a paso en cada ejecución.
                     </p>
                 </div>
             </a>

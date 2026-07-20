@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anatomía de un Agente AI - Booster</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm-main-orange: #FF4933;
+            --warm-secondary-yellow: #DCDF30;
+            --warm-secondary-orange: #FFA232;
+            --cold-main-violet: #B636FF;
+            --cold-secondary-violet: #6D00FF;
+            --cold-secondary-blue: #001AFF;
+            --cold-secondary-sky: #00B2FF;
+            --white: #FFFFFF;
+            --light-gray: #F5F6F8;
+            --medium-gray: #6b7280;
+            --dark-gray: #333333;
+            --border: #e6e8ec;
+            --font-title: 'Plus Jakarta Sans', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-body);
+            background:
+                radial-gradient(1200px 600px at 80% -10%, rgba(182, 54, 255, 0.06), transparent 60%),
+                radial-gradient(1000px 500px at -10% 10%, rgba(0, 178, 255, 0.05), transparent 55%),
+                #fbfbfd;
+            color: var(--dark-gray);
+            line-height: 1.5;
+            padding: 0.75rem 1rem 1rem;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        /* ---------- Header ---------- */
+        .header { text-align: center; padding: 0.25rem 1rem 0; animation: fadeInDown 0.7s ease-out; }
+        .eyebrow {
+            display: inline-block; font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase;
+            font-weight: 700; color: var(--cold-main-violet); background: rgba(182, 54, 255, 0.08);
+            padding: 0.2rem 0.7rem; border-radius: 999px; margin-bottom: 0.35rem;
+        }
+        h1 {
+            font-family: var(--font-title); font-size: clamp(1.4rem, 3.4vw, 2rem); font-weight: 800;
+            line-height: 1.1; letter-spacing: -0.02em; color: var(--dark-gray); margin-bottom: 0.25rem;
+        }
+        h1 .grad {
+            background: linear-gradient(90deg, var(--cold-main-violet), var(--cold-secondary-sky));
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .subtitle { font-size: clamp(0.82rem, 1.6vw, 0.92rem); color: var(--medium-gray); max-width: 720px; margin: 0 auto; }
+
+        /* ---------- Trigger selector ---------- */
+        .panel {
+            background: var(--white); border: 1px solid var(--border); border-radius: 14px;
+            padding: 0.7rem 0.9rem; margin-top: 0.9rem; box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        }
+        .panel-label { font-family: var(--font-title); font-weight: 700; font-size: 0.85rem; color: var(--dark-gray); margin-bottom: 0.5rem; }
+        .panel-label .num { color: var(--warm-main-orange); }
+        .trigger-tabs { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+        .trigger-tab {
+            flex: 1 1 150px; background: var(--light-gray); border: 2px solid transparent; border-radius: 10px;
+            padding: 0.5rem 0.7rem; cursor: pointer; transition: all 0.2s ease;
+            display: flex; align-items: center; gap: 0.55rem; font-family: var(--font-body); text-align: left;
+        }
+        .trigger-tab:hover { background: #eef0f3; }
+        .trigger-tab.active { background: rgba(255, 73, 51, 0.08); border-color: var(--warm-main-orange); }
+        .trigger-tab .t-emoji { font-size: 1.25rem; }
+        .trigger-tab .t-name { font-weight: 700; font-size: 0.82rem; color: var(--dark-gray); }
+        .trigger-tab .t-desc { font-size: 0.66rem; color: var(--medium-gray); }
+
+        /* ---------- STAGE (diagrama animado) ---------- */
+        .stage-wrap {
+            background: var(--white); border: 1px solid var(--border); border-radius: 16px;
+            margin-top: 0.9rem; box-shadow: 0 6px 24px rgba(0,0,0,0.05); overflow: hidden;
+        }
+        .stage {
+            position: relative; width: 100%; height: clamp(330px, 42vw, 420px);
+            background:
+                radial-gradient(60% 55% at 48% 50%, rgba(182,54,255,0.05), transparent 70%),
+                linear-gradient(180deg, #fcfcfe, #f6f7fb);
+        }
+        .stage::before {
+            content: ''; position: absolute; inset: 0;
+            background-image: radial-gradient(rgba(120,120,150,0.09) 1px, transparent 1px);
+            background-size: 20px 20px; pointer-events: none;
+        }
+        .wires { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+        .wire { stroke: #d7dae6; stroke-width: 2.5; fill: none; vector-effect: non-scaling-stroke; transition: stroke 0.2s; }
+        .wire.flow { stroke: var(--cold-main-violet); stroke-dasharray: 5 4; animation: dash 0.55s linear infinite; }
+        @keyframes dash { to { stroke-dashoffset: -18; } }
+
+        .node {
+            position: absolute; transform: translate(-50%, -50%);
+            background: var(--white); border: 1.5px solid var(--border); border-radius: 13px;
+            padding: 0.5rem 0.55rem; display: flex; flex-direction: column; align-items: center; gap: 0.1rem;
+            cursor: pointer; transition: box-shadow .3s, border-color .3s, transform .25s; text-align: center;
+            z-index: 2; box-shadow: 0 5px 16px rgba(0,0,0,0.07); min-width: 92px;
+        }
+        .node:hover { border-color: var(--cold-main-violet); }
+        .node .n-emoji { font-size: 1.35rem; line-height: 1; }
+        .node .n-label { font-size: 0.68rem; font-weight: 800; font-family: var(--font-title); color: var(--dark-gray); line-height: 1.15; }
+        .node .n-sub { font-size: 0.58rem; color: var(--medium-gray); font-weight: 600; }
+        .node .n-tag {
+            position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+            font-size: 0.52rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+            padding: 0.08rem 0.4rem; border-radius: 999px; color: white; white-space: nowrap;
+        }
+        .node.active { box-shadow: 0 0 0 3px rgba(182,54,255,0.18), 0 10px 26px rgba(182,54,255,0.22); transform: translate(-50%, -50%) scale(1.07); border-color: var(--cold-main-violet); }
+
+        .node-trigger { left: 12%; top: 50%; }
+        .node-trigger .n-tag { background: var(--warm-main-orange); }
+        .node-sys { left: 48%; top: 15%; }
+        .node-sys .n-tag { background: var(--cold-secondary-violet); }
+        .node-tools { left: 48%; top: 85%; }
+        .node-tools .n-tag { background: var(--warm-secondary-orange); color: #5a3a00; }
+        .node-output { left: 86%; top: 50%; }
+        .node-output { border-style: dashed; border-color: var(--cold-secondary-sky); }
+        .node-output .n-tag { background: var(--cold-secondary-sky); }
+
+        .node-llm {
+            left: 48%; top: 50%; min-width: 118px; padding: 0.75rem 0.7rem;
+            background: linear-gradient(150deg, var(--cold-main-violet), var(--cold-secondary-violet) 65%, var(--cold-secondary-blue));
+            border: none; color: white; box-shadow: 0 12px 30px rgba(109,0,255,0.32); z-index: 3;
+        }
+        .node-llm .n-emoji { font-size: 1.9rem; }
+        .node-llm .n-label { color: white; font-size: 0.82rem; }
+        .node-llm .n-sub { color: rgba(255,255,255,0.85); }
+        .node-llm.active { transform: translate(-50%, -50%) scale(1.05); box-shadow: 0 0 0 4px rgba(182,54,255,0.25), 0 14px 34px rgba(109,0,255,0.42); }
+        .node-llm.thinking { animation: brainPulse 1s ease-in-out infinite; }
+        @keyframes brainPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 12px 30px rgba(109,0,255,0.32); }
+            50% { transform: translate(-50%, -50%) scale(1.09); box-shadow: 0 0 0 6px rgba(182,54,255,0.22), 0 16px 40px rgba(109,0,255,0.5); }
+        }
+
+        /* pensamiento flotante */
+        .thought {
+            position: absolute; left: 48%; top: 32%; transform: translate(-50%, -50%) scale(0.6);
+            background: white; border: 1.5px solid var(--cold-secondary-sky); color: #0288b8;
+            font-size: 0.62rem; font-weight: 700; padding: 0.25rem 0.55rem; border-radius: 999px;
+            box-shadow: 0 4px 12px rgba(0,178,255,0.25); z-index: 6; opacity: 0; pointer-events: none;
+            white-space: nowrap;
+        }
+        .thought.show { animation: thoughtPop 0.4s ease-out forwards; }
+        @keyframes thoughtPop { to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+
+        /* packets */
+        .packet {
+            position: absolute; transform: translate(-50%, -50%);
+            font-family: var(--font-mono); font-size: 0.6rem; font-weight: 700;
+            padding: 0.2rem 0.5rem; border-radius: 999px; z-index: 5; white-space: nowrap;
+            color: white; background: var(--cold-main-violet); box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            animation-duration: 1.05s; animation-timing-function: cubic-bezier(.4,0,.2,1); animation-fill-mode: forwards;
+        }
+        .packet.p-trigger { animation-name: pk-trigger; background: var(--warm-main-orange); }
+        .packet.p-sys { animation-name: pk-sys; background: var(--cold-secondary-violet); }
+        .packet.p-toolsup { animation-name: pk-toolsup; background: #7a8a00; }
+        .packet.p-llmtools { animation-name: pk-llmtools; background: var(--warm-secondary-orange); color: #5a3a00; }
+        .packet.p-toolsret { animation-name: pk-toolsret; background: #7a8a00; }
+        .packet.p-out { animation-name: pk-out; background: linear-gradient(135deg, var(--cold-main-violet), var(--cold-secondary-sky)); }
+
+        @keyframes pk-trigger { 0%{left:15%;top:50%;opacity:0} 12%{opacity:1} 85%{opacity:1} 100%{left:46%;top:50%;opacity:0} }
+        @keyframes pk-sys { 0%{left:48%;top:20%;opacity:0} 12%{opacity:1} 85%{opacity:1} 100%{left:48%;top:46%;opacity:0} }
+        @keyframes pk-toolsup { 0%{left:48%;top:80%;opacity:0} 12%{opacity:1} 85%{opacity:1} 100%{left:48%;top:54%;opacity:0} }
+        @keyframes pk-llmtools { 0%{left:48%;top:54%;opacity:0} 12%{opacity:1} 85%{opacity:1} 100%{left:48%;top:80%;opacity:0} }
+        @keyframes pk-toolsret { 0%{left:48%;top:80%;opacity:0} 12%{opacity:1} 85%{opacity:1} 100%{left:48%;top:54%;opacity:0} }
+        @keyframes pk-out { 0%{left:50%;top:50%;opacity:0} 12%{opacity:1} 85%{opacity:1} 100%{left:84%;top:50%;opacity:0} }
+
+        /* ---------- controls row ---------- */
+        .ctrl-row {
+            display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+            padding: 0.6rem 0.9rem; border-top: 1px solid var(--border); background: #fbfbfd; flex-wrap: wrap;
+        }
+        .step-counter { font-size: 0.72rem; color: var(--medium-gray); font-weight: 700; }
+        .controls { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
+        .btn {
+            font-family: var(--font-body); font-weight: 700; font-size: 0.82rem; border: none; border-radius: 999px;
+            cursor: pointer; padding: 0.45rem 1.05rem; transition: all 0.2s ease;
+            display: inline-flex; align-items: center; gap: 0.35rem;
+        }
+        .btn-primary { background: var(--warm-main-orange); color: white; box-shadow: 0 5px 14px rgba(255,73,51,0.3); }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 7px 18px rgba(255,73,51,0.4); }
+        .btn-secondary { background: white; color: var(--cold-main-violet); border: 2px solid var(--cold-main-violet); }
+        .btn-secondary:hover:not(:disabled) { background: var(--cold-main-violet); color: white; }
+        .btn-ghost { background: transparent; color: var(--medium-gray); border: 2px solid var(--border); }
+        .btn-ghost:hover:not(:disabled) { border-color: var(--medium-gray); color: var(--dark-gray); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ---------- detail panel ---------- */
+        .detail {
+            margin-top: 0.7rem; background: var(--white); border: 1px solid var(--border); border-radius: 14px;
+            padding: 0.85rem 1rem; min-height: 96px; box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            animation: fadeIn 0.35s ease-out;
+        }
+        .detail-empty { color: var(--medium-gray); font-style: italic; font-size: 0.88rem; text-align: center; padding: 0.6rem; }
+        .d-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; }
+        .d-badge { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: white; flex-shrink: 0; }
+        .d-kicker { font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; }
+        .d-text { font-size: 0.86rem; color: var(--dark-gray); line-height: 1.5; }
+        .d-text.think { font-style: italic; color: #0f6f92; }
+
+        .bundle { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.5rem; }
+        .bundle-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; background: var(--light-gray); border-radius: 8px; padding: 0.35rem 0.55rem; }
+        .bi-tag { font-family: var(--font-mono); font-size: 0.62rem; font-weight: 700; padding: 0.12rem 0.42rem; border-radius: 5px; color: white; flex-shrink: 0; }
+
+        .code {
+            font-family: var(--font-mono); font-size: 0.74rem; background: #1e2230; color: #e6e6e6;
+            border-radius: 8px; padding: 0.55rem 0.7rem; margin-top: 0.45rem; overflow-x: auto; line-height: 1.55; white-space: pre;
+        }
+        .code .k { color: #ff9d76; } .code .s { color: #a5e075; } .code .n { color: #6cc4ff; } .code .fn { color: #ffd479; font-weight: 600; }
+
+        .render-box { margin-top: 0.5rem; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+        .chat-bubble { background: linear-gradient(135deg, var(--cold-main-violet), var(--cold-secondary-violet)); color: white; padding: 0.7rem 0.85rem; border-radius: 12px; font-size: 0.85rem; line-height: 1.5; }
+        .mail-head { background: var(--light-gray); padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); font-size: 0.72rem; }
+        .mail-head .row { display: flex; gap: 0.4rem; margin-bottom: 0.15rem; }
+        .mail-head .lbl { font-weight: 700; color: var(--medium-gray); width: 52px; flex-shrink: 0; }
+        .mail-body { padding: 0.7rem; font-size: 0.78rem; line-height: 1.55; background: white; }
+        .mail-body p { margin: 0 0 0.4rem; }
+        .slack-msg { background: white; padding: 0.6rem 0.7rem; display: flex; gap: 0.55rem; }
+        .slack-av { width: 30px; height: 30px; border-radius: 7px; background: linear-gradient(135deg,#611f69,#4a154b); color: white; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.8rem; flex-shrink:0;}
+        .slack-name { font-weight: 700; font-size: 0.78rem; }
+        .slack-name .bot { font-size: 0.55rem; background: #ddd; color:#555; border-radius:3px; padding: 0 0.25rem; margin-left: 0.3rem; font-weight:700; vertical-align: middle;}
+        .slack-time { font-size: 0.6rem; color: var(--medium-gray); font-weight: 400; margin-left: 0.35rem; }
+        .slack-text { font-size: 0.78rem; line-height: 1.5; margin-top: 0.1rem; white-space: pre-line; }
+        .slack-channel { font-size: 0.64rem; color: var(--medium-gray); padding: 0.35rem 0.7rem 0; font-weight: 700; }
+
+        /* ---------- modal ---------- */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(20,10,40,0.55); z-index: 1000; justify-content: center; align-items: center; padding: 1rem; animation: fadeIn 0.25s ease-out; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: white; border-radius: 16px; padding: 1.4rem; max-width: 560px; width: 100%; max-height: 82vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: entryIn 0.3s ease-out; }
+        .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; gap: 0.5rem; }
+        .modal-title { font-family: var(--font-title); font-weight: 800; font-size: 1.15rem; color: var(--cold-main-violet); }
+        .modal-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--medium-gray); line-height: 1; }
+        .modal-close:hover { color: var(--dark-gray); }
+        .modal-desc { font-size: 0.85rem; color: var(--medium-gray); margin-bottom: 0.9rem; }
+        .modal-block { background: var(--light-gray); border-left: 4px solid var(--cold-main-violet); border-radius: 8px; padding: 0.85rem; font-size: 0.85rem; line-height: 1.6; color: var(--dark-gray); }
+        .modal-block.mono { font-family: var(--font-mono); font-size: 0.76rem; white-space: pre-wrap; }
+        .modal-list { list-style: none; margin-top: 0.6rem; }
+        .modal-list li { padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; display:flex; gap:0.5rem; align-items:flex-start;}
+        .modal-list li:last-child { border-bottom: none; }
+        .modal-list code { font-family: var(--font-mono); font-size: 0.74rem; background: rgba(182,54,255,0.1); color: var(--cold-secondary-violet); padding: 0.1rem 0.35rem; border-radius: 5px; font-weight: 600;}
+
+        .backlink { text-align: center; margin-top: 0.9rem; margin-bottom: 0.3rem; }
+        .backlink a { color: var(--cold-main-violet); font-weight: 600; font-size: 0.85rem; text-decoration: none; }
+        .backlink a:hover { text-decoration: underline; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes entryIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 560px) {
+            .node { min-width: 74px; padding: 0.4rem 0.4rem; }
+            .node .n-label { font-size: 0.6rem; }
+            .node .n-emoji { font-size: 1.15rem; }
+            .node-llm { min-width: 92px; }
+            .node-llm .n-emoji { font-size: 1.5rem; }
+            .node-trigger { left: 13%; } .node-output { left: 85%; }
+            .trigger-tab { flex: 1 1 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="eyebrow">Booster · IA aplicada</span>
+            <h1>Anatomía de un <span class="grad">Agente AI</span></h1>
+            <p class="subtitle">Un agente combina 4 piezas alrededor de un modelo. Elegí el disparador y mirá cómo los datos viajan entre los componentes, paso a paso.</p>
+        </div>
+
+        <!-- Trigger selector -->
+        <div class="panel">
+            <div class="panel-label"><span class="num">1 ·</span> Elegí el disparador (prompt de usuario)</div>
+            <div class="trigger-tabs" id="triggerTabs">
+                <button class="trigger-tab active" data-scenario="chat">
+                    <span class="t-emoji">💬</span>
+                    <span><span class="t-name">Chat</span><br><span class="t-desc">Alguien escribe un mensaje</span></span>
+                </button>
+                <button class="trigger-tab" data-scenario="email">
+                    <span class="t-emoji">📧</span>
+                    <span><span class="t-name">Mail recibido</span><br><span class="t-desc">Llega un correo</span></span>
+                </button>
+                <button class="trigger-tab" data-scenario="schedule">
+                    <span class="t-emoji">⏰</span>
+                    <span><span class="t-name">Schedule</span><br><span class="t-desc">Se ejecuta solo, en horario</span></span>
+                </button>
+                <button class="trigger-tab" data-scenario="webhook">
+                    <span class="t-emoji">🔗</span>
+                    <span><span class="t-name">Webhook</span><br><span class="t-desc">Un evento externo lo llama</span></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- STAGE -->
+        <div class="stage-wrap">
+            <div class="stage" id="stage">
+                <svg class="wires" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <line class="wire" id="wire-trigger" x1="12" y1="50" x2="48" y2="50" />
+                    <line class="wire" id="wire-output"  x1="48" y1="50" x2="86" y2="50" />
+                    <line class="wire" id="wire-sys"     x1="48" y1="15" x2="48" y2="50" />
+                    <line class="wire" id="wire-tools"   x1="48" y1="50" x2="48" y2="85" />
+                </svg>
+
+                <div class="node node-trigger" id="node-trigger" data-info="usr">
+                    <span class="n-tag">Entrada</span>
+                    <span class="n-emoji" id="ntEmoji">💬</span>
+                    <span class="n-label" id="ntLabel">Chat</span>
+                    <span class="n-sub">prompt de usuario</span>
+                </div>
+
+                <div class="node node-sys" id="node-sys" data-info="sys">
+                    <span class="n-tag">Instrucciones</span>
+                    <span class="n-emoji">📜</span>
+                    <span class="n-label">Sistema</span>
+                    <span class="n-sub">reglas fijas</span>
+                </div>
+
+                <div class="node node-llm" id="node-llm" data-info="llm">
+                    <span class="n-emoji">🧠</span>
+                    <span class="n-label">Modelo LLM</span>
+                    <span class="n-sub">razona y decide</span>
+                </div>
+
+                <div class="node node-tools" id="node-tools" data-info="tool">
+                    <span class="n-tag">Capacidades</span>
+                    <span class="n-emoji">🛠️</span>
+                    <span class="n-label">Herramientas</span>
+                    <span class="n-sub" id="ntToolsSub">3 tools</span>
+                </div>
+
+                <div class="node node-output" id="node-output">
+                    <span class="n-tag">Salida</span>
+                    <span class="n-emoji">✅</span>
+                    <span class="n-label">Resultado</span>
+                    <span class="n-sub">respuesta / acción</span>
+                </div>
+
+                <div class="thought" id="thought">💭 pensando…</div>
+            </div>
+
+            <div class="ctrl-row">
+                <span class="step-counter" id="stepCounter">Listo para empezar</span>
+                <div class="controls">
+                    <button class="btn btn-secondary" id="stepBtn">⏭ Siguiente</button>
+                    <button class="btn btn-primary" id="playBtn">▶ Reproducir</button>
+                    <button class="btn btn-ghost" id="resetBtn">↺</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail panel -->
+        <div class="detail" id="detail">
+            <div class="detail-empty" id="detailEmpty">
+                👆 Tocá <b>“Siguiente”</b> para avanzar de a un paso, o <b>“Reproducir”</b> para ver el ciclo completo animado.<br>
+                Tip: hacé clic en cualquier componente del diagrama para saber qué hace.
+            </div>
+        </div>
+
+        <div class="backlink"><a href="contenidos.html">← Volver al índice de contenidos</a></div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <div class="modal-head">
+                <div class="modal-title" id="modalTitle"></div>
+                <button class="modal-close" id="modalClose">✕</button>
+            </div>
+            <div class="modal-desc" id="modalDesc"></div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        /* ============================================================
+           Escenarios (un trigger distinto cada uno)
+           ============================================================ */
+        const scenarios = {
+            chat: {
+                node: { emoji: '💬', label: 'Chat' },
+                systemPrompt: 'Sos el asistente de atención de una tienda online. Respondé claro y amable. Cuando te pregunten por stock, precios o pedidos, usá las herramientas para consultar datos reales antes de responder. Nunca inventes información.',
+                systemShort: 'Asistente de una tienda online. Consulta datos reales antes de responder. No inventa.',
+                userLabel: '💬 Mensaje en el chat',
+                tools: [ { name: 'consultar_stock', args: 'sku' }, { name: 'consultar_precio', args: 'sku' }, { name: 'buscar_pedido', args: 'id' } ],
+                trigger: { kicker: 'Trigger · Chat', text: 'Un cliente escribe en el chat de la web:', packet: 'mensaje', render: { type: 'chatIn', text: '¡Hola! ¿Cuánto stock queda del producto SKU-455?' } },
+                flow: [
+                    { type: 'think', text: 'El usuario pregunta por el stock del SKU-455. No lo tengo memorizado: debo consultarlo con una herramienta.' },
+                    { type: 'toolcall', fn: 'consultar_stock', args: { sku: 'SKU-455' } },
+                    { type: 'toolresult', fn: 'consultar_stock', result: { stock: 27, deposito: 'Central' } },
+                    { type: 'think', text: 'La herramienta devolvió 27 unidades en el depósito Central. Ya puedo responder.' },
+                    { type: 'final', kicker: 'Respuesta final · Chat', text: 'El agente responde en el mismo chat:', packet: 'respuesta', render: { type: 'chat', text: '¡Hola! 😊 Quedan 27 unidades del SKU-455 en el depósito Central. ¿Querés que te reserve alguna?' } }
+                ]
+            },
+            email: {
+                node: { emoji: '📧', label: 'Mail' },
+                systemPrompt: 'Sos un agente de gestión de suscripciones. Ante un pedido de cancelación: 1) identificá al cliente por su email, 2) cancelá su suscripción activa, 3) respondé por email confirmando la baja y ofreciendo una encuesta. Sé empático.',
+                systemShort: 'Agente de suscripciones. Ante una cancelación: identifica al cliente, cancela y confirma por email.',
+                userLabel: '📧 Correo entrante',
+                tools: [ { name: 'buscar_cliente', args: 'email' }, { name: 'cancelar_suscripcion', args: 'id' }, { name: 'enviar_email', args: 'to, subject, body' } ],
+                trigger: { kicker: 'Trigger · Mail recibido', text: 'Llega un correo a la casilla de soporte:', packet: 'email', render: { type: 'mailIn', from: 'laura@correo.com', subject: 'Cancelación', body: 'Buenas, quiero cancelar mi suscripción Premium. ¡Gracias!' } },
+                flow: [
+                    { type: 'think', text: 'Llegó un pedido de cancelación. Primero necesito identificar al cliente por su email.' },
+                    { type: 'toolcall', fn: 'buscar_cliente', args: { email: 'laura@correo.com' } },
+                    { type: 'toolresult', fn: 'buscar_cliente', result: { id: 'CLI-8821', nombre: 'Laura', plan: 'Premium', estado: 'activo' } },
+                    { type: 'think', text: 'Es Laura, plan Premium activo (CLI-8821). Ahora cancelo su suscripción.' },
+                    { type: 'toolcall', fn: 'cancelar_suscripcion', args: { id: 'CLI-8821' } },
+                    { type: 'toolresult', fn: 'cancelar_suscripcion', result: { estado: 'cancelada', fin_servicio: '2026-08-19' } },
+                    { type: 'think', text: 'Cancelada. Me falta confirmarle por email de forma empática.' },
+                    { type: 'toolcall', fn: 'enviar_email', args: { to: 'laura@correo.com', subject: 'Confirmación de baja', body: '…' } },
+                    { type: 'toolresult', fn: 'enviar_email', result: { enviado: true } },
+                    { type: 'final', kicker: 'Respuesta final · Email enviado', text: 'El agente envía el correo de confirmación:', packet: 'email', render: { type: 'mail', to: 'laura@correo.com', subject: 'Confirmación de baja de tu suscripción', body: ['Hola Laura,', 'Tu suscripción Premium fue cancelada. Podrás usar el servicio hasta el 19/08/2026.', 'Nos encantaría saber cómo mejorar: te dejamos una breve encuesta 👉 encuesta.tienda.com', '¡Gracias por haber sido parte! 🧡'] } }
+                ]
+            },
+            schedule: {
+                node: { emoji: '⏰', label: 'Schedule' },
+                systemPrompt: 'Sos un agente de reportes. Cada lunes generás el resumen de ventas de la semana anterior y lo publicás en el canal #ventas de Slack, destacando el total y la variación contra la semana previa.',
+                systemShort: 'Agente de reportes. Cada lunes arma el resumen de ventas y lo publica en #ventas de Slack.',
+                userLabel: '⏰ Disparo programado',
+                tools: [ { name: 'obtener_ventas', args: 'rango' }, { name: 'calcular_variacion', args: 'actual, previo' }, { name: 'publicar_slack', args: 'canal, mensaje' } ],
+                trigger: { kicker: 'Trigger · Schedule (cron)', text: 'No hay una persona: lo dispara el reloj.', packet: 'cron', render: { type: 'schedule', text: '⏰ Lunes 09:00 — “Generá el reporte semanal de ventas”' } },
+                flow: [
+                    { type: 'think', text: 'Es lunes 9:00. Debo armar el reporte de la semana pasada. Empiezo trayendo los datos.' },
+                    { type: 'toolcall', fn: 'obtener_ventas', args: { rango: 'semana_pasada' } },
+                    { type: 'toolresult', fn: 'obtener_ventas', result: { total: 48250, operaciones: 132, semana_previa: 41800 } },
+                    { type: 'think', text: 'Tengo el total actual y el de la semana previa. Calculo la variación.' },
+                    { type: 'toolcall', fn: 'calcular_variacion', args: { actual: 48250, previo: 41800 } },
+                    { type: 'toolresult', fn: 'calcular_variacion', result: { variacion: '+15.4%' } },
+                    { type: 'think', text: 'Subieron 15.4%. Armo el mensaje y lo publico en #ventas.' },
+                    { type: 'toolcall', fn: 'publicar_slack', args: { canal: '#ventas', mensaje: '…' } },
+                    { type: 'toolresult', fn: 'publicar_slack', result: { publicado: true } },
+                    { type: 'final', kicker: 'Respuesta final · Publicado en Slack', text: 'El agente publica el reporte automáticamente:', packet: 'post', render: { type: 'slack', channel: '#ventas', name: 'Reporte Bot', text: '📊 *Reporte semanal de ventas*\nTotal: $48.250 (132 operaciones)\nVariación vs. semana previa: *+15.4%* 📈\n¡Buena semana, equipo!' } }
+                ]
+            },
+            webhook: {
+                node: { emoji: '🔗', label: 'Webhook' },
+                systemPrompt: 'Sos un agente de calificación de leads. Cuando llega un formulario: registrá el lead en el CRM, evaluá su nivel de interés y, si es alto (planes Empresas/Enterprise), avisá al equipo comercial por Slack.',
+                systemShort: 'Agente de leads. Registra el lead, evalúa interés y avisa a comercial si es alto.',
+                userLabel: '🔗 Payload del webhook',
+                tools: [ { name: 'registrar_lead', args: 'datos' }, { name: 'evaluar_interes', args: 'texto' }, { name: 'notificar_comercial', args: 'mensaje' } ],
+                trigger: { kicker: 'Trigger · Webhook / Formulario', text: 'Un formulario web dispara el agente enviándole datos (payload):', packet: 'payload', render: { type: 'webhook', text: '{ "nombre": "Diego", "email": "diego@empresa.com",\n  "interes": "Plan Empresas", "mensaje": "Quiero una demo" }' } },
+                flow: [
+                    { type: 'think', text: 'Entró un formulario de Diego interesado en "Plan Empresas". Primero registro el lead en el CRM.' },
+                    { type: 'toolcall', fn: 'registrar_lead', args: { nombre: 'Diego', email: 'diego@empresa.com', interes: 'Plan Empresas' } },
+                    { type: 'toolresult', fn: 'registrar_lead', result: { id: 'LEAD-337', estado: 'nuevo' } },
+                    { type: 'think', text: 'Registrado como LEAD-337. Ahora evalúo qué tan caliente está.' },
+                    { type: 'toolcall', fn: 'evaluar_interes', args: { texto: 'Plan Empresas · Quiero una demo' } },
+                    { type: 'toolresult', fn: 'evaluar_interes', result: { nivel: 'alto', motivo: 'plan corporativo + pide demo' } },
+                    { type: 'think', text: 'Interés ALTO y plan corporativo. Debo avisar al equipo comercial.' },
+                    { type: 'toolcall', fn: 'notificar_comercial', args: { mensaje: '…' } },
+                    { type: 'toolresult', fn: 'notificar_comercial', result: { enviado: true } },
+                    { type: 'final', kicker: 'Respuesta final · Aviso a comercial', text: 'El agente notifica al equipo por Slack:', packet: 'post', render: { type: 'slack', channel: '#comercial', name: 'Leads Bot', text: '🔥 *Lead caliente* (LEAD-337)\nDiego — interesado en *Plan Empresas*, pidió una demo.\n📧 diego@empresa.com\n¿Quién lo toma?' } }
+                ]
+            }
+        };
+
+        const pieceInfo = {
+            sys: { title: '📜 Prompt de Sistema', desc: 'Instrucciones fijas del agente: quién es, cómo se comporta y qué reglas sigue. El usuario no las ve; se envían al modelo en cada ejecución.', block: () => scenarios[current].systemPrompt, blockClass: '' },
+            usr: { title: '💬 Prompt de Usuario (el disparador)', desc: 'La entrada que activa al agente. Puede llegar por canales muy distintos, pero para el modelo termina siendo texto. Los cuatro triggers de esta demo:', list: [ ['💬 Chat', 'una persona escribe un mensaje'], ['📧 Mail recibido', 'llega un correo a una casilla'], ['⏰ Schedule', 'un horario/cron lo ejecuta solo, sin persona'], ['🔗 Webhook / Formulario', 'otro sistema lo llama con datos (payload)'] ] },
+            tool: { title: '🛠️ Herramientas (tools)', desc: 'Las acciones que el agente puede ejecutar en el mundo real. El modelo no las corre: decide cuál llamar y con qué argumentos; el sistema la ejecuta y le devuelve el resultado.', toolsFromScenario: true },
+            llm: { title: '🧠 Modelo LLM', desc: 'El motor de razonamiento (Claude, GPT, Gemini…). Recibe el prompt de sistema + las herramientas + el mensaje del usuario y decide: responder directo o pedir una herramienta.', block: () => 'Entra:  Sistema + Herramientas + Mensaje de usuario\nRazona: ¿respondo ya, o necesito una herramienta?\nSale:   una llamada a herramienta  ó  la respuesta final', blockClass: 'mono' }
+        };
+
+        /* ============================================================
+           Estado + motor
+           ============================================================ */
+        let current = 'chat';
+        let steps = [];
+        let cursor = 0;
+        let playing = false;
+        let playTimer = null;
+
+        const stage = document.getElementById('stage');
+        const detail = document.getElementById('detail');
+        const detailEmpty = document.getElementById('detailEmpty');
+        const stepCounterEl = document.getElementById('stepCounter');
+        const stepBtn = document.getElementById('stepBtn');
+        const playBtn = document.getElementById('playBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const thought = document.getElementById('thought');
+
+        const nodes = {
+            trigger: document.getElementById('node-trigger'),
+            sys: document.getElementById('node-sys'),
+            llm: document.getElementById('node-llm'),
+            tools: document.getElementById('node-tools'),
+            output: document.getElementById('node-output')
+        };
+        const wires = {
+            trigger: document.getElementById('wire-trigger'),
+            sys: document.getElementById('wire-sys'),
+            tools: document.getElementById('wire-tools'),
+            output: document.getElementById('wire-output')
+        };
+
+        function buildSteps() {
+            const sc = scenarios[current];
+            steps = [{ type: 'trigger', ...sc.trigger }, { type: 'context' }, ...sc.flow];
+        }
+
+        function updateNodes() {
+            const sc = scenarios[current];
+            document.getElementById('ntEmoji').textContent = sc.node.emoji;
+            document.getElementById('ntLabel').textContent = sc.node.label;
+            document.getElementById('ntToolsSub').textContent = sc.tools.length + ' tools';
+        }
+
+        /* --- helpers de código / render --- */
+        function fmtArgs(obj) {
+            return Object.entries(obj).map(([k, v]) => {
+                const val = typeof v === 'string' ? `<span class="s">"${v}"</span>` : `<span class="n">${v}</span>`;
+                return `<span class="k">${k}</span>: ${val}`;
+            }).join(', ');
+        }
+        function fmtResult(obj) {
+            const parts = Object.entries(obj).map(([k, v]) => {
+                const val = typeof v === 'string' ? `<span class="s">"${v}"</span>` : `<span class="n">${v}</span>`;
+                return `  <span class="k">${k}</span>: ${val}`;
+            });
+            return '{\n' + parts.join(',\n') + '\n}';
+        }
+        function renderTriggerContent(r) {
+            if (r.type === 'chatIn') return `<div class="render-box"><div class="slack-msg"><div class="slack-av" style="background:linear-gradient(135deg,#FF4933,#FFA232)">U</div><div><div class="slack-name">Cliente</div><div class="slack-text">${r.text}</div></div></div></div>`;
+            if (r.type === 'mailIn') return `<div class="render-box"><div class="mail-head"><div class="row"><span class="lbl">De:</span><span>${r.from}</span></div><div class="row"><span class="lbl">Asunto:</span><span>${r.subject}</span></div></div><div class="mail-body">${r.body}</div></div>`;
+            if (r.type === 'schedule') return `<div class="code">${r.text}</div>`;
+            if (r.type === 'webhook') return `<div class="code">POST /webhook\n${r.text}</div>`;
+            return '';
+        }
+        function renderFinal(r) {
+            if (r.type === 'chat') return `<div class="render-box" style="border:none"><div class="chat-bubble">${r.text}</div></div>`;
+            if (r.type === 'mail') return `<div class="render-box"><div class="mail-head"><div class="row"><span class="lbl">Para:</span><span>${r.to}</span></div><div class="row"><span class="lbl">Asunto:</span><span>${r.subject}</span></div></div><div class="mail-body">${r.body.map(p => `<p>${p}</p>`).join('')}</div></div>`;
+            if (r.type === 'slack') return `<div class="render-box"><div class="slack-channel">${r.channel}</div><div class="slack-msg"><div class="slack-av">B</div><div><div class="slack-name">${r.name}<span class="bot">BOT</span><span class="slack-time">ahora</span></div><div class="slack-text">${r.text}</div></div></div></div>`;
+            return '';
+        }
+
+        /* --- animaciones del escenario --- */
+        function clearActive() {
+            Object.values(nodes).forEach(n => n.classList.remove('active'));
+            nodes.llm.classList.remove('thinking');
+            Object.values(wires).forEach(w => w.classList.remove('flow'));
+            thought.classList.remove('show');
+        }
+        function flowWire(key) {
+            wires[key].classList.add('flow');
+            setTimeout(() => wires[key].classList.remove('flow'), 1150);
+        }
+        function firePacket(routeClass, label) {
+            const p = document.createElement('div');
+            p.className = 'packet ' + routeClass;
+            p.textContent = label;
+            stage.appendChild(p);
+            p.addEventListener('animationend', () => p.remove());
+        }
+
+        /* --- detalle textual del paso --- */
+        function detailHTML(step) {
+            const sc = scenarios[current];
+            if (step.type === 'trigger') {
+                return `<div class="d-head"><div class="d-badge" style="background:var(--warm-main-orange)">📨</div><div class="d-kicker" style="color:var(--warm-main-orange)">${step.kicker}</div></div><div class="d-text">${step.text}</div>${renderTriggerContent(step.render)}`;
+            }
+            if (step.type === 'context') {
+                return `<div class="d-head"><div class="d-badge" style="background:var(--cold-secondary-violet)">📦</div><div class="d-kicker" style="color:var(--cold-secondary-violet)">Se arma el contexto para el modelo</div></div>
+                    <div class="d-text">El agente empaqueta sus 3 entradas y se las envía al LLM en una sola llamada:</div>
+                    <div class="bundle">
+                        <div class="bundle-item"><span class="bi-tag" style="background:var(--cold-main-violet)">SISTEMA</span><span>${sc.systemShort}</span></div>
+                        <div class="bundle-item"><span class="bi-tag" style="background:var(--warm-secondary-orange);color:#5a3a00">TOOLS</span><span>${sc.tools.map(t => t.name + '()').join(', ')}</span></div>
+                        <div class="bundle-item"><span class="bi-tag" style="background:var(--warm-main-orange)">USUARIO</span><span>${sc.userLabel} recibido</span></div>
+                    </div>`;
+            }
+            if (step.type === 'think') {
+                return `<div class="d-head"><div class="d-badge" style="background:var(--cold-secondary-sky)">🧠</div><div class="d-kicker" style="color:#0288b8">El LLM razona</div></div><div class="d-text think">“${step.text}”</div>`;
+            }
+            if (step.type === 'toolcall') {
+                return `<div class="d-head"><div class="d-badge" style="background:var(--warm-secondary-orange)">🛠️</div><div class="d-kicker" style="color:#b06f00">El LLM pide una herramienta</div></div><div class="d-text">Decide llamar a <b>${step.fn}</b> con estos argumentos:</div><div class="code"><span class="fn">${step.fn}</span>(${fmtArgs(step.args)})</div>`;
+            }
+            if (step.type === 'toolresult') {
+                return `<div class="d-head"><div class="d-badge" style="background:#7a8a00">↩️</div><div class="d-kicker" style="color:#7a8a00">La herramienta devuelve un resultado</div></div><div class="d-text"><b>${step.fn}</b> se ejecutó y devolvió al modelo:</div><div class="code">${fmtResult(step.result)}</div>`;
+            }
+            if (step.type === 'final') {
+                return `<div class="d-head"><div class="d-badge" style="background:linear-gradient(135deg,var(--cold-main-violet),var(--cold-secondary-sky))">✅</div><div class="d-kicker" style="color:var(--cold-main-violet)">${step.kicker}</div></div><div class="d-text">${step.text}</div>${renderFinal(step.render)}`;
+            }
+            return '';
+        }
+
+        function playStep(step) {
+            clearActive();
+            if (step.type === 'trigger') {
+                nodes.trigger.classList.add('active'); nodes.llm.classList.add('active');
+                flowWire('trigger'); firePacket('p-trigger', step.packet || 'evento');
+            } else if (step.type === 'context') {
+                nodes.sys.classList.add('active'); nodes.tools.classList.add('active'); nodes.llm.classList.add('active');
+                flowWire('sys'); flowWire('tools');
+                firePacket('p-sys', 'system'); firePacket('p-toolsup', 'tools');
+            } else if (step.type === 'think') {
+                nodes.llm.classList.add('active'); nodes.llm.classList.add('thinking');
+                thought.classList.add('show');
+            } else if (step.type === 'toolcall') {
+                nodes.llm.classList.add('active'); nodes.tools.classList.add('active');
+                flowWire('tools'); firePacket('p-llmtools', step.fn + '()');
+            } else if (step.type === 'toolresult') {
+                nodes.tools.classList.add('active'); nodes.llm.classList.add('active');
+                flowWire('tools'); firePacket('p-toolsret', 'resultado');
+            } else if (step.type === 'final') {
+                nodes.llm.classList.add('active'); nodes.output.classList.add('active');
+                flowWire('output'); firePacket('p-out', step.packet || 'respuesta');
+            }
+            // detalle
+            if (detailEmpty.parentNode) detailEmpty.remove();
+            detail.innerHTML = detailHTML(step);
+        }
+
+        function updateCounter() {
+            const total = steps.length;
+            if (cursor === 0) { stepCounterEl.textContent = 'Listo para empezar'; }
+            else { stepCounterEl.textContent = `Paso ${Math.min(cursor, total)} de ${total}`; }
+            stepBtn.disabled = cursor >= steps.length;
+            stepBtn.textContent = cursor >= steps.length ? '✔ Fin' : '⏭ Siguiente';
+        }
+
+        function showNext() {
+            if (cursor >= steps.length) return;
+            playStep(steps[cursor]);
+            cursor++;
+            updateCounter();
+        }
+
+        function resetStage() {
+            stopPlay();
+            buildSteps();
+            cursor = 0;
+            clearActive();
+            detail.innerHTML = '';
+            detail.appendChild(detailEmpty);
+            detailEmpty.style.display = '';
+            updateCounter();
+        }
+
+        function stopPlay() {
+            playing = false;
+            if (playTimer) { clearTimeout(playTimer); playTimer = null; }
+            playBtn.textContent = '▶ Reproducir';
+            stepBtn.disabled = cursor >= steps.length;
+        }
+
+        function play() {
+            if (playing) { stopPlay(); return; }
+            if (cursor >= steps.length) resetStage();
+            playing = true;
+            playBtn.textContent = '⏸ Pausa';
+            stepBtn.disabled = true;
+            const tick = () => {
+                if (!playing) return;
+                if (cursor >= steps.length) { stopPlay(); return; }
+                showNext();
+                if (cursor < steps.length) playTimer = setTimeout(tick, 1650);
+                else stopPlay();
+            };
+            tick();
+        }
+
+        /* --- eventos --- */
+        document.querySelectorAll('.trigger-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.trigger-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                current = tab.dataset.scenario;
+                updateNodes();
+                resetStage();
+            });
+        });
+        stepBtn.addEventListener('click', () => { stopPlay(); showNext(); });
+        playBtn.addEventListener('click', play);
+        resetBtn.addEventListener('click', resetStage);
+
+        /* --- modales de piezas --- */
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDesc = document.getElementById('modalDesc');
+        const modalContent = document.getElementById('modalContent');
+        function openPiece(key) {
+            const info = pieceInfo[key];
+            if (!info) return;
+            modalTitle.textContent = info.title;
+            modalDesc.textContent = info.desc;
+            let html = '';
+            if (info.list) html = '<ul class="modal-list">' + info.list.map(([a, b]) => `<li><b>${a}</b>&nbsp;— ${b}</li>`).join('') + '</ul>';
+            else if (info.toolsFromScenario) {
+                const sc = scenarios[current];
+                html = '<p style="font-size:0.8rem;color:var(--medium-gray);margin-bottom:0.5rem">Herramientas del escenario actual:</p><ul class="modal-list">' + sc.tools.map(t => `<li>🔧 <code>${t.name}(${t.args})</code></li>`).join('') + '</ul>';
+            } else if (info.block) html = `<div class="modal-block ${info.blockClass || ''}">${info.block()}</div>`;
+            modalContent.innerHTML = html;
+            modal.classList.add('show');
+        }
+        document.querySelectorAll('[data-info]').forEach(el => el.addEventListener('click', () => openPiece(el.dataset.info)));
+        document.getElementById('modalClose').addEventListener('click', () => modal.classList.remove('show'));
+        modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('show'); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.classList.remove('show'); });
+
+        /* --- init --- */
+        updateNodes();
+        resetStage();
+    </script>
+</body>
+</html>
