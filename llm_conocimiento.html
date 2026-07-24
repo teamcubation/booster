@@ -17,7 +17,14 @@
   .app{display:grid; grid-template-rows:auto 1fr auto; height:100vh}
 
   .page-header{padding:10px var(--spacing-md) 0}
+  .header-row{display:flex; align-items:center; justify-content:space-between; gap:12px}
   .page-header h1{margin:0; color:var(--cold-main-violet); font-family:var(--font-heading); font-weight:800; font-size:clamp(16px,1.8vw,22px)}
+
+  /* Selector de idioma (compartido entre páginas) */
+  .lang-switch{display:inline-flex; gap:4px; background:var(--white); border:1px solid var(--medium-gray); border-radius:999px; padding:3px; flex-shrink:0; box-shadow:var(--shadow-sm)}
+  .lang-btn{border:none; background:transparent; color:var(--dark-gray); font-size:0.75rem; font-weight:700; padding:4px 11px; border-radius:999px; cursor:pointer; letter-spacing:0.03em; transition:var(--transition-fast)}
+  .lang-btn:hover{color:var(--cold-main-violet)}
+  .lang-btn.active{background:var(--cold-main-violet); color:var(--white)}
 
   main{display:grid; grid-template-columns:minmax(0, 2.2fr) minmax(320px, 1fr); gap:var(--spacing-sm); padding:var(--spacing-sm) var(--spacing-md) var(--spacing-sm); min-height:0; overflow:hidden}
   @media (max-width: 900px){
@@ -92,43 +99,49 @@
 <body>
 <div class="app">
   <header class="page-header">
-    <h1>¿Cómo convierte el LLM tu prompt en un embedding?</h1>
+    <div class="header-row">
+      <h1 data-i18n="h1">¿Cómo convierte el LLM tu prompt en un embedding?</h1>
+      <div class="lang-switch" role="group" aria-label="Idioma / Idioma">
+        <button type="button" class="lang-btn" data-lang="es">ES</button>
+        <button type="button" class="lang-btn" data-lang="pt">PT</button>
+      </div>
+    </div>
   </header>
 
   <main>
     <!-- Canvas (izquierda) -->
     <section class="panel canvas-panel" aria-labelledby="vizTitle">
-      <h2 id="vizTitle">Espacio vectorial (mapa 2D simplificado)</h2>
-      <div class="legend" aria-label="Leyenda de elementos">
-        <span class="pill"><span class="dot" style="background:var(--cold-main-violet)"></span> Conocimiento</span>
-        <span class="pill"><span class="dot" style="background:var(--warm-secondary-orange); border:1px dashed var(--warm-main-orange)"></span> Vector de cada palabra</span>
-        <span class="pill"><span class="dot" style="background:var(--warm-main-orange)"></span> Embedding del prompt (promedio)</span>
-        <span class="pill"><span class="dot" style="background:var(--success-green)"></span> Documento más relevante</span>
+      <h2 id="vizTitle" data-i18n="vizTitle">Espacio vectorial (mapa 2D simplificado)</h2>
+      <div class="legend" data-i18n-aria="legendAria" aria-label="Leyenda de elementos">
+        <span class="pill"><span class="dot" style="background:var(--cold-main-violet)"></span> <span data-i18n="legKnowledge">Conocimiento</span></span>
+        <span class="pill"><span class="dot" style="background:var(--warm-secondary-orange); border:1px dashed var(--warm-main-orange)"></span> <span data-i18n="legWord">Vector de cada palabra</span></span>
+        <span class="pill"><span class="dot" style="background:var(--warm-main-orange)"></span> <span data-i18n="legPrompt">Embedding del prompt (promedio)</span></span>
+        <span class="pill"><span class="dot" style="background:var(--success-green)"></span> <span data-i18n="legTop">Documento más relevante</span></span>
       </div>
-      <div class="canvasBox" id="plot" aria-live="polite" aria-label="Gráfico del espacio vectorial, usa los controles para interactuar."></div>
-      <p class="label fadeIn" id="hint">💡 Tip: arrastrá un documento cerca de tu prompt o sumá palabras para ver cómo se promedia el vector.</p>
+      <div class="canvasBox" id="plot" aria-live="polite" data-i18n-aria="plotAria" aria-label="Gráfico del espacio vectorial, usa los controles para interactuar."></div>
+      <p class="label fadeIn" id="hint" data-i18n="hint">💡 Tip: arrastrá un documento cerca de tu prompt o sumá palabras para ver cómo se promedia el vector.</p>
     </section>
 
     <!-- Controles (derecha) -->
     <section class="panel controls-panel">
       <div class="card">
-        <h3>Tu prompt</h3>
-        <label for="prompt">¿Qué querés preguntar?</label>
-        <input id="prompt" type="text" placeholder="Ej: explicame la fotosíntesis para un niño" aria-describedby="promptHelp" />
-        <small id="promptHelp">Cada palabra reconocida aporta un vector; el promedio es tu embedding.</small>
-        <div class="chips" id="vocab" aria-label="Sugerencias rápidas"></div>
+        <h3 data-i18n="promptCardTitle">Tu prompt</h3>
+        <label for="prompt" data-i18n="promptLabel">¿Qué querés preguntar?</label>
+        <input id="prompt" type="text" placeholder="Ej: explicame la fotosíntesis para un niño" data-i18n-ph="promptPlaceholder" aria-describedby="promptHelp" />
+        <small id="promptHelp" data-i18n="promptHelp">Cada palabra reconocida aporta un vector; el promedio es tu embedding.</small>
+        <div class="chips" id="vocab" data-i18n-aria="vocabAria" aria-label="Sugerencias rápidas"></div>
       </div>
 
       <div class="card">
-        <h3>Proceso de embedding</h3>
+        <h3 data-i18n="breakdownTitle">Proceso de embedding</h3>
         <div id="breakdownContent">
-          <p class="empty-hint">Escribí algo o tocá un chip para ver cómo se construye el embedding paso a paso.</p>
+          <p class="empty-hint" data-i18n="emptyHint">Escribí algo o tocá un chip para ver cómo se construye el embedding paso a paso.</p>
         </div>
       </div>
     </section>
   </main>
 
-  <footer>Hecho con ♥ para aprender. Alto contraste y navegación por teclado incluidos.</footer>
+  <footer data-i18n="footer">Hecho con ♥ para aprender. Alto contraste y navegación por teclado incluidos.</footer>
 </div>
 
 <script>
@@ -139,87 +152,197 @@
   const cosSim=(a,b)=> dot(a,b)/(mag(a)*mag(b));
   const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 
-  // ---------- Datos ----------
-  const docs=[
-    {id:'bio',  title:'Biología — Fotosíntesis', v:{x: 0.8, y: 0.5}},
-    {id:'hist', title:'Historia — Revolución Francesa', v:{x:-0.7, y: 0.4}},
-    {id:'econ', title:'Economía — Inflación', v:{x:-0.85,y:-0.15}},
-    {id:'prog', title:'Programación — Algoritmos', v:{x: 0.7, y:-0.5}},
-    {id:'astro',title:'Astronomía — Estrellas', v:{x: 0.1, y: 0.9}},
-    {id:'dep',  title:'Deporte — Fútbol', v:{x:-0.3, y:-0.8}},
-    {id:'cine', title:'Cine — Hollywood', v:{x: 0.3, y:-0.85}},
+  // ---------- Posiciones de documentos (compartidas entre idiomas, mutables por drag) ----------
+  const DOC_POS=[
+    {id:'bio',  v:{x: 0.8, y: 0.5}},
+    {id:'hist', v:{x:-0.7, y: 0.4}},
+    {id:'econ', v:{x:-0.85,y:-0.15}},
+    {id:'prog', v:{x: 0.7, y:-0.5}},
+    {id:'astro',v:{x: 0.1, y: 0.9}},
+    {id:'dep',  v:{x:-0.3, y:-0.8}},
+    {id:'cine', v:{x: 0.3, y:-0.85}},
   ];
 
-  // Vocabulario agrupado por dominio (cada grupo cae cerca de su documento en el espacio 2D):
-  //  - Biología (Q1, x+ y+)        → doc "Biología — Fotosíntesis" @ (0.8, 0.5)
-  //  - Astronomía (centro-arriba)  → doc "Astronomía — Estrellas"  @ (0.1, 0.9)
-  //  - Historia (Q2, x- y+)        → doc "Historia — Revolución Francesa" @ (-0.7, 0.4)
-  //  - Economía (izquierda, y≈0)   → doc "Economía — Inflación"    @ (-0.85, -0.15)
-  //  - Programación (Q4, x+ y-)    → doc "Programación — Algoritmos" @ (0.7, -0.5)
-  //  - Genéricas (cerca del origen): palabras de pregunta que no desvían fuerte.
-  const vocab={
-    // Biología
-    "fotosíntesis":{x:.85,y:.45}, "plantas":{x:.8,y:.5}, "hojas":{x:.75,y:.55}, "árboles":{x:.82,y:.48},
-    "flores":{x:.78,y:.52}, "semilla":{x:.7,y:.4}, "fruta":{x:.72,y:.38}, "clorofila":{x:.88,y:.42},
-    "oxígeno":{x:.8,y:.35}, "células":{x:.7,y:.45}, "adn":{x:.68,y:.5}, "genética":{x:.7,y:.52},
-    "evolución":{x:.65,y:.55}, "animales":{x:.75,y:.35}, "biología":{x:.8,y:.45}, "naturaleza":{x:.75,y:.5},
-    "ecosistema":{x:.65,y:.5}, "bosque":{x:.78,y:.58}, "organismo":{x:.7,y:.42}, "ambiente":{x:.65,y:.45},
-
-    // Astronomía
-    "estrellas":{x:.1,y:.9}, "universo":{x:.2,y:.85}, "planeta":{x:.05,y:.85}, "galaxia":{x:.15,y:.92},
-    "sol":{x:.2,y:.8}, "luna":{x:.0,y:.82}, "cometa":{x:.12,y:.88}, "cosmos":{x:.18,y:.9},
-    "espacio":{x:.1,y:.8}, "telescopio":{x:.05,y:.78}, "órbita":{x:.12,y:.82}, "nebulosa":{x:.15,y:.88},
-    "astronomía":{x:.1,y:.85}, "satélite":{x:.08,y:.75}, "astronauta":{x:.15,y:.78}, "meteorito":{x:.05,y:.88},
-
-    // Historia
-    "historia":{x:-.7,y:.5}, "revolución":{x:-.8,y:.4}, "guerra":{x:-.75,y:.45}, "rey":{x:-.7,y:.55},
-    "imperio":{x:-.78,y:.5}, "batalla":{x:-.72,y:.42}, "antiguo":{x:-.65,y:.5}, "medieval":{x:-.7,y:.48},
-    "siglo":{x:-.6,y:.45}, "napoleón":{x:-.82,y:.42}, "roma":{x:-.75,y:.55}, "egipto":{x:-.7,y:.52},
-    "faraón":{x:-.72,y:.58}, "independencia":{x:-.78,y:.38}, "monarquía":{x:-.75,y:.48}, "democracia":{x:-.65,y:.35},
-    "constitución":{x:-.6,y:.4},
-
-    // Economía (izquierda, cerca del eje X)
-    "inflación":{x:-.85,y:-.15}, "precios":{x:-.75,y:-.25}, "economía":{x:-.8,y:-.2}, "dinero":{x:-.7,y:-.2},
-    "banco":{x:-.75,y:-.15}, "mercado":{x:-.73,y:-.22}, "bolsa":{x:-.8,y:-.25}, "acciones":{x:-.85,y:-.22},
-    "dólar":{x:-.87,y:-.2}, "crisis":{x:-.83,y:-.1}, "impuestos":{x:-.7,y:-.15}, "salario":{x:-.65,y:-.2},
-    "deuda":{x:-.77,y:-.25}, "crédito":{x:-.73,y:-.15}, "moneda":{x:-.8,y:-.18}, "recesión":{x:-.85,y:-.13},
-    "comercio":{x:-.7,y:-.25},
-
-    // Programación
-    "algoritmos":{x:.7,y:-.5}, "código":{x:.6,y:-.6}, "programar":{x:.65,y:-.55}, "software":{x:.7,y:-.55},
-    "python":{x:.68,y:-.58}, "javascript":{x:.72,y:-.52}, "función":{x:.6,y:-.5}, "variable":{x:.55,y:-.55},
-    "bug":{x:.58,y:-.6}, "array":{x:.62,y:-.58}, "loop":{x:.6,y:-.55}, "clase":{x:.65,y:-.48},
-    "api":{x:.75,y:-.55}, "servidor":{x:.7,y:-.62}, "debug":{x:.62,y:-.62}, "git":{x:.72,y:-.58},
-    "backend":{x:.75,y:-.5}, "compilar":{x:.68,y:-.52},
-
-    // Genéricas (cerca del origen — modulan poco el promedio)
-    "explicar":{x:.1,y:.05}, "simple":{x:.15,y:.1}, "niño":{x:.1,y:.15}, "ejemplo":{x:.05,y:0},
-    "paso":{x:.08,y:.05}, "resumen":{x:0,y:.05}, "definición":{x:.0,y:.1}, "conceptos":{x:.05,y:.15},
-
-    // Deporte (Q3, lower-left) — separado del cluster de Economía para que no compitan.
-    "fútbol":{x:-.3,y:-.8}, "pelota":{x:-.28,y:-.82}, "gol":{x:-.32,y:-.78}, "cancha":{x:-.35,y:-.82},
-    "equipo":{x:-.25,y:-.78}, "club":{x:-.3,y:-.85}, "jugador":{x:-.28,y:-.75}, "partido":{x:-.32,y:-.8},
-    "campeón":{x:-.35,y:-.78}, "liga":{x:-.3,y:-.88}, "torneo":{x:-.25,y:-.82}, "deporte":{x:-.3,y:-.78},
-    "boca":{x:-.35,y:-.75}, "escudo":{x:-.38,y:-.8},
-
-    // Cine (Q4, lower-right) — al lado derecho, separado de Programación.
-    "cine":{x:.3,y:-.85}, "hollywood":{x:.28,y:-.9}, "película":{x:.32,y:-.82}, "actor":{x:.3,y:-.88},
-    "actriz":{x:.28,y:-.85}, "director":{x:.32,y:-.88}, "oscar":{x:.35,y:-.9}, "pantalla":{x:.28,y:-.8},
-    "escena":{x:.3,y:-.78}, "guion":{x:.32,y:-.85}, "estreno":{x:.28,y:-.92}, "taquilla":{x:.35,y:-.85},
-    "serie":{x:.25,y:-.82}
+  // ---------- i18n: textos de UI, títulos de documentos y vocabulario por idioma ----------
+  const I18N={
+    es:{
+      __title:"Cómo un LLM interpreta tu prompt y genera un embedding (demo interactiva)",
+      h1:"¿Cómo convierte el LLM tu prompt en un embedding?",
+      vizTitle:"Espacio vectorial (mapa 2D simplificado)",
+      legendAria:"Leyenda de elementos",
+      legKnowledge:"Conocimiento",
+      legWord:"Vector de cada palabra",
+      legPrompt:"Embedding del prompt (promedio)",
+      legTop:"Documento más relevante",
+      plotAria:"Gráfico del espacio vectorial, usa los controles para interactuar.",
+      hint:"💡 Tip: arrastrá un documento cerca de tu prompt o sumá palabras para ver cómo se promedia el vector.",
+      promptCardTitle:"Tu prompt",
+      promptLabel:"¿Qué querés preguntar?",
+      promptPlaceholder:"Ej: explicame la fotosíntesis para un niño",
+      promptHelp:"Cada palabra reconocida aporta un vector; el promedio es tu embedding.",
+      vocabAria:"Sugerencias rápidas",
+      breakdownTitle:"Proceso de embedding",
+      emptyHint:"Escribí algo o tocá un chip para ver cómo se construye el embedding paso a paso.",
+      footer:"Hecho con ♥ para aprender. Alto contraste y navegación por teclado incluidos.",
+      bkRecognized:n=>`1. Palabras reconocidas (${n})`,
+      bkNone:"— ninguna palabra del vocabulario",
+      bkIgnored:"2. Palabras ignoradas (fuera de vocabulario)",
+      bkResult:step=>`${step}. Embedding resultante (promedio)`,
+      bkNoVector:"Ninguna palabra reconocida — el modelo no puede generar un embedding. Probá con un chip del vocabulario.",
+      docTitles:{
+        bio:'Biología — Fotosíntesis',
+        hist:'Historia — Revolución Francesa',
+        econ:'Economía — Inflación',
+        prog:'Programación — Algoritmos',
+        astro:'Astronomía — Estrellas',
+        dep:'Deporte — Fútbol',
+        cine:'Cine — Hollywood'
+      },
+      vocab:{
+        // Biología
+        "fotosíntesis":{x:.85,y:.45}, "plantas":{x:.8,y:.5}, "hojas":{x:.75,y:.55}, "árboles":{x:.82,y:.48},
+        "flores":{x:.78,y:.52}, "semilla":{x:.7,y:.4}, "fruta":{x:.72,y:.38}, "clorofila":{x:.88,y:.42},
+        "oxígeno":{x:.8,y:.35}, "células":{x:.7,y:.45}, "adn":{x:.68,y:.5}, "genética":{x:.7,y:.52},
+        "evolución":{x:.65,y:.55}, "animales":{x:.75,y:.35}, "biología":{x:.8,y:.45}, "naturaleza":{x:.75,y:.5},
+        "ecosistema":{x:.65,y:.5}, "bosque":{x:.78,y:.58}, "organismo":{x:.7,y:.42}, "ambiente":{x:.65,y:.45},
+        // Astronomía
+        "estrellas":{x:.1,y:.9}, "universo":{x:.2,y:.85}, "planeta":{x:.05,y:.85}, "galaxia":{x:.15,y:.92},
+        "sol":{x:.2,y:.8}, "luna":{x:.0,y:.82}, "cometa":{x:.12,y:.88}, "cosmos":{x:.18,y:.9},
+        "espacio":{x:.1,y:.8}, "telescopio":{x:.05,y:.78}, "órbita":{x:.12,y:.82}, "nebulosa":{x:.15,y:.88},
+        "astronomía":{x:.1,y:.85}, "satélite":{x:.08,y:.75}, "astronauta":{x:.15,y:.78}, "meteorito":{x:.05,y:.88},
+        // Historia
+        "historia":{x:-.7,y:.5}, "revolución":{x:-.8,y:.4}, "guerra":{x:-.75,y:.45}, "rey":{x:-.7,y:.55},
+        "imperio":{x:-.78,y:.5}, "batalla":{x:-.72,y:.42}, "antiguo":{x:-.65,y:.5}, "medieval":{x:-.7,y:.48},
+        "siglo":{x:-.6,y:.45}, "napoleón":{x:-.82,y:.42}, "roma":{x:-.75,y:.55}, "egipto":{x:-.7,y:.52},
+        "faraón":{x:-.72,y:.58}, "independencia":{x:-.78,y:.38}, "monarquía":{x:-.75,y:.48}, "democracia":{x:-.65,y:.35},
+        "constitución":{x:-.6,y:.4},
+        // Economía
+        "inflación":{x:-.85,y:-.15}, "precios":{x:-.75,y:-.25}, "economía":{x:-.8,y:-.2}, "dinero":{x:-.7,y:-.2},
+        "banco":{x:-.75,y:-.15}, "mercado":{x:-.73,y:-.22}, "bolsa":{x:-.8,y:-.25}, "acciones":{x:-.85,y:-.22},
+        "dólar":{x:-.87,y:-.2}, "crisis":{x:-.83,y:-.1}, "impuestos":{x:-.7,y:-.15}, "salario":{x:-.65,y:-.2},
+        "deuda":{x:-.77,y:-.25}, "crédito":{x:-.73,y:-.15}, "moneda":{x:-.8,y:-.18}, "recesión":{x:-.85,y:-.13},
+        "comercio":{x:-.7,y:-.25},
+        // Programación
+        "algoritmos":{x:.7,y:-.5}, "código":{x:.6,y:-.6}, "programar":{x:.65,y:-.55}, "software":{x:.7,y:-.55},
+        "python":{x:.68,y:-.58}, "javascript":{x:.72,y:-.52}, "función":{x:.6,y:-.5}, "variable":{x:.55,y:-.55},
+        "bug":{x:.58,y:-.6}, "array":{x:.62,y:-.58}, "loop":{x:.6,y:-.55}, "clase":{x:.65,y:-.48},
+        "api":{x:.75,y:-.55}, "servidor":{x:.7,y:-.62}, "debug":{x:.62,y:-.62}, "git":{x:.72,y:-.58},
+        "backend":{x:.75,y:-.5}, "compilar":{x:.68,y:-.52},
+        // Genéricas
+        "explicar":{x:.1,y:.05}, "simple":{x:.15,y:.1}, "niño":{x:.1,y:.15}, "ejemplo":{x:.05,y:0},
+        "paso":{x:.08,y:.05}, "resumen":{x:0,y:.05}, "definición":{x:.0,y:.1}, "conceptos":{x:.05,y:.15},
+        // Deporte
+        "fútbol":{x:-.3,y:-.8}, "pelota":{x:-.28,y:-.82}, "gol":{x:-.32,y:-.78}, "cancha":{x:-.35,y:-.82},
+        "equipo":{x:-.25,y:-.78}, "club":{x:-.3,y:-.85}, "jugador":{x:-.28,y:-.75}, "partido":{x:-.32,y:-.8},
+        "campeón":{x:-.35,y:-.78}, "liga":{x:-.3,y:-.88}, "torneo":{x:-.25,y:-.82}, "deporte":{x:-.3,y:-.78},
+        "são":{x:-.35,y:-.75}, "paulo":{x:-.37,y:-.77}, "tricolor":{x:-.38,y:-.8},
+        // Cine
+        "cine":{x:.3,y:-.85}, "hollywood":{x:.28,y:-.9}, "película":{x:.32,y:-.82}, "actor":{x:.3,y:-.88},
+        "actriz":{x:.28,y:-.85}, "director":{x:.32,y:-.88}, "oscar":{x:.35,y:-.9}, "pantalla":{x:.28,y:-.8},
+        "escena":{x:.3,y:-.78}, "guion":{x:.32,y:-.85}, "estreno":{x:.28,y:-.92}, "taquilla":{x:.35,y:-.85},
+        "serie":{x:.25,y:-.82}
+      }
+    },
+    pt:{
+      __title:"Como um LLM interpreta seu prompt e gera um embedding (demo interativa)",
+      h1:"Como o LLM converte seu prompt em um embedding?",
+      vizTitle:"Espaço vetorial (mapa 2D simplificado)",
+      legendAria:"Legenda de elementos",
+      legKnowledge:"Conhecimento",
+      legWord:"Vetor de cada palavra",
+      legPrompt:"Embedding do prompt (média)",
+      legTop:"Documento mais relevante",
+      plotAria:"Gráfico do espaço vetorial, use os controles para interagir.",
+      hint:"💡 Dica: arraste um documento para perto do seu prompt ou adicione palavras para ver como o vetor é calculado pela média.",
+      promptCardTitle:"Seu prompt",
+      promptLabel:"O que você quer perguntar?",
+      promptPlaceholder:"Ex: explique a fotossíntese para uma criança",
+      promptHelp:"Cada palavra reconhecida contribui com um vetor; a média é o seu embedding.",
+      vocabAria:"Sugestões rápidas",
+      breakdownTitle:"Processo de embedding",
+      emptyHint:"Escreva algo ou toque em um chip para ver como o embedding é construído passo a passo.",
+      footer:"Feito com ♥ para aprender. Alto contraste e navegação por teclado incluídos.",
+      bkRecognized:n=>`1. Palavras reconhecidas (${n})`,
+      bkNone:"— nenhuma palavra do vocabulário",
+      bkIgnored:"2. Palavras ignoradas (fora do vocabulário)",
+      bkResult:step=>`${step}. Embedding resultante (média)`,
+      bkNoVector:"Nenhuma palavra reconhecida — o modelo não consegue gerar um embedding. Experimente um chip do vocabulário.",
+      docTitles:{
+        bio:'Biologia — Fotossíntese',
+        hist:'História — Revolução Francesa',
+        econ:'Economia — Inflação',
+        prog:'Programação — Algoritmos',
+        astro:'Astronomia — Estrelas',
+        dep:'Esporte — Futebol',
+        cine:'Cinema — Hollywood'
+      },
+      vocab:{
+        // Biologia
+        "fotossíntese":{x:.85,y:.45}, "plantas":{x:.8,y:.5}, "folhas":{x:.75,y:.55}, "árvores":{x:.82,y:.48},
+        "flores":{x:.78,y:.52}, "semente":{x:.7,y:.4}, "fruta":{x:.72,y:.38}, "clorofila":{x:.88,y:.42},
+        "oxigênio":{x:.8,y:.35}, "células":{x:.7,y:.45}, "dna":{x:.68,y:.5}, "genética":{x:.7,y:.52},
+        "evolução":{x:.65,y:.55}, "animais":{x:.75,y:.35}, "biologia":{x:.8,y:.45}, "natureza":{x:.75,y:.5},
+        "ecossistema":{x:.65,y:.5}, "floresta":{x:.78,y:.58}, "organismo":{x:.7,y:.42}, "ambiente":{x:.65,y:.45},
+        // Astronomia
+        "estrelas":{x:.1,y:.9}, "universo":{x:.2,y:.85}, "planeta":{x:.05,y:.85}, "galáxia":{x:.15,y:.92},
+        "sol":{x:.2,y:.8}, "lua":{x:.0,y:.82}, "cometa":{x:.12,y:.88}, "cosmos":{x:.18,y:.9},
+        "espaço":{x:.1,y:.8}, "telescópio":{x:.05,y:.78}, "órbita":{x:.12,y:.82}, "nebulosa":{x:.15,y:.88},
+        "astronomia":{x:.1,y:.85}, "satélite":{x:.08,y:.75}, "astronauta":{x:.15,y:.78}, "meteorito":{x:.05,y:.88},
+        // História
+        "história":{x:-.7,y:.5}, "revolução":{x:-.8,y:.4}, "guerra":{x:-.75,y:.45}, "rei":{x:-.7,y:.55},
+        "império":{x:-.78,y:.5}, "batalha":{x:-.72,y:.42}, "antigo":{x:-.65,y:.5}, "medieval":{x:-.7,y:.48},
+        "século":{x:-.6,y:.45}, "napoleão":{x:-.82,y:.42}, "roma":{x:-.75,y:.55}, "egito":{x:-.7,y:.52},
+        "faraó":{x:-.72,y:.58}, "independência":{x:-.78,y:.38}, "monarquia":{x:-.75,y:.48}, "democracia":{x:-.65,y:.35},
+        "constituição":{x:-.6,y:.4},
+        // Economia
+        "inflação":{x:-.85,y:-.15}, "preços":{x:-.75,y:-.25}, "economia":{x:-.8,y:-.2}, "dinheiro":{x:-.7,y:-.2},
+        "banco":{x:-.75,y:-.15}, "mercado":{x:-.73,y:-.22}, "bolsa":{x:-.8,y:-.25}, "ações":{x:-.85,y:-.22},
+        "dólar":{x:-.87,y:-.2}, "crise":{x:-.83,y:-.1}, "impostos":{x:-.7,y:-.15}, "salário":{x:-.65,y:-.2},
+        "dívida":{x:-.77,y:-.25}, "crédito":{x:-.73,y:-.15}, "moeda":{x:-.8,y:-.18}, "recessão":{x:-.85,y:-.13},
+        "comércio":{x:-.7,y:-.25},
+        // Programação
+        "algoritmos":{x:.7,y:-.5}, "código":{x:.6,y:-.6}, "programar":{x:.65,y:-.55}, "software":{x:.7,y:-.55},
+        "python":{x:.68,y:-.58}, "javascript":{x:.72,y:-.52}, "função":{x:.6,y:-.5}, "variável":{x:.55,y:-.55},
+        "bug":{x:.58,y:-.6}, "array":{x:.62,y:-.58}, "loop":{x:.6,y:-.55}, "classe":{x:.65,y:-.48},
+        "api":{x:.75,y:-.55}, "servidor":{x:.7,y:-.62}, "debug":{x:.62,y:-.62}, "git":{x:.72,y:-.58},
+        "backend":{x:.75,y:-.5}, "compilar":{x:.68,y:-.52},
+        // Genéricas
+        "explicar":{x:.1,y:.05}, "simples":{x:.15,y:.1}, "criança":{x:.1,y:.15}, "exemplo":{x:.05,y:0},
+        "passo":{x:.08,y:.05}, "resumo":{x:0,y:.05}, "definição":{x:.0,y:.1}, "conceitos":{x:.05,y:.15},
+        // Esporte
+        "futebol":{x:-.3,y:-.8}, "bola":{x:-.28,y:-.82}, "gol":{x:-.32,y:-.78}, "campo":{x:-.35,y:-.82},
+        "time":{x:-.25,y:-.78}, "clube":{x:-.3,y:-.85}, "jogador":{x:-.28,y:-.75}, "partida":{x:-.32,y:-.8},
+        "campeão":{x:-.35,y:-.78}, "liga":{x:-.3,y:-.88}, "torneio":{x:-.25,y:-.82}, "esporte":{x:-.3,y:-.78},
+        "são":{x:-.35,y:-.75}, "paulo":{x:-.37,y:-.77}, "tricolor":{x:-.38,y:-.8},
+        // Cinema
+        "cinema":{x:.3,y:-.85}, "hollywood":{x:.28,y:-.9}, "filme":{x:.32,y:-.82}, "ator":{x:.3,y:-.88},
+        "atriz":{x:.28,y:-.85}, "diretor":{x:.32,y:-.88}, "oscar":{x:.35,y:-.9}, "tela":{x:.28,y:-.8},
+        "cena":{x:.3,y:-.78}, "roteiro":{x:.32,y:-.85}, "estreia":{x:.28,y:-.92}, "bilheteria":{x:.35,y:-.85},
+        "série":{x:.25,y:-.82}
+      }
+    }
   };
 
+  const LANG_KEY='booster-lang';
+  function getLang(){ const s=localStorage.getItem(LANG_KEY); return (s==='es'||s==='pt')?s:'es'; }
+  let lang=getLang();
+  let t=I18N[lang];
+
+  // Estado de datos dependiente del idioma
+  let docs=DOC_POS.map(d=>({id:d.id, v:{...d.v}}));  // posiciones mutables por drag
+  let vocab=t.vocab;
+
   // ---------- Normalización ----------
-  // Quita tildes y convierte a minúsculas, para matchear sin importar acentos/capitalización.
   const normalize = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  // Tokeniza preservando letras Unicode (incluye á, ñ, ü, etc.) antes de normalizar.
   const tokenize = s => (s.match(/\p{L}+/gu) || []);
 
-  // Lookup indexado por forma normalizada → preserva palabra "display" (con tildes) para UI.
-  const vocabLookup = {};
-  Object.keys(vocab).forEach(k => {
-    vocabLookup[normalize(k)] = { display: k, vector: vocab[k] };
-  });
+  let vocabLookup={};
+  let vocabKeys=[];
+  function buildVocabIndex(){
+    vocabLookup={};
+    Object.keys(vocab).forEach(k=>{ vocabLookup[normalize(k)]={display:k, vector:vocab[k]}; });
+    vocabKeys=Object.keys(vocab).sort();
+  }
 
   // ---------- Estado ----------
   let lastPrompt = '';
@@ -252,19 +375,21 @@
       if(b) b.setAttribute('aria-pressed', set.has(normalize(k))?'true':'false');
     });
   }
-  const vocabKeys=Object.keys(vocab).sort();
-  vocabKeys.forEach(k=>{
-    const b=document.createElement('button');
-    b.className='chip'; b.type='button'; b.textContent=k; b.dataset.key=k;
-    b.setAttribute('aria-pressed','false');
-    b.addEventListener('click',()=>{
-      const pressed=b.getAttribute('aria-pressed')==='true';
-      if(pressed){ removeWordFromPrompt(k); b.setAttribute('aria-pressed','false'); }
-      else { addWordToPrompt(k); b.setAttribute('aria-pressed','true'); }
-      update();
+  function buildChips(){
+    vocabEl.innerHTML='';
+    vocabKeys.forEach(k=>{
+      const b=document.createElement('button');
+      b.className='chip'; b.type='button'; b.textContent=k; b.dataset.key=k;
+      b.setAttribute('aria-pressed','false');
+      b.addEventListener('click',()=>{
+        const pressed=b.getAttribute('aria-pressed')==='true';
+        if(pressed){ removeWordFromPrompt(k); b.setAttribute('aria-pressed','false'); }
+        else { addWordToPrompt(k); b.setAttribute('aria-pressed','true'); }
+        update();
+      });
+      vocabEl.appendChild(b);
     });
-    vocabEl.appendChild(b);
-  });
+  }
 
   // ---------- SVG ----------
   const svgNS='http://www.w3.org/2000/svg';
@@ -293,7 +418,7 @@
     gGrid.appendChild(line(center.x,0,center.x,h,'axis'));
   }
   function line(x1,y1,x2,y2,cls){ const l=document.createElementNS(svgNS,'line'); l.setAttribute('x1',x1); l.setAttribute('y1',y1); l.setAttribute('x2',x2); l.setAttribute('y2',y2); l.setAttribute('class',cls); return l; }
-  function text(x,y,content,cls){ const t=document.createElementNS(svgNS,'text'); t.setAttribute('x',x); t.setAttribute('y',y); if(cls) t.setAttribute('class',cls); t.textContent=content; return t; }
+  function text(x,y,content,cls){ const tt=document.createElementNS(svgNS,'text'); tt.setAttribute('x',x); tt.setAttribute('y',y); if(cls) tt.setAttribute('class',cls); tt.textContent=content; return tt; }
   function toScreen(v){ const w=plotEl.clientWidth,h=plotEl.clientHeight; const cx=w/2,cy=h/2; const s=Math.min(w,h)*0.42; return {x:cx+v.x*s,y:cy-v.y*s,s, cx, cy}; }
   function fromScreen(p){ const w=plotEl.clientWidth,h=plotEl.clientHeight; const cx=w/2,cy=h/2; const s=Math.min(w,h)*0.42; return {x:(p.x-cx)/s, y:-(p.y-cy)/s}; }
 
@@ -304,8 +429,6 @@
   svg.addEventListener('pointerup',()=>dragging=null);
 
   // ---------- Embedding ----------
-  // Devuelve el vector final + el desglose de palabras reconocidas/ignoradas.
-  // El match es case-insensitive y sin tildes: "FOTOSÍNTESIS" == "fotosintesis" == "fotosíntesis".
   function embedPrompt(text){
     const rawTokens = tokenize(text);
     const recognized = [];
@@ -334,7 +457,6 @@
     gVec.innerHTML=''; gLbl.innerHTML='';
     const origin=toScreen({x:0,y:0});
 
-    // Calcular similitudes si hay embedding
     let ranked = [];
     if(pVec){
       ranked = docs.map(d=>({
@@ -345,7 +467,6 @@
     }
     const topId = ranked.length>0 ? ranked[0].id : null;
 
-    // Mini-vectores por cada palabra reconocida (solo cuando hay más de 1)
     if(pVec && recognized.length > 1){
       recognized.forEach(r=>{
         const wEnd = toScreen(r.vector);
@@ -356,7 +477,6 @@
       });
     }
 
-    // Vector final del prompt (con animación si cambió)
     if(pVec){
       const pEnd = toScreen(pVec);
       const vLine = line(origin.cx, origin.cy, pEnd.x, pEnd.y, 'vec-prompt');
@@ -373,7 +493,6 @@
         gVec.appendChild(vLine);
       }
 
-      // Línea punteada al documento más relevante
       if(ranked.length>0){
         const top = ranked[0];
         const connector = line(pEnd.x, pEnd.y, top.end.x, top.end.y, 'vec-to-top');
@@ -381,7 +500,6 @@
       }
     }
 
-    // Documentos (con o sin prompt)
     const list = pVec ? ranked : docs.map(d=>({...d, end:toScreen(d.v)}));
     list.forEach(d=>{
       const isTop = d.id === topId;
@@ -391,13 +509,14 @@
       c.setAttribute('class', isTop ? 'point top' : 'point');
       c.dataset.docid = d.id;
       c.setAttribute('role','img');
-      c.setAttribute('aria-label', d.title);
+      const docTitle = t.docTitles[d.id] || d.id;
+      c.setAttribute('aria-label', docTitle);
       gVec.appendChild(c);
 
-      let titleText = d.title;
+      let titleText = docTitle;
       if(pVec){
         const sim = Math.max(0, Math.round(d.sim * 100));
-        titleText = `${d.title} · ${sim}%`;
+        titleText = `${docTitle} · ${sim}%`;
       }
       const titleLbl = text(d.end.x + 12, d.end.y - 4, titleText, isTop ? 'label-sim top' : 'label');
       gLbl.appendChild(titleLbl);
@@ -409,17 +528,17 @@
     const {vector, recognized, ignored} = embedding;
 
     if(recognized.length === 0 && ignored.length === 0){
-      breakdownEl.innerHTML = '<p class="empty-hint">Escribí algo o tocá un chip para ver cómo se construye el embedding paso a paso.</p>';
+      breakdownEl.innerHTML = `<p class="empty-hint">${t.emptyHint}</p>`;
       return;
     }
 
     let html = '';
 
     html += `<div class="breakdown-section">
-      <div class="breakdown-label">1. Palabras reconocidas (${recognized.length})</div>
+      <div class="breakdown-label">${t.bkRecognized(recognized.length)}</div>
       <div class="breakdown-tokens">`;
     if(recognized.length === 0){
-      html += `<span class="breakdown-empty">— ninguna palabra del vocabulario</span>`;
+      html += `<span class="breakdown-empty">${t.bkNone}</span>`;
     } else {
       recognized.forEach(r=>{
         html += `<span class="token token-recognized"><strong>${r.word}</strong><span class="token-vec">(${r.vector.x.toFixed(2)}, ${r.vector.y.toFixed(2)})</span></span>`;
@@ -429,7 +548,7 @@
 
     if(ignored.length > 0){
       html += `<div class="breakdown-section">
-        <div class="breakdown-label">2. Palabras ignoradas (fuera de vocabulario)</div>
+        <div class="breakdown-label">${t.bkIgnored}</div>
         <div class="breakdown-tokens">`;
       ignored.forEach(w=>{
         html += `<span class="token token-ignored">${w}</span>`;
@@ -439,12 +558,12 @@
 
     if(vector){
       html += `<div class="breakdown-section breakdown-result">
-        <div class="breakdown-label">${ignored.length > 0 ? '3' : '2'}. Embedding resultante (promedio)</div>
+        <div class="breakdown-label">${t.bkResult(ignored.length > 0 ? '3' : '2')}</div>
         <div class="breakdown-vector">(${vector.x.toFixed(2)}, ${vector.y.toFixed(2)})</div>
       </div>`;
     } else {
       html += `<div class="breakdown-section">
-        <p class="empty-hint">Ninguna palabra reconocida — el modelo no puede generar un embedding. Probá con un chip del vocabulario.</p>
+        <p class="empty-hint">${t.bkNoVector}</p>
       </div>`;
     }
 
@@ -462,7 +581,47 @@
     renderBreakdown(embedding);
   }
 
+  // ---------- i18n: aplicar textos estáticos + cambio de idioma ----------
+  function applyStaticI18n(){
+    document.documentElement.lang=lang;
+    if(t.__title) document.title=t.__title;
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const key=el.getAttribute('data-i18n');
+      if(t[key]!=null && typeof t[key]==='string') el.textContent=t[key];
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+      const key=el.getAttribute('data-i18n-ph');
+      if(t[key]!=null) el.setAttribute('placeholder', t[key]);
+    });
+    document.querySelectorAll('[data-i18n-aria]').forEach(el=>{
+      const key=el.getAttribute('data-i18n-aria');
+      if(t[key]!=null) el.setAttribute('aria-label', t[key]);
+    });
+    document.querySelectorAll('.lang-btn').forEach(btn=>{
+      btn.classList.toggle('active', btn.dataset.lang===lang);
+    });
+  }
+
+  function setLang(newLang){
+    if(newLang!=='es' && newLang!=='pt') return;
+    lang=newLang; t=I18N[lang]; vocab=t.vocab;
+    localStorage.setItem(LANG_KEY, lang);
+    buildVocabIndex();
+    buildChips();
+    promptEl.value='';          // el vocabulario cambia de idioma: reiniciamos el prompt
+    lastPrompt='';
+    applyStaticI18n();
+    update();
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>setLang(btn.dataset.lang));
+  });
+
   // init
+  buildVocabIndex();
+  buildChips();
+  applyStaticI18n();
   const ro=new ResizeObserver(update); ro.observe(plotEl);
   update();
 })();

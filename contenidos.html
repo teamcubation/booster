@@ -7,6 +7,43 @@
     <link rel="stylesheet" href="teamcubation.css">
     <style>
         /* Estilos específicos de contenidos */
+        .header {
+            position: relative;
+        }
+
+        /* Selector de idioma (compartido entre páginas) */
+        .lang-switch {
+            position: absolute;
+            top: var(--spacing-md);
+            right: var(--spacing-md);
+            display: inline-flex;
+            gap: 4px;
+            background: var(--white);
+            border: 1px solid var(--medium-gray);
+            border-radius: 999px;
+            padding: 3px;
+            box-shadow: var(--shadow-sm);
+        }
+        .lang-btn {
+            border: none;
+            background: transparent;
+            color: var(--dark-gray);
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            letter-spacing: 0.03em;
+        }
+        .lang-btn:hover {
+            color: var(--cold-main-violet);
+        }
+        .lang-btn.active {
+            background: var(--cold-main-violet);
+            color: var(--white);
+        }
+
         .content-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -64,10 +101,6 @@
 
         .content-card:nth-child(1) { animation-delay: 0.05s; }
         .content-card:nth-child(2) { animation-delay: 0.1s; }
-        .content-card:nth-child(3) { animation-delay: 0.15s; }
-        .content-card:nth-child(4) { animation-delay: 0.2s; }
-        .content-card:nth-child(5) { animation-delay: 0.25s; }
-        .content-card:nth-child(6) { animation-delay: 0.3s; }
 
         @media (max-width: 480px) {
             .content-grid {
@@ -83,22 +116,30 @@
                 font-size: 1.6rem;
             }
             .card-title { font-size: 0.95rem; }
+            .lang-switch {
+                top: var(--spacing-sm);
+                right: var(--spacing-sm);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <div class="lang-switch" role="group" aria-label="Idioma / Idioma">
+                <button type="button" class="lang-btn" data-lang="es">ES</button>
+                <button type="button" class="lang-btn" data-lang="pt">PT</button>
+            </div>
             <h1 class="header-title">🚀 Booster</h1>
-            <p class="header-subtitle">Recursos y herramientas educativas de Teamcubation</p>
+            <p class="header-subtitle" data-i18n="subtitle">Recursos y herramientas educativas de Teamcubation</p>
         </div>
 
         <div class="content-grid">
             <a href="Panel-IA-Generativa.html" class="card content-card">
                 <span class="card-icon">🤖</span>
                 <div class="card-content">
-                    <h2 class="card-title">Panel de IA Generativa</h2>
-                    <p class="card-description">
+                    <h2 class="card-title" data-i18n="card1Title">Panel de IA Generativa</h2>
+                    <p class="card-description" data-i18n="card1Desc">
                         Descubre cómo funciona la IA generativa. Una experiencia interactiva que te muestra los conceptos clave detrás de los sistemas de inteligencia artificial más avanzados.
                     </p>
                 </div>
@@ -107,57 +148,69 @@
             <a href="llm_conocimiento.html" class="card content-card">
                 <span class="card-icon">🧠</span>
                 <div class="card-content">
-                    <h2 class="card-title">Conocimiento LLM</h2>
-                    <p class="card-description">
+                    <h2 class="card-title" data-i18n="card2Title">Conocimiento LLM</h2>
+                    <p class="card-description" data-i18n="card2Desc">
                         Demostración visual de cómo un modelo LLM almacena conocimiento en un espacio vectorial y cómo encuentra respuestas usando similitud de coseno.
-                    </p>
-                </div>
-            </a>
-
-            <a href="generador-json.html" class="card content-card">
-                <span class="card-icon">🎯</span>
-                <div class="card-content">
-                    <h2 class="card-title">Generador de JSON</h2>
-                    <p class="card-description">
-                        Herramienta interactiva para crear estructuras de datos JSON sin conocimientos técnicos. Ideal para usar como ejemplos en Power Automate o N8N.
-                    </p>
-                </div>
-            </a>
-
-            <a href="workflow.html" class="card content-card">
-                <span class="card-icon">🔄</span>
-                <div class="card-content">
-                    <h2 class="card-title">Workflow - Flujos de Trabajo</h2>
-                    <p class="card-description">
-                        Creá y visualizá flujos de trabajo automatizados. Explorá cómo funcionan los disparadores, acciones, condiciones y loops de forma interactiva.
-                    </p>
-                </div>
-            </a>
-
-            <a href="agente-ai-ciclo.html" class="card content-card">
-                <span class="card-icon">🤖</span>
-                <div class="card-content">
-                    <h2 class="card-title">Ciclo de un Agente AI</h2>
-                    <p class="card-description">
-                        Descubrí cómo funciona un agente de inteligencia artificial a través de su ciclo de percibir, pensar y accionar. Una demostración interactiva y visual del proceso completo.
-                    </p>
-                </div>
-            </a>
-
-            <a href="agente-componentes.html" class="card content-card">
-                <span class="card-icon">🧩</span>
-                <div class="card-content">
-                    <h2 class="card-title">Anatomía de un Agente AI</h2>
-                    <p class="card-description">
-                        Explorá las 4 piezas de un agente —prompt de sistema, prompt de usuario (chat, mail, schedule, webhook), herramientas y modelo LLM— y mirá cómo se combinan paso a paso en cada ejecución.
                     </p>
                 </div>
             </a>
         </div>
 
         <div class="footer">
-            <p>Teamcubation © 2025 — Aprendizaje interactivo</p>
+            <p data-i18n="footer">Teamcubation © 2025 — Aprendizaje interactivo</p>
         </div>
     </div>
+
+    <script>
+    (function () {
+        const I18N = {
+            es: {
+                __title: "Booster - Índice de Contenidos",
+                subtitle: "Recursos y herramientas educativas de Teamcubation",
+                card1Title: "Panel de IA Generativa",
+                card1Desc: "Descubre cómo funciona la IA generativa. Una experiencia interactiva que te muestra los conceptos clave detrás de los sistemas de inteligencia artificial más avanzados.",
+                card2Title: "Conocimiento LLM",
+                card2Desc: "Demostración visual de cómo un modelo LLM almacena conocimiento en un espacio vectorial y cómo encuentra respuestas usando similitud de coseno.",
+                footer: "Teamcubation © 2025 — Aprendizaje interactivo"
+            },
+            pt: {
+                __title: "Booster - Índice de Conteúdos",
+                subtitle: "Recursos e ferramentas educativas da Teamcubation",
+                card1Title: "Painel de IA Generativa",
+                card1Desc: "Descubra como funciona a IA generativa. Uma experiência interativa que mostra os conceitos-chave por trás dos sistemas de inteligência artificial mais avançados.",
+                card2Title: "Conhecimento LLM",
+                card2Desc: "Demonstração visual de como um modelo LLM armazena conhecimento em um espaço vetorial e como encontra respostas usando similaridade de cosseno.",
+                footer: "Teamcubation © 2025 — Aprendizagem interativa"
+            }
+        };
+
+        const LANG_KEY = "booster-lang";
+
+        function getLang() {
+            const saved = localStorage.getItem(LANG_KEY);
+            return (saved === "es" || saved === "pt") ? saved : "es";
+        }
+
+        function applyLang(lang) {
+            const dict = I18N[lang] || I18N.es;
+            document.documentElement.lang = lang;
+            if (dict.__title) document.title = dict.__title;
+            document.querySelectorAll("[data-i18n]").forEach(el => {
+                const key = el.getAttribute("data-i18n");
+                if (dict[key] != null) el.textContent = dict[key];
+            });
+            document.querySelectorAll(".lang-btn").forEach(btn => {
+                btn.classList.toggle("active", btn.dataset.lang === lang);
+            });
+            localStorage.setItem(LANG_KEY, lang);
+        }
+
+        document.querySelectorAll(".lang-btn").forEach(btn => {
+            btn.addEventListener("click", () => applyLang(btn.dataset.lang));
+        });
+
+        applyLang(getLang());
+    })();
+    </script>
 </body>
 </html>

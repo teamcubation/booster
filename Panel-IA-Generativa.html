@@ -584,13 +584,58 @@
             color: var(--cold-main-violet);
             font-weight: 600;
         }
+
+        /* Selector de idioma (compartido entre páginas) */
+        .header-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .lang-switch {
+            display: inline-flex;
+            gap: 4px;
+            background: var(--white);
+            border: 1px solid var(--medium-gray);
+            border-radius: 999px;
+            padding: 3px;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
+        }
+        .lang-btn {
+            border: none;
+            background: transparent;
+            color: var(--dark-gray);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 11px;
+            border-radius: 999px;
+            cursor: pointer;
+            letter-spacing: 0.03em;
+            transition: all var(--transition-base);
+        }
+        .lang-btn:hover {
+            color: var(--cold-main-violet);
+        }
+        .lang-btn.active {
+            background: var(--cold-main-violet);
+            color: var(--white);
+        }
     </style>
 </head>
 <body class="min-h-screen p-2 sm:p-4 md:p-6">
     <div id="app" class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
         <header class="px-4 py-3 sm:px-6 sm:py-4 bg-purple-light border-b border-gray-200">
-            <h1 class="text-xl sm:text-2xl font-bold">Cómo un LLM elige la siguiente palabra</h1>
-            <p class="mt-0.5 text-xs sm:text-sm">Aprendé cómo Top-K, Top-P y Temperatura moldean la salida de un LLM.</p>
+            <div class="header-row">
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold" data-i18n="h1">Cómo un LLM elige la siguiente palabra</h1>
+                    <p class="mt-0.5 text-xs sm:text-sm" data-i18n="subtitle">Aprendé cómo Top-K, Top-P y Temperatura moldean la salida de un LLM.</p>
+                </div>
+                <div class="lang-switch" role="group" aria-label="Idioma / Idioma">
+                    <button type="button" class="lang-btn" data-lang="es">ES</button>
+                    <button type="button" class="lang-btn" data-lang="pt">PT</button>
+                </div>
+            </div>
         </header>
 
         <div class="px-4 py-3 sm:px-6 sm:py-4">
@@ -599,16 +644,16 @@
                 <div class="bg-neutral-light px-4 py-3 rounded-xl shadow-md mb-4 demo-toolbar">
                     <div class="toolbar-group">
                         <span class="toolbar-label">
-                            Presets
+                            <span data-i18n="presetsLabel">Presets</span>
                             <span class="info-wrap">
-                                <button type="button" class="info-btn" aria-label="Qué son los presets" tabindex="0">ⓘ</button>
-                                <span class="info-tip" role="tooltip">Configuraciones rápidas que mueven los tres parámetros juntos.</span>
+                                <button type="button" class="info-btn" data-i18n-aria="presetsInfoAria" aria-label="Qué son los presets" tabindex="0">ⓘ</button>
+                                <span class="info-tip" role="tooltip" data-i18n="presetsTip">Configuraciones rápidas que mueven los tres parámetros juntos.</span>
                             </span>
                         </span>
-                        <div class="preset-group" role="group" aria-label="Presets de configuración">
-                            <button type="button" class="preset-btn" data-preset="preciso">Preciso</button>
-                            <button type="button" class="preset-btn" data-preset="balanceado">Balanceado</button>
-                            <button type="button" class="preset-btn" data-preset="creativo">Creativo</button>
+                        <div class="preset-group" role="group" data-i18n-aria="presetsGroupAria" aria-label="Presets de configuración">
+                            <button type="button" class="preset-btn" data-preset="preciso" data-i18n="presetPreciso">Preciso</button>
+                            <button type="button" class="preset-btn" data-preset="balanceado" data-i18n="presetBalanceado">Balanceado</button>
+                            <button type="button" class="preset-btn" data-preset="creativo" data-i18n="presetCreativo">Creativo</button>
                         </div>
                     </div>
 
@@ -616,49 +661,49 @@
 
                     <div class="slider-inline">
                         <span class="slider-label-group">
-                            <label for="temperature">Temp</label>
+                            <label for="temperature" data-i18n="tempLabel">Temp</label>
                             <span class="info-wrap">
-                                <button type="button" class="info-btn" aria-label="Qué es temperatura" tabindex="0">ⓘ</button>
-                                <span class="info-tip" role="tooltip">Controla qué tan predecible o creativa es la IA. Valores más altos = más creatividad.</span>
+                                <button type="button" class="info-btn" data-i18n-aria="tempInfoAria" aria-label="Qué es temperatura" tabindex="0">ⓘ</button>
+                                <span class="info-tip" role="tooltip" data-i18n="tempTip">Controla qué tan predecible o creativa es la IA. Valores más altos = más creatividad.</span>
                             </span>
                         </span>
-                        <input type="range" id="temperature" min="0.1" max="2.0" step="0.05" value="1.0" class="slider-thumb" aria-label="Temperatura, entre 0.1 y 2.0">
+                        <input type="range" id="temperature" min="0.1" max="2.0" step="0.05" value="1.0" class="slider-thumb" data-i18n-aria="tempAria" aria-label="Temperatura, entre 0.1 y 2.0">
                         <span class="slider-value" id="temperature-value">1.00</span>
                     </div>
 
                     <div class="slider-inline">
                         <span class="slider-label-group">
-                            <label for="top_k">Top-K</label>
+                            <label for="top_k" data-i18n="topkLabel">Top-K</label>
                             <span class="info-wrap">
-                                <button type="button" class="info-btn" aria-label="Qué es Top-K" tabindex="0">ⓘ</button>
-                                <span class="info-tip" role="tooltip">Cantidad de opciones (tokens) más probables a considerar.</span>
+                                <button type="button" class="info-btn" data-i18n-aria="topkInfoAria" aria-label="Qué es Top-K" tabindex="0">ⓘ</button>
+                                <span class="info-tip" role="tooltip" data-i18n="topkTip">Cantidad de opciones (tokens) más probables a considerar.</span>
                             </span>
                         </span>
-                        <input type="range" id="top_k" min="1" max="50" step="1" value="20" class="slider-thumb" aria-label="Top-K, entre 1 y 50">
+                        <input type="range" id="top_k" min="1" max="50" step="1" value="20" class="slider-thumb" data-i18n-aria="topkAria" aria-label="Top-K, entre 1 y 50">
                         <span class="slider-value" id="top_k-value">20</span>
                     </div>
 
                     <div class="slider-inline">
                         <span class="slider-label-group">
-                            <label for="top_p">Top-P</label>
+                            <label for="top_p" data-i18n="toppLabel">Top-P</label>
                             <span class="info-wrap">
-                                <button type="button" class="info-btn" aria-label="Qué es Top-P" tabindex="0">ⓘ</button>
-                                <span class="info-tip" role="tooltip">Porcentaje de certeza acumulada para incluir opciones (0.9 = 90%).</span>
+                                <button type="button" class="info-btn" data-i18n-aria="toppInfoAria" aria-label="Qué es Top-P" tabindex="0">ⓘ</button>
+                                <span class="info-tip" role="tooltip" data-i18n="toppTip">Porcentaje de certeza acumulada para incluir opciones (0.9 = 90%).</span>
                             </span>
                         </span>
-                        <input type="range" id="top_p" min="0.01" max="1.0" step="0.01" value="0.9" class="slider-thumb" aria-label="Top-P, entre 0.01 y 1.0">
+                        <input type="range" id="top_p" min="0.01" max="1.0" step="0.01" value="0.9" class="slider-thumb" data-i18n-aria="toppAria" aria-label="Top-P, entre 0.01 y 1.0">
                         <span class="slider-value" id="top_p-value">0.90</span>
                     </div>
 
-                    <button id="reset-btn" class="reset-compact">Borrar generación</button>
+                    <button id="reset-btn" class="reset-compact" data-i18n="resetBtn">Borrar generación</button>
                 </div>
 
                 <!-- Prompt bar: chips + output en una sola línea -->
                 <div class="prompt-bar mb-3">
-                    <div id="prompt-selector" class="prompt-selector compact-chips" role="group" aria-label="Seleccionar prompt de ejemplo">
-                        <button type="button" class="prompt-chip active" data-domain="fantasia">Fantasía</button>
-                        <button type="button" class="prompt-chip" data-domain="tecnico">Técnico</button>
-                        <button type="button" class="prompt-chip" data-domain="cotidiano">Cotidiano</button>
+                    <div id="prompt-selector" class="prompt-selector compact-chips" role="group" data-i18n-aria="promptSelectorAria" aria-label="Seleccionar prompt de ejemplo">
+                        <button type="button" class="prompt-chip active" data-domain="fantasia" data-i18n="domainFantasia">Fantasía</button>
+                        <button type="button" class="prompt-chip" data-domain="tecnico" data-i18n="domainTecnico">Técnico</button>
+                        <button type="button" class="prompt-chip" data-domain="cotidiano" data-i18n="domainCotidiano">Cotidiano</button>
                     </div>
                     <div class="prompt-divider" aria-hidden="true"></div>
                     <div id="output-display" class="prompt-line" aria-live="polite">
@@ -669,12 +714,12 @@
                 <!-- Chart card: ocupa todo el ancho -->
                 <div class="bg-neutral-light p-4 rounded-xl shadow-md">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
-                        <h2 class="text-base font-bold">Probabilidades del siguiente token</h2>
+                        <h2 class="text-base font-bold" data-i18n="chartTitle">Probabilidades del siguiente token</h2>
                         <div class="flex gap-2 w-full sm:w-auto">
-                            <button id="prepare-btn" class="flex-1 sm:flex-none py-1.5 px-3 text-sm font-semibold rounded-lg transition-colors shadow-md">
+                            <button id="prepare-btn" class="flex-1 sm:flex-none py-1.5 px-3 text-sm font-semibold rounded-lg transition-colors shadow-md" data-i18n="prepareBtn">
                                 Analizar opciones
                             </button>
-                            <button id="select-btn" class="flex-1 sm:flex-none py-1.5 px-3 text-sm font-semibold rounded-lg transition-colors shadow-md" disabled>
+                            <button id="select-btn" class="flex-1 sm:flex-none py-1.5 px-3 text-sm font-semibold rounded-lg transition-colors shadow-md" data-i18n="selectBtn" disabled>
                                 Seleccionar token
                             </button>
                         </div>
@@ -683,11 +728,11 @@
                         <span id="status-text"></span>
                     </div>
                     <div id="chart-container" class="d3-chart-container w-full h-72"></div>
-                    <div class="chart-legend" aria-label="Leyenda del gráfico">
-                        <div class="legend-item"><span class="legend-swatch candidate"></span><span>Candidato final</span></div>
-                        <div class="legend-item"><span class="legend-swatch cut-topp"></span><span>Descartado por Top-P</span></div>
-                        <div class="legend-item"><span class="legend-swatch cut-topk"></span><span>Descartado por Top-K</span></div>
-                        <div class="legend-item"><span class="legend-swatch ghost"></span><span>Probabilidad original (sin temperatura)</span></div>
+                    <div class="chart-legend" data-i18n-aria="chartLegendAria" aria-label="Leyenda del gráfico">
+                        <div class="legend-item"><span class="legend-swatch candidate"></span><span data-i18n="legendCandidate">Candidato final</span></div>
+                        <div class="legend-item"><span class="legend-swatch cut-topp"></span><span data-i18n="legendCutP">Descartado por Top-P</span></div>
+                        <div class="legend-item"><span class="legend-swatch cut-topk"></span><span data-i18n="legendCutK">Descartado por Top-K</span></div>
+                        <div class="legend-item"><span class="legend-swatch ghost"></span><span data-i18n="legendGhost">Probabilidad original (sin temperatura)</span></div>
                     </div>
                 </div>
             </div>
@@ -723,7 +768,7 @@
             };
 
             // Dominios: cada uno define su prompt y su vocabulario contextual
-            const domains = {
+            const domainsES = {
                 fantasia: {
                     prompt: "Había una vez, en una tierra lejana, vivía un",
                     vocab: {
@@ -917,6 +962,308 @@
                 }
             };
 
+            // Dominios en portugués (mismos parámetros y estructura, tokens traducidos)
+            const domainsPT = {
+                fantasia: {
+                    prompt: "Era uma vez, numa terra distante, vivia um",
+                    vocab: {
+                        'default': [
+                            { token: ' o', prob: 0.18 }, { token: ' um', prob: 0.14 }, { token: ' e', prob: 0.12 },
+                            { token: ' que', prob: 0.10 }, { token: ' com', prob: 0.08 }, { token: ' em', prob: 0.07 },
+                            { token: ' de', prob: 0.06 }, { token: ' por', prob: 0.05 }, { token: ' rumo', prob: 0.04 },
+                            { token: ' foi', prob: 0.04 }, { token: ' então', prob: 0.03 }, { token: ' ao', prob: 0.03 },
+                            { token: ' mágico', prob: 0.02 }, { token: ' escuro', prob: 0.02 }, { token: '.', prob: 0.01 }, { token: ',', prob: 0.01 }
+                        ],
+                        'um': [
+                            { token: ' príncipe', prob: 0.22 }, { token: ' rei', prob: 0.18 }, { token: ' valente cavaleiro', prob: 0.14 },
+                            { token: ' dragão', prob: 0.10 }, { token: ' padeiro humilde', prob: 0.07 }, { token: ' mago', prob: 0.06 },
+                            { token: ' ferreiro', prob: 0.05 }, { token: ' bobo', prob: 0.04 }, { token: ' solitário', prob: 0.04 },
+                            { token: ' misterioso', prob: 0.03 }, { token: ' pequeno', prob: 0.03 }, { token: ' falante', prob: 0.02 },
+                            { token: ' ancião', prob: 0.02 }
+                        ],
+                        'uma': [
+                            { token: ' princesa', prob: 0.30 }, { token: ' bruxa', prob: 0.18 }, { token: ' fada', prob: 0.15 },
+                            { token: ' sereia', prob: 0.10 }, { token: ' espada', prob: 0.08 }, { token: ' torre', prob: 0.07 },
+                            { token: ' caverna', prob: 0.05 }, { token: ' menina', prob: 0.04 }, { token: ' tempestade', prob: 0.03 }
+                        ],
+                        'príncipe': [
+                            { token: ' que', prob: 0.28 }, { token: ' chamado', prob: 0.18 }, { token: ' valente', prob: 0.12 },
+                            { token: ' encantado', prob: 0.10 }, { token: ' jovem', prob: 0.08 }, { token: ' guerreiro', prob: 0.07 },
+                            { token: ',', prob: 0.06 }, { token: '.', prob: 0.05 }, { token: ' e', prob: 0.04 }, { token: ' mas', prob: 0.02 }
+                        ],
+                        'rei': [
+                            { token: ' que', prob: 0.26 }, { token: ' sábio', prob: 0.18 }, { token: ' tirano', prob: 0.12 },
+                            { token: ' do', prob: 0.10 }, { token: ' poderoso', prob: 0.08 }, { token: ' chamado', prob: 0.07 },
+                            { token: ',', prob: 0.06 }, { token: ' e', prob: 0.06 }, { token: '.', prob: 0.04 }, { token: ' ancião', prob: 0.03 }
+                        ],
+                        'cavaleiro': [
+                            { token: ' que', prob: 0.28 }, { token: ' montava', prob: 0.18 }, { token: ' lutou', prob: 0.12 },
+                            { token: ' salvou', prob: 0.10 }, { token: ' descobriu', prob: 0.08 }, { token: ' chamado', prob: 0.06 },
+                            { token: ' errante', prob: 0.05 }, { token: '.', prob: 0.05 }, { token: ',', prob: 0.04 }, { token: ' e', prob: 0.04 }
+                        ],
+                        'princesa': [
+                            { token: ' que', prob: 0.28 }, { token: ' vivia', prob: 0.18 }, { token: ' foi', prob: 0.12 },
+                            { token: ' sonhava', prob: 0.10 }, { token: ' chamada', prob: 0.08 }, { token: ' tinha', prob: 0.06 },
+                            { token: ' valente', prob: 0.05 }, { token: '.', prob: 0.05 }, { token: ',', prob: 0.04 }, { token: ' e', prob: 0.04 }
+                        ],
+                        'dragão': [
+                            { token: ' que', prob: 0.26 }, { token: ' guardava', prob: 0.18 }, { token: ' cuspia', prob: 0.14 },
+                            { token: ' vivia', prob: 0.10 }, { token: ' aterrorizava', prob: 0.08 }, { token: ' dormia', prob: 0.06 },
+                            { token: ' ancestral', prob: 0.05 }, { token: '.', prob: 0.05 }, { token: ',', prob: 0.04 }, { token: ' e', prob: 0.04 }
+                        ],
+                        'mago': [
+                            { token: ' que', prob: 0.28 }, { token: ' ancião', prob: 0.16 }, { token: ' poderoso', prob: 0.14 },
+                            { token: ' chamado', prob: 0.10 }, { token: ' sombrio', prob: 0.08 }, { token: ' solitário', prob: 0.06 },
+                            { token: ',', prob: 0.06 }, { token: '.', prob: 0.05 }, { token: ' e', prob: 0.04 }, { token: ' misterioso', prob: 0.03 }
+                        ],
+                        'floresta': [
+                            { token: ' encantada', prob: 0.30 }, { token: ' sombria', prob: 0.20 }, { token: ' profunda', prob: 0.15 },
+                            { token: ' mágica', prob: 0.10 }, { token: ' onde', prob: 0.08 }, { token: ' que', prob: 0.07 },
+                            { token: ',', prob: 0.05 }, { token: '.', prob: 0.03 }, { token: ' antiga', prob: 0.02 }
+                        ],
+                        'castelo': [
+                            { token: ' antigo', prob: 0.22 }, { token: ' em', prob: 0.16 }, { token: ' encantado', prob: 0.14 },
+                            { token: ' do', prob: 0.12 }, { token: ' sobre', prob: 0.10 }, { token: ' de', prob: 0.08 },
+                            { token: ',', prob: 0.07 }, { token: '.', prob: 0.05 }, { token: ' sombrio', prob: 0.03 }, { token: ' abandonado', prob: 0.03 }
+                        ],
+                        'que': [
+                            { token: ' vivia', prob: 0.16 }, { token: ' tinha', prob: 0.14 }, { token: ' habitava', prob: 0.10 },
+                            { token: ' se', prob: 0.10 }, { token: ' nunca', prob: 0.08 }, { token: ' sempre', prob: 0.07 },
+                            { token: ' um', prob: 0.07 }, { token: ' o', prob: 0.06 }, { token: ' havia', prob: 0.06 },
+                            { token: ' falava', prob: 0.05 }, { token: ' guardava', prob: 0.04 }, { token: ' sonhava', prob: 0.04 }, { token: ' percorria', prob: 0.03 }
+                        ]
+                    }
+                },
+                tecnico: {
+                    prompt: "Para otimizar o desempenho de um banco de dados, convém",
+                    vocab: {
+                        'default': [
+                            { token: ' o', prob: 0.14 }, { token: ' a', prob: 0.12 }, { token: ' de', prob: 0.11 },
+                            { token: ' um', prob: 0.09 }, { token: ' que', prob: 0.08 }, { token: ' e', prob: 0.07 },
+                            { token: ' se', prob: 0.06 }, { token: ' com', prob: 0.05 }, { token: ' para', prob: 0.05 },
+                            { token: ' em', prob: 0.05 }, { token: ' as', prob: 0.04 }, { token: ' os', prob: 0.04 },
+                            { token: ' uma', prob: 0.04 }, { token: '.', prob: 0.03 }, { token: ',', prob: 0.03 }
+                        ],
+                        'convém': [
+                            { token: ' aplicar', prob: 0.22 }, { token: ' utilizar', prob: 0.18 }, { token: ' analisar', prob: 0.14 },
+                            { token: ' criar', prob: 0.12 }, { token: ' revisar', prob: 0.10 }, { token: ' separar', prob: 0.08 },
+                            { token: ' implementar', prob: 0.06 }, { token: ' monitorar', prob: 0.05 }, { token: ' fazer cache', prob: 0.03 },
+                            { token: ' particionar', prob: 0.02 }
+                        ],
+                        'aplicar': [
+                            { token: ' índices', prob: 0.28 }, { token: ' técnicas', prob: 0.16 }, { token: ' um', prob: 0.12 },
+                            { token: ' o', prob: 0.10 }, { token: ' filtros', prob: 0.08 }, { token: ' caching', prob: 0.08 },
+                            { token: ' particionamento', prob: 0.06 }, { token: ' normalização', prob: 0.05 }, { token: ' compressão', prob: 0.04 },
+                            { token: ' replicação', prob: 0.03 }
+                        ],
+                        'utilizar': [
+                            { token: ' índices', prob: 0.26 }, { token: ' uma', prob: 0.14 }, { token: ' um', prob: 0.12 },
+                            { token: ' cache', prob: 0.11 }, { token: ' visões', prob: 0.10 }, { token: ' consultas', prob: 0.08 },
+                            { token: ' réplicas', prob: 0.07 }, { token: ' transações', prob: 0.06 }, { token: ' ferramentas', prob: 0.04 },
+                            { token: ' procedimentos', prob: 0.02 }
+                        ],
+                        'analisar': [
+                            { token: ' o', prob: 0.22 }, { token: ' os', prob: 0.18 }, { token: ' as', prob: 0.14 },
+                            { token: ' queries', prob: 0.12 }, { token: ' planos', prob: 0.10 }, { token: ' métricas', prob: 0.08 },
+                            { token: ' logs', prob: 0.06 }, { token: ' gargalos', prob: 0.05 }, { token: ' padrões', prob: 0.03 },
+                            { token: ' bloqueios', prob: 0.02 }
+                        ],
+                        'índices': [
+                            { token: ' em', prob: 0.22 }, { token: ' sobre', prob: 0.18 }, { token: ' compostos', prob: 0.14 },
+                            { token: ' para', prob: 0.12 }, { token: ' que', prob: 0.10 }, { token: ',', prob: 0.08 },
+                            { token: ' adequados', prob: 0.06 }, { token: ' parciais', prob: 0.05 }, { token: '.', prob: 0.03 },
+                            { token: ' seletivos', prob: 0.02 }
+                        ],
+                        'consultas': [
+                            { token: ' que', prob: 0.18 }, { token: ' lentas', prob: 0.16 }, { token: ' SQL', prob: 0.14 },
+                            { token: ' complexas', prob: 0.12 }, { token: ' frequentes', prob: 0.10 }, { token: ' otimizadas', prob: 0.08 },
+                            { token: ',', prob: 0.07 }, { token: ' pesadas', prob: 0.06 }, { token: '.', prob: 0.05 }, { token: ' pontuais', prob: 0.04 }
+                        ],
+                        'cache': [
+                            { token: ' para', prob: 0.22 }, { token: ' em', prob: 0.18 }, { token: ' distribuído', prob: 0.14 },
+                            { token: ' de', prob: 0.12 }, { token: ' que', prob: 0.10 }, { token: ' local', prob: 0.08 },
+                            { token: ',', prob: 0.06 }, { token: '.', prob: 0.05 }, { token: ' compartilhado', prob: 0.03 }, { token: ' inteligente', prob: 0.02 }
+                        ],
+                        'o': [
+                            { token: ' desempenho', prob: 0.16 }, { token: ' sistema', prob: 0.14 }, { token: ' tempo', prob: 0.12 },
+                            { token: ' uso', prob: 0.10 }, { token: ' acesso', prob: 0.09 }, { token: ' plano', prob: 0.08 },
+                            { token: ' custo', prob: 0.07 }, { token: ' número', prob: 0.06 }, { token: ' resultado', prob: 0.05 },
+                            { token: ' análise', prob: 0.05 }, { token: ' motor', prob: 0.04 }, { token: ' manutenção', prob: 0.04 }
+                        ],
+                        'que': [
+                            { token: ' permite', prob: 0.18 }, { token: ' melhora', prob: 0.14 }, { token: ' reduz', prob: 0.12 },
+                            { token: ' otimiza', prob: 0.10 }, { token: ' facilita', prob: 0.09 }, { token: ' se', prob: 0.08 },
+                            { token: ' afeta', prob: 0.07 }, { token: ' consome', prob: 0.06 }, { token: ' acelera', prob: 0.05 },
+                            { token: ' evita', prob: 0.05 }, { token: ' minimiza', prob: 0.03 }, { token: ' garante', prob: 0.03 }
+                        ]
+                    }
+                },
+                cotidiano: {
+                    prompt: "Ontem fui ao supermercado e comprei",
+                    vocab: {
+                        'default': [
+                            { token: ' e', prob: 0.14 }, { token: ' com', prob: 0.11 }, { token: ' um', prob: 0.10 },
+                            { token: ' uma', prob: 0.09 }, { token: ' de', prob: 0.09 }, { token: ' para', prob: 0.07 },
+                            { token: ' em', prob: 0.07 }, { token: ' a', prob: 0.06 }, { token: ' o', prob: 0.06 },
+                            { token: ' que', prob: 0.05 }, { token: ' porque', prob: 0.04 }, { token: ' também', prob: 0.04 },
+                            { token: ' depois', prob: 0.03 }, { token: '.', prob: 0.03 }, { token: ',', prob: 0.02 }
+                        ],
+                        'comprei': [
+                            { token: ' pão', prob: 0.18 }, { token: ' leite', prob: 0.16 }, { token: ' frutas', prob: 0.12 },
+                            { token: ' verduras', prob: 0.10 }, { token: ' um', prob: 0.08 }, { token: ' queijo', prob: 0.07 },
+                            { token: ' ovos', prob: 0.07 }, { token: ' massa', prob: 0.06 }, { token: ' café', prob: 0.05 },
+                            { token: ' biscoitos', prob: 0.04 }, { token: ' um pouco', prob: 0.03 }, { token: ' algumas', prob: 0.02 },
+                            { token: ' iogurte', prob: 0.02 }
+                        ],
+                        'pão': [
+                            { token: ' fresco', prob: 0.22 }, { token: ',', prob: 0.18 }, { token: ' integral', prob: 0.14 },
+                            { token: ' e', prob: 0.12 }, { token: ' de', prob: 0.10 }, { token: ' caseiro', prob: 0.08 },
+                            { token: '.', prob: 0.06 }, { token: ' de forma', prob: 0.05 }, { token: ' para', prob: 0.03 }, { token: ' francês', prob: 0.02 }
+                        ],
+                        'leite': [
+                            { token: ' desnatado', prob: 0.22 }, { token: ',', prob: 0.16 }, { token: ' integral', prob: 0.14 },
+                            { token: ' e', prob: 0.12 }, { token: ' de', prob: 0.10 }, { token: ' em', prob: 0.08 },
+                            { token: '.', prob: 0.06 }, { token: ' sem', prob: 0.05 }, { token: ' vegetal', prob: 0.04 }, { token: ' achocolatado', prob: 0.03 }
+                        ],
+                        'frutas': [
+                            { token: ' frescas', prob: 0.22 }, { token: ',', prob: 0.18 }, { token: ' e', prob: 0.14 },
+                            { token: ' de', prob: 0.10 }, { token: ' variadas', prob: 0.10 }, { token: ' maduras', prob: 0.08 },
+                            { token: '.', prob: 0.06 }, { token: ' orgânicas', prob: 0.05 }, { token: ' para', prob: 0.04 }, { token: ' da estação', prob: 0.03 }
+                        ],
+                        'e': [
+                            { token: ' depois', prob: 0.14 }, { token: ' também', prob: 0.12 }, { token: ' logo', prob: 0.10 },
+                            { token: ' um', prob: 0.10 }, { token: ' uma', prob: 0.09 }, { token: ' voltei', prob: 0.08 },
+                            { token: ' algumas', prob: 0.07 }, { token: ' me', prob: 0.07 }, { token: ' de passagem', prob: 0.06 },
+                            { token: ' aproveitei', prob: 0.05 }, { token: ' enquanto', prob: 0.05 }, { token: ' várias', prob: 0.04 }, { token: ' já', prob: 0.03 }
+                        ],
+                        'um': [
+                            { token: ' quilo', prob: 0.20 }, { token: ' pouco', prob: 0.16 }, { token: ' pacote', prob: 0.12 },
+                            { token: ' par', prob: 0.10 }, { token: ' queijo', prob: 0.08 }, { token: ' frango', prob: 0.07 },
+                            { token: ' vinho', prob: 0.06 }, { token: ' iogurte', prob: 0.05 }, { token: ' sorvete', prob: 0.05 },
+                            { token: ' chocolate', prob: 0.04 }, { token: ' detergente', prob: 0.04 }, { token: ' pack', prob: 0.03 }
+                        ],
+                        'uma': [
+                            { token: ' dúzia', prob: 0.20 }, { token: ' garrafa', prob: 0.16 }, { token: ' sacola', prob: 0.14 },
+                            { token: ' cerveja', prob: 0.10 }, { token: ' pizza', prob: 0.09 }, { token: ' lata', prob: 0.08 },
+                            { token: ' caixa', prob: 0.07 }, { token: ' abacate', prob: 0.06 }, { token: ' melancia', prob: 0.05 }, { token: ' refrigerante', prob: 0.05 }
+                        ],
+                        'que': [
+                            { token: ' estava', prob: 0.18 }, { token: ' tinha', prob: 0.14 }, { token: ' me', prob: 0.12 },
+                            { token: ' se', prob: 0.10 }, { token: ' havia', prob: 0.09 }, { token: ' vinha', prob: 0.08 },
+                            { token: ' não', prob: 0.07 }, { token: ' queria', prob: 0.07 }, { token: ' sempre', prob: 0.05 },
+                            { token: ' usei', prob: 0.04 }, { token: ' faltava', prob: 0.04 }, { token: ' precisava', prob: 0.02 }
+                        ]
+                    }
+                }
+            };
+
+            // Diccionarios de UI + configuración de idioma
+            const LANG_KEY = 'booster-lang';
+            function getLang() {
+                const s = localStorage.getItem(LANG_KEY);
+                return (s === 'es' || s === 'pt') ? s : 'es';
+            }
+            const UI = {
+                es: {
+                    __title: "Panel Interactivo de Parámetros de IA Generativa",
+                    h1: "Cómo un LLM elige la siguiente palabra",
+                    subtitle: "Aprendé cómo Top-K, Top-P y Temperatura moldean la salida de un LLM.",
+                    presetsLabel: "Presets",
+                    presetsInfoAria: "Qué son los presets",
+                    presetsTip: "Configuraciones rápidas que mueven los tres parámetros juntos.",
+                    presetsGroupAria: "Presets de configuración",
+                    presetPreciso: "Preciso",
+                    presetBalanceado: "Balanceado",
+                    presetCreativo: "Creativo",
+                    tempLabel: "Temp",
+                    tempInfoAria: "Qué es temperatura",
+                    tempTip: "Controla qué tan predecible o creativa es la IA. Valores más altos = más creatividad.",
+                    tempAria: "Temperatura, entre 0.1 y 2.0",
+                    topkLabel: "Top-K",
+                    topkInfoAria: "Qué es Top-K",
+                    topkTip: "Cantidad de opciones (tokens) más probables a considerar.",
+                    topkAria: "Top-K, entre 1 y 50",
+                    toppLabel: "Top-P",
+                    toppInfoAria: "Qué es Top-P",
+                    toppTip: "Porcentaje de certeza acumulada para incluir opciones (0.9 = 90%).",
+                    toppAria: "Top-P, entre 0.01 y 1.0",
+                    resetBtn: "Borrar generación",
+                    promptSelectorAria: "Seleccionar prompt de ejemplo",
+                    domainFantasia: "Fantasía",
+                    domainTecnico: "Técnico",
+                    domainCotidiano: "Cotidiano",
+                    chartTitle: "Probabilidades del siguiente token",
+                    prepareBtn: "Analizar opciones",
+                    selectBtn: "Seleccionar token",
+                    chartLegendAria: "Leyenda del gráfico",
+                    legendCandidate: "Candidato final",
+                    legendCutP: "Descartado por Top-P",
+                    legendCutK: "Descartado por Top-K",
+                    legendGhost: "Probabilidad original (sin temperatura)",
+                    statusCalc: "⚙️ Calculando probabilidades...",
+                    statusReady: n => `✅ ${n} candidato${n > 1 ? 's' : ''} listo${n > 1 ? 's' : ''} — presioná "Seleccionar token"`,
+                    statusNoCandidates: "⚠️ No hay candidatos disponibles",
+                    statusAnalyzeFirst: "⚠️ Primero analizá las opciones",
+                    statusSampling: "🎲 Muestreando según probabilidades...",
+                    statusSelected: tok => `✨ Token seleccionado: "${tok}"`,
+                    statusParamsChanged: "Parámetros cambiaron — analizá de nuevo las opciones",
+                    tipToken: "Token",
+                    tipOrig: "Prob original",
+                    tipTemp: "Post-temperatura"
+                },
+                pt: {
+                    __title: "Painel Interativo de Parâmetros de IA Generativa",
+                    h1: "Como um LLM escolhe a próxima palavra",
+                    subtitle: "Aprenda como Top-K, Top-P e Temperatura moldam a saída de um LLM.",
+                    presetsLabel: "Presets",
+                    presetsInfoAria: "O que são os presets",
+                    presetsTip: "Configurações rápidas que movem os três parâmetros juntos.",
+                    presetsGroupAria: "Presets de configuração",
+                    presetPreciso: "Preciso",
+                    presetBalanceado: "Balanceado",
+                    presetCreativo: "Criativo",
+                    tempLabel: "Temp",
+                    tempInfoAria: "O que é temperatura",
+                    tempTip: "Controla o quão previsível ou criativa é a IA. Valores mais altos = mais criatividade.",
+                    tempAria: "Temperatura, entre 0.1 e 2.0",
+                    topkLabel: "Top-K",
+                    topkInfoAria: "O que é Top-K",
+                    topkTip: "Quantidade de opções (tokens) mais prováveis a considerar.",
+                    topkAria: "Top-K, entre 1 e 50",
+                    toppLabel: "Top-P",
+                    toppInfoAria: "O que é Top-P",
+                    toppTip: "Porcentagem de certeza acumulada para incluir opções (0.9 = 90%).",
+                    toppAria: "Top-P, entre 0.01 e 1.0",
+                    resetBtn: "Apagar geração",
+                    promptSelectorAria: "Selecionar prompt de exemplo",
+                    domainFantasia: "Fantasia",
+                    domainTecnico: "Técnico",
+                    domainCotidiano: "Cotidiano",
+                    chartTitle: "Probabilidades do próximo token",
+                    prepareBtn: "Analisar opções",
+                    selectBtn: "Selecionar token",
+                    chartLegendAria: "Legenda do gráfico",
+                    legendCandidate: "Candidato final",
+                    legendCutP: "Descartado por Top-P",
+                    legendCutK: "Descartado por Top-K",
+                    legendGhost: "Probabilidade original (sem temperatura)",
+                    statusCalc: "⚙️ Calculando probabilidades...",
+                    statusReady: n => `✅ ${n} candidato${n > 1 ? 's' : ''} pronto${n > 1 ? 's' : ''} — pressione "Selecionar token"`,
+                    statusNoCandidates: "⚠️ Não há candidatos disponíveis",
+                    statusAnalyzeFirst: "⚠️ Primeiro analise as opções",
+                    statusSampling: "🎲 Amostrando conforme as probabilidades...",
+                    statusSelected: tok => `✨ Token selecionado: "${tok}"`,
+                    statusParamsChanged: "Parâmetros mudaram — analise as opções novamente",
+                    tipToken: "Token",
+                    tipOrig: "Prob. original",
+                    tipTemp: "Pós-temperatura"
+                }
+            };
+
+            let lang = getLang();
+            let t = UI[lang];
+            let domains = (lang === 'pt') ? domainsPT : domainsES;
+
             // Estado
             let currentDomain = 'fantasia';
             let currentCandidates = null;
@@ -932,7 +1279,7 @@
             // --- Simulación ---
             function getContext(text) {
                 const words = text.trim().split(/\s+/);
-                const lastWord = words[words.length - 1].toLowerCase().replace(/[^a-záéíóúñü]/g, '');
+                const lastWord = words[words.length - 1].toLowerCase().replace(/[^\p{L}]/gu, '');
                 const vocab = domains[currentDomain].vocab;
                 return vocab[lastWord] || vocab['default'];
             }
@@ -1029,7 +1376,7 @@
                 prepareBtn.disabled = true;
                 selectBtn.disabled = true;
 
-                showStatus('⚙️ Calculando probabilidades...', 'var(--secondary-green)');
+                showStatus(t.statusCalc, 'var(--secondary-green)');
 
                 const temp = parseFloat(tempSlider.value);
                 const k = parseInt(topKSlider.value);
@@ -1054,17 +1401,17 @@
                     prepareBtn.disabled = false;
                     selectBtn.disabled = false;
 
-                    showStatus(`✅ ${candidates.length} candidato${candidates.length > 1 ? 's' : ''} listo${candidates.length > 1 ? 's' : ''} — presioná "Seleccionar token"`, 'var(--secondary-green)');
+                    showStatus(t.statusReady(candidates.length), 'var(--secondary-green)');
                 } else {
                     prepareBtn.disabled = false;
-                    showStatus('⚠️ No hay candidatos disponibles', 'var(--primary-orange)');
+                    showStatus(t.statusNoCandidates, 'var(--primary-orange)');
                 }
             }
 
             // PASO 2: Ejecutar la selección
             async function executeTokenSelection() {
                 if (!currentCandidates || currentCandidates.length === 0) {
-                    showStatus('⚠️ Primero analizá las opciones', 'var(--primary-orange)');
+                    showStatus(t.statusAnalyzeFirst, 'var(--primary-orange)');
                     return;
                 }
 
@@ -1107,7 +1454,7 @@
                 const normalizedCandidates = candidates.map(c => ({...c, prob: c.prob / candidates.reduce((acc, x) => acc + x.prob, 0) }));
                 
                 // Mostrar estado: muestreando
-                showStatus('🎲 Muestreando según probabilidades...', 'var(--primary-purple)');
+                showStatus(t.statusSampling, 'var(--primary-purple)');
                 
                 // "Ruleta" - iluminar barras según probabilidad
                 const iterations = 10;
@@ -1140,7 +1487,7 @@
             }
 
             async function animateFinalSelection(baseProbs, tempProbs, candidates, k, selectedToken) {
-                showStatus(`✨ Token seleccionado: "${selectedToken.trim() || selectedToken}"`, 'var(--secondary-green)');
+                showStatus(t.statusSelected(selectedToken.trim() || selectedToken), 'var(--secondary-green)');
 
                 updateChart(baseProbs, tempProbs, candidates, k, selectedToken);
 
@@ -1263,9 +1610,9 @@
                         const baseP = baseByToken.get(d.token) ?? 0;
                         tooltip.transition().duration(150).style("opacity", .95);
                         tooltip.html(
-                            `Token: "${d.token}"<br/>` +
-                            `Prob original: ${(baseP * 100).toFixed(2)}%<br/>` +
-                            `Post-temperatura: ${(d.prob * 100).toFixed(2)}%`
+                            `${t.tipToken}: "${d.token}"<br/>` +
+                            `${t.tipOrig}: ${(baseP * 100).toFixed(2)}%<br/>` +
+                            `${t.tipTemp}: ${(d.prob * 100).toFixed(2)}%`
                         )
                             .style("left", (event.clientX + window.scrollX + 10) + "px")
                             .style("top", (event.clientY + window.scrollY - 40) + "px");
@@ -1326,7 +1673,7 @@
                     currentTempProbs = null;
                     currentBaseProbs = null;
                     selectBtn.disabled = true;
-                    showStatus('Parámetros cambiaron — analizá de nuevo las opciones', 'var(--primary-orange)');
+                    showStatus(t.statusParamsChanged, 'var(--primary-orange)');
                 }
             }
 
@@ -1383,7 +1730,48 @@
                 updateStateAndViz();
             });
 
+            // ---------- i18n: aplicar textos estáticos + cambio de idioma ----------
+            function applyStaticI18n() {
+                document.documentElement.lang = lang;
+                if (t.__title) document.title = t.__title;
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (typeof t[key] === 'string') el.textContent = t[key];
+                });
+                document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-aria');
+                    if (typeof t[key] === 'string') el.setAttribute('aria-label', t[key]);
+                });
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.lang === lang);
+                });
+            }
+
+            function setLang(newLang) {
+                if (newLang !== 'es' && newLang !== 'pt') return;
+                lang = newLang;
+                t = UI[lang];
+                domains = (lang === 'pt') ? domainsPT : domainsES;
+                localStorage.setItem(LANG_KEY, lang);
+                // El vocabulario cambia de idioma: reiniciamos la generación en curso
+                generatedTextEl.textContent = '';
+                currentCandidates = null;
+                currentTempProbs = null;
+                currentBaseProbs = null;
+                selectBtn.disabled = true;
+                hideStatus();
+                if (outputDisplay) outputDisplay.scrollLeft = 0;
+                promptTextEl.textContent = domains[currentDomain].prompt;
+                applyStaticI18n();
+                updateStateAndViz();
+            }
+
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', () => setLang(btn.dataset.lang));
+            });
+
             // Estado inicial
+            applyStaticI18n();
             promptTextEl.textContent = domains[currentDomain].prompt;
             selectBtn.disabled = true;
             updateStateAndViz();
