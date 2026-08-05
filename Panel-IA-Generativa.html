@@ -3,116 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Interactivo de Parámetros de IA Generativa</title>
+    <title>Panel de IA Generativa · Booster</title>
+    <meta name="description" content="Demo interactiva de Teamcubation: cómo un LLM elige la siguiente palabra según Temperatura, Top-K y Top-P.">
+    <link rel="icon" href="imagenes/brand/iso-light.png">
     <link rel="stylesheet" href="teamcubation.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
+        /* ============================================
+           PANEL DE IA GENERATIVA — Cubation Design System
+           Editorial · una sola tinta · chrome monoespaciado
+           ============================================ */
         body {
-            font-family: var(--font-body);
-            background-color: var(--light-gray);
-            color: var(--dark-gray);
+            font-family: var(--tc-font-display);
+            background: var(--tc-cream);
+            color: var(--tc-ink-soft);
         }
-        .tab-button {
-            transition: all var(--transition-base);
-            background-color: var(--white);
-            color: var(--cold-main-violet);
-            border: 1px solid var(--medium-gray);
+
+        /* Neutraliza los defaults redondeados/sombreados de Tailwind */
+        [class*="rounded"] { border-radius: 0 !important; }
+        [class*="shadow"] { box-shadow: none !important; }
+
+        .demo-headline {
+            padding-bottom: var(--tc-s4);
+            margin-bottom: var(--tc-s4);
+            border-bottom: 1px solid var(--tc-line);
         }
-        .tab-button.active {
-            background-color: var(--cold-main-violet);
-            color: var(--white);
-            box-shadow: var(--shadow-md);
+        .demo-headline .tc-eyebrow { margin-bottom: var(--tc-s2); }
+        .demo-headline .tc-lede { margin-top: var(--tc-s2); font-size: var(--tc-body); }
+
+        /* ============================================
+           SUPERFICIES
+           ============================================ */
+        .tc-surface {
+            background: var(--tc-white);
+            border: 1px solid var(--tc-line-soft);
         }
-        .tab-button:not(.active):hover {
-            background-color: var(--warm-secondary-yellow);
-            color: var(--cold-secondary-violet);
+
+        .section-title {
+            font-family: var(--tc-font-display);
+            font-size: var(--tc-h3);
+            font-weight: 700;
+            color: var(--tc-ink);
+            letter-spacing: -0.01em;
         }
-        .accordion-header {
-            transition: background-color 0.2s ease-out;
-        }
-        .accordion-header:hover {
-            background-color: var(--medium-gray);
-        }
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-in-out;
-        }
-        .accordion-item.open .accordion-content {
-            max-height: 1500px; /* Ajustable */
-        }
-        .accordion-item.open .accordion-icon {
-            transform: rotate(180deg);
-        }
-        .slider-track {
-            background: var(--medium-gray);
-        }
-        .slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: var(--cold-main-violet);
-            cursor: pointer;
-            border-radius: 50%;
-            border: 2px solid var(--white);
-            box-shadow: var(--shadow-sm);
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: var(--cold-main-violet);
-            cursor: pointer;
-            border-radius: 50%;
-            border: 2px solid var(--white);
-            box-shadow: var(--shadow-sm);
-            margin-top: -7px;
-        }
-        input[type=range]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: var(--cold-main-violet);
-            cursor: pointer;
-            border-radius: 50%;
-            border: 2px solid var(--white);
-            box-shadow: var(--shadow-sm);
-        }
+
+        /* ============================================
+           GRÁFICO D3
+           Naranja = candidato vivo. Tinta = elegido. Grises = descartado.
+           ============================================ */
         .d3-chart-container text {
-            font-family: var(--font-body);
-            fill: var(--dark-gray);
+            font-family: var(--tc-font-mono);
+            fill: var(--tc-mute);
+            font-size: 11px;
+            letter-spacing: 0.02em;
         }
         .d3-chart-container .bar {
-            transition: fill var(--transition-base), opacity var(--transition-base);
-            fill: var(--medium-gray);
-            opacity: 0.35;
+            transition: fill var(--tc-transition-base), opacity var(--tc-transition-base);
+            fill: var(--tc-chart-faint);
+            opacity: 0.55;
         }
         .d3-chart-container .bar.cut-topp {
-            fill: var(--medium-gray);
-            opacity: 0.7;
-            stroke: var(--dark-gray);
-            stroke-width: 1.5px;
-            stroke-dasharray: 3,2;
+            fill: var(--tc-chart-faint);
+            opacity: 0.9;
+            stroke: var(--tc-mute);
+            stroke-width: 1px;
+            stroke-dasharray: 3, 2;
         }
         .d3-chart-container .bar.candidate {
-            fill: var(--cold-main-violet);
-            opacity: 0.85;
+            fill: var(--tc-orange);
+            opacity: 1;
             stroke: none;
             stroke-dasharray: none;
         }
         .d3-chart-container .bar.selected {
-            fill: var(--white);
-            stroke: var(--black);
-            stroke-width: 3px;
+            fill: var(--tc-ink);
+            stroke: var(--tc-ink);
+            stroke-width: 1px;
             opacity: 1;
         }
         .d3-chart-container .bar.sampling {
-            fill: var(--cold-main-violet) !important;
+            fill: var(--tc-orange) !important;
             opacity: 1 !important;
-            stroke: none;
-            filter: brightness(1.3) drop-shadow(0 0 8px var(--cold-main-violet));
+            stroke: var(--tc-ink);
+            stroke-width: 2px;
             animation: samplePulse 0.3s ease-in-out;
         }
         .d3-chart-container .bar.final-selected {
@@ -120,375 +94,289 @@
         }
         .d3-chart-container .bar-ghost {
             fill: none;
-            stroke: var(--dark-gray);
-            stroke-width: 1.5px;
-            stroke-dasharray: 4,3;
-            opacity: 0.5;
+            stroke: var(--tc-mute);
+            stroke-width: 1px;
+            stroke-dasharray: 4, 3;
+            opacity: 0.6;
             pointer-events: none;
         }
         .d3-chart-container .cut-line {
-            stroke: var(--primary-orange, #d97706);
-            stroke-width: 1.5px;
-            stroke-dasharray: 5,3;
-            opacity: 0.75;
+            stroke: var(--tc-orange);
+            stroke-width: 1px;
+            stroke-dasharray: 5, 3;
+            opacity: 0.9;
             pointer-events: none;
         }
         .d3-chart-container .cut-label {
-            font-size: 0.65rem;
-            font-weight: 600;
-            fill: var(--primary-orange, #d97706);
+            font-family: var(--tc-font-mono);
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            fill: var(--tc-orange);
             pointer-events: none;
         }
-        .d3-chart-container .axis text {
-            font-size: 0.7rem;
+        .d3-chart-container .axis text { font-size: 10px; }
+        .d3-chart-container .axis path,
+        .d3-chart-container .axis line {
+            stroke: var(--tc-mute-light);
         }
+
         @keyframes samplePulse {
-            0%, 100% { 
-                opacity: 0.85;
-            }
-            50% { 
-                opacity: 1;
-                filter: brightness(1.5) drop-shadow(0 0 12px var(--cold-main-violet));
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
         @keyframes selectToken {
-            0% { 
-                fill: var(--medium-gray);
+            0% {
+                fill: var(--tc-chart-faint);
                 stroke: transparent;
                 stroke-width: 0;
                 opacity: 0.5;
             }
-            30% {
-                fill: var(--cold-main-violet);
-                stroke: var(--black);
+            35% {
+                fill: var(--tc-orange);
+                stroke: var(--tc-ink);
                 stroke-width: 3px;
                 opacity: 1;
-                filter: brightness(1.3) drop-shadow(0 0 8px var(--black));
             }
-            60% {
-                fill: var(--cold-main-violet);
-                stroke: var(--black);
-                stroke-width: 4px;
+            100% {
+                fill: var(--tc-ink);
+                stroke: var(--tc-ink);
+                stroke-width: 1px;
                 opacity: 1;
-                filter: brightness(1.2) drop-shadow(0 0 6px var(--black));
-            }
-            100% { 
-                fill: var(--cold-main-violet);
-                stroke: var(--black);
-                stroke-width: 3px;
-                opacity: 1;
-                filter: none;
             }
         }
-        .d3-chart-container .axis path,
-        .d3-chart-container .axis line {
-            stroke: var(--dark-gray);
-            opacity: 0.5;
-        }
+
         .tooltip {
             position: absolute;
             text-align: center;
-            padding: var(--spacing-xs) var(--spacing-sm);
-            font-size: 0.75rem;
-            background: var(--cold-main-violet);
-            color: var(--white);
-            border-radius: var(--radius-sm);
+            padding: 6px 10px;
+            font-family: var(--tc-font-mono);
+            font-size: 11px;
+            letter-spacing: 0.04em;
+            background: var(--tc-ink);
+            color: var(--tc-cream);
+            border-radius: 0;
             pointer-events: none;
             opacity: 0;
-            transition: opacity var(--transition-fast);
-            box-shadow: var(--shadow-md);
+            transition: opacity var(--tc-transition-fast);
         }
-        header {
-            background-color: var(--white);
-            color: var(--dark-gray);
-            border-bottom: 1px solid var(--medium-gray);
-        }
-        header h1 {
-            color: var(--cold-main-violet);
-        }
+
+        /* ============================================
+           BOTONES DE ACCIÓN
+           ============================================ */
+        #prepare-btn,
+        #select-btn,
         #reset-btn {
-            background-color: var(--white);
-            border: 2px solid var(--cold-main-violet);
-            color: var(--cold-main-violet);
+            font-family: var(--tc-font-mono);
+            font-size: var(--tc-mono-sm);
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border-radius: 0 !important;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background var(--tc-transition-fast), color var(--tc-transition-fast), border-color var(--tc-transition-fast);
+            white-space: nowrap;
         }
         #prepare-btn {
-            background-color: var(--white);
-            border: 2px solid var(--cold-main-violet);
-            color: var(--cold-main-violet);
+            background: transparent;
+            border: 1px solid var(--tc-line);
+            color: var(--tc-ink);
         }
-        #select-btn,
-        #generate-btn {
-            background-color: var(--cold-main-violet);
-            color: var(--white);
+        #prepare-btn:hover:not(:disabled) {
+            background: var(--tc-ink);
+            color: var(--tc-cream);
         }
-        #select-btn:disabled {
-            background-color: var(--medium-gray);
-            color: var(--dark-gray);
-            opacity: 0.6;
-            cursor: not-allowed;
+        #select-btn {
+            background: var(--tc-orange);
+            border: 1px solid var(--tc-orange);
+            color: var(--tc-white);
         }
-        #generate-btn:hover,
         #select-btn:hover:not(:disabled) {
-            opacity: 0.9;
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            background: var(--tc-orange-hover);
+            border-color: var(--tc-orange-hover);
         }
-        #reset-btn:hover,
-        #prepare-btn:hover {
-            background-color: var(--cold-main-violet);
-            color: var(--white);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+        #reset-btn {
+            background: transparent;
+            border: 1px solid var(--tc-line-soft);
+            color: var(--tc-mute);
+            margin-left: auto;
         }
-        .bg-neutral-light {
-            background-color: var(--white);
+        #reset-btn:hover {
+            border-color: var(--tc-orange);
+            color: var(--tc-orange);
         }
 
-        /* Botones disabled unificados */
         button[disabled],
         button:disabled {
-            opacity: 0.5 !important;
+            opacity: 0.3 !important;
             cursor: not-allowed !important;
-            transform: none !important;
-            box-shadow: none !important;
-        }
-        button[disabled]:hover,
-        button:disabled:hover {
-            opacity: 0.5 !important;
-            transform: none !important;
+            background: transparent !important;
+            color: var(--tc-mute) !important;
+            border-color: var(--tc-line-soft) !important;
         }
 
-        /* Presets */
-        .preset-group {
-            display: flex;
-            gap: 6px;
-            margin-top: 4px;
-        }
-        .preset-btn {
-            flex: 1;
-            padding: 8px 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--medium-gray);
-            background: var(--white);
-            color: var(--dark-gray);
-            cursor: pointer;
-            transition: all var(--transition-base);
-        }
-        .preset-btn:hover {
-            border-color: var(--cold-main-violet);
-            color: var(--cold-main-violet);
-        }
-        .preset-btn.active {
-            background: var(--cold-main-violet);
-            color: var(--white);
-            border-color: var(--cold-main-violet);
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* Chips para selector de prompt/dominio */
-        .prompt-selector {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-        .prompt-chip {
-            padding: 4px 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            border-radius: 999px;
-            border: 1px solid var(--medium-gray);
-            background: var(--white);
-            color: var(--dark-gray);
-            cursor: pointer;
-            transition: all var(--transition-base);
-        }
-        .prompt-chip:hover {
-            border-color: var(--cold-main-violet);
-            color: var(--cold-main-violet);
-        }
-        .prompt-chip.active {
-            background: var(--cold-main-violet);
-            color: var(--white);
-            border-color: var(--cold-main-violet);
-        }
-
-        /* Leyenda del gráfico */
-        .chart-legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-            font-size: 0.7rem;
-            color: var(--dark-gray);
-            margin-top: 6px;
-            justify-content: center;
-            padding: 6px 4px 0;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .legend-swatch {
-            display: inline-block;
-            width: 16px;
-            height: 10px;
-            border-radius: 2px;
-            flex-shrink: 0;
-        }
-        .legend-swatch.candidate {
-            background: var(--cold-main-violet);
-            opacity: 0.85;
-        }
-        .legend-swatch.cut-topp {
-            background: var(--medium-gray);
-            border: 1.5px dashed var(--dark-gray);
-            opacity: 0.7;
-        }
-        .legend-swatch.cut-topk {
-            background: var(--medium-gray);
-            opacity: 0.35;
-        }
-        .legend-swatch.ghost {
-            background: transparent;
-            border: 1.5px dashed var(--dark-gray);
-            opacity: 0.7;
-            height: 12px;
-        }
-
-        /* Etiquetas auxiliares de control */
-        .control-hint {
-            font-size: 0.7rem;
-            color: var(--dark-gray);
-            opacity: 0.8;
-            margin-top: 2px;
-        }
-
-        /* Toolbar horizontal de controles (Propuesta 1) */
+        /* ============================================
+           TOOLBAR DE CONTROLES
+           ============================================ */
         .demo-toolbar {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 14px;
-            row-gap: 10px;
+            gap: var(--tc-s4);
+            row-gap: var(--tc-s3);
+            padding: var(--tc-s3) var(--tc-s4);
         }
         .toolbar-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--tc-s2);
         }
         .toolbar-divider {
             width: 1px;
             align-self: stretch;
-            background: var(--medium-gray);
-            margin: 0 2px;
+            background: var(--tc-line-soft);
         }
         .toolbar-label {
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--dark-gray);
+            font-family: var(--tc-font-mono);
+            font-size: var(--tc-mono-sm);
+            font-weight: 500;
+            color: var(--tc-mute);
             white-space: nowrap;
             display: inline-flex;
             align-items: center;
             gap: 2px;
             text-transform: uppercase;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.08em;
         }
 
-        /* Slider inline: label + slider + valor */
+        /* Presets — segmented mono */
+        .preset-group {
+            display: inline-flex;
+            border: 1px solid var(--tc-line);
+        }
+        .preset-btn {
+            padding: 6px 12px;
+            font-family: var(--tc-font-mono);
+            font-size: var(--tc-mono-sm);
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border: none;
+            border-left: 1px solid var(--tc-line);
+            border-radius: 0;
+            background: transparent;
+            color: var(--tc-mute);
+            cursor: pointer;
+            transition: background var(--tc-transition-fast), color var(--tc-transition-fast);
+            white-space: nowrap;
+        }
+        .preset-btn:first-child { border-left: none; }
+        .preset-btn:hover { color: var(--tc-orange); }
+        .preset-btn.active {
+            background: var(--tc-ink);
+            color: var(--tc-cream);
+        }
+
+        /* Chips de dominio */
+        .prompt-selector {
+            display: inline-flex;
+            flex-wrap: wrap;
+            border: 1px solid var(--tc-line);
+        }
+        .prompt-chip {
+            padding: 5px 12px;
+            font-family: var(--tc-font-mono);
+            font-size: var(--tc-mono-sm);
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border: none;
+            border-left: 1px solid var(--tc-line);
+            border-radius: 0;
+            background: transparent;
+            color: var(--tc-mute);
+            cursor: pointer;
+            transition: background var(--tc-transition-fast), color var(--tc-transition-fast);
+            white-space: nowrap;
+        }
+        .prompt-chip:first-child { border-left: none; }
+        .prompt-chip:hover { color: var(--tc-orange); }
+        .prompt-chip.active {
+            background: var(--tc-ink);
+            color: var(--tc-cream);
+        }
+
+        /* Sliders inline */
         .slider-inline {
             display: flex;
             align-items: center;
-            gap: 8px;
-            flex: 1 1 200px;
-            min-width: 180px;
-            max-width: 280px;
+            gap: var(--tc-s2);
+            flex: 1 1 190px;
+            min-width: 170px;
+            max-width: 260px;
         }
         .slider-inline .slider-label-group {
             display: inline-flex;
             align-items: center;
             gap: 2px;
-            font-size: 0.72rem;
-            font-weight: 700;
+            font-family: var(--tc-font-mono);
+            font-size: var(--tc-mono-sm);
+            font-weight: 500;
             white-space: nowrap;
-            min-width: 52px;
+            min-width: 48px;
             text-transform: uppercase;
-            letter-spacing: 0.02em;
-            color: var(--dark-gray);
+            letter-spacing: 0.08em;
+            color: var(--tc-mute);
         }
         .slider-inline input[type="range"] {
             flex: 1;
             min-width: 60px;
-            height: 6px;
-            background: var(--medium-gray);
-            border-radius: 4px;
+            height: 3px;
+            background: var(--tc-mute-light);
+            border-radius: 0;
             appearance: none;
             -webkit-appearance: none;
             cursor: pointer;
-            border: 1px solid rgba(0, 0, 0, 0.08);
+            border: none;
         }
         .slider-inline input[type="range"]::-webkit-slider-thumb {
-            width: 18px;
-            height: 18px;
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 16px;
             margin-top: -7px;
-            background: var(--cold-main-violet);
-            border: 2px solid var(--white);
-            box-shadow: 0 0 0 1.5px var(--cold-main-violet), 0 2px 4px rgba(0, 0, 0, 0.2);
+            border-radius: 0;
+            background: var(--tc-orange);
+            border: none;
+            box-shadow: none;
+            cursor: pointer;
         }
         .slider-inline input[type="range"]::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            background: var(--cold-main-violet);
-            border: 2px solid var(--white);
-            box-shadow: 0 0 0 1.5px var(--cold-main-violet), 0 2px 4px rgba(0, 0, 0, 0.2);
+            width: 12px;
+            height: 16px;
+            border-radius: 0;
+            background: var(--tc-orange);
+            border: none;
+            box-shadow: none;
+            cursor: pointer;
         }
         .slider-inline input[type="range"]::-moz-range-progress {
-            background: var(--cold-main-violet);
-            height: 6px;
-            border-radius: 4px;
+            background: var(--tc-orange);
+            height: 3px;
         }
         .slider-inline .slider-value {
+            font-family: var(--tc-font-mono);
             font-variant-numeric: tabular-nums;
-            font-size: 0.78rem;
+            font-size: var(--tc-mono);
             font-weight: 700;
-            min-width: 34px;
+            min-width: 36px;
             text-align: right;
-            color: var(--cold-main-violet);
+            color: var(--tc-ink);
         }
 
-        /* Presets dentro del toolbar: no-flex, más compactos */
-        .demo-toolbar .preset-group {
-            gap: 4px;
-            margin-top: 0;
-        }
-        .demo-toolbar .preset-btn {
-            flex: 0 0 auto;
-            padding: 6px 12px;
-            font-size: 0.72rem;
-        }
-
-        /* Reset compacto */
-        .reset-compact {
-            padding: 7px 14px;
-            font-size: 0.76rem;
-            font-weight: 600;
-            border-radius: var(--radius-md);
-            background-color: var(--white);
-            border: 2px solid var(--cold-main-violet);
-            color: var(--cold-main-violet);
-            cursor: pointer;
-            transition: all var(--transition-base);
-            white-space: nowrap;
-            margin-left: auto;
-        }
-        .reset-compact:hover {
-            background-color: var(--cold-main-violet);
-            color: var(--white);
-        }
-
-        /* Info tooltip (hover sobre ⓘ) */
+        /* Info tooltip (ⓘ) */
         .info-wrap {
             position: relative;
             display: inline-flex;
@@ -496,37 +384,37 @@
         }
         .info-btn {
             cursor: help;
-            font-size: 0.82rem;
-            color: var(--dark-gray);
-            opacity: 0.5;
+            font-size: 0.8rem;
+            color: var(--tc-mute-light);
             background: none;
             border: none;
             padding: 0 2px;
             line-height: 1;
+            transition: color var(--tc-transition-fast);
         }
         .info-btn:hover,
         .info-btn:focus-visible {
-            opacity: 1;
+            color: var(--tc-orange);
             outline: none;
         }
         .info-tip {
             position: absolute;
-            top: calc(100% + 6px);
+            top: calc(100% + 8px);
             left: 50%;
             transform: translateX(-50%);
-            background: var(--black);
-            color: var(--white);
-            font-size: 0.7rem;
+            background: var(--tc-ink);
+            color: var(--tc-cream);
+            font-family: var(--tc-font-display);
+            font-size: 12px;
             font-weight: 400;
-            padding: 6px 10px;
-            border-radius: 6px;
+            padding: 8px 10px;
+            border-radius: 0;
             width: 220px;
             z-index: 30;
             display: none;
-            box-shadow: var(--shadow-md);
             pointer-events: none;
             white-space: normal;
-            line-height: 1.4;
+            line-height: 1.45;
             text-transform: none;
             letter-spacing: normal;
         }
@@ -535,113 +423,141 @@
             display: block;
         }
 
-        /* Prompt compacto en una línea */
+        /* ============================================
+           PROMPT BAR
+           ============================================ */
         .prompt-bar {
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: var(--white);
-            border: 1px solid var(--medium-gray);
-            border-radius: var(--radius-md);
-            padding: 6px 10px;
+            gap: var(--tc-s3);
+            background: var(--tc-white);
+            border: 1px solid var(--tc-line-soft);
+            border-left: 2px solid var(--tc-orange);
+            padding: var(--tc-s2) var(--tc-s3);
             min-width: 0;
         }
-        .prompt-selector.compact-chips {
-            margin-bottom: 0;
-            flex-shrink: 0;
-            gap: 4px;
-        }
-        .prompt-selector.compact-chips .prompt-chip {
-            padding: 3px 10px;
-            font-size: 0.7rem;
-        }
+        .prompt-selector.compact-chips { flex-shrink: 0; }
         .prompt-divider {
             width: 1px;
             align-self: stretch;
-            background: var(--medium-gray);
+            background: var(--tc-line-soft);
             flex-shrink: 0;
         }
         .prompt-line {
             flex: 1;
             min-width: 0;
-            padding: 4px 6px;
-            font-size: 0.9rem;
+            padding: 4px 0;
+            font-family: var(--tc-font-mono);
+            font-size: 13px;
             white-space: nowrap;
             overflow-x: auto;
             overflow-y: hidden;
-            color: var(--dark-gray);
-            line-height: 1.4;
-            font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+            color: var(--tc-ink-soft);
+            line-height: 1.5;
         }
-        .prompt-line::-webkit-scrollbar {
-            height: 4px;
-        }
-        .prompt-line::-webkit-scrollbar-thumb {
-            background: var(--medium-gray);
-            border-radius: 2px;
-        }
+        .prompt-line::-webkit-scrollbar { height: 3px; }
+        .prompt-line::-webkit-scrollbar-thumb { background: var(--tc-mute-light); }
         .prompt-line #generated-text {
-            color: var(--cold-main-violet);
-            font-weight: 600;
+            color: var(--tc-orange);
+            font-weight: 700;
         }
 
-        /* Selector de idioma (compartido entre páginas) */
-        .header-row {
+        /* ============================================
+           ESTADO Y LEYENDA
+           ============================================ */
+        #selection-status {
+            font-family: var(--tc-font-mono);
+            font-size: var(--tc-mono-sm);
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border-radius: 0 !important;
+        }
+
+        .chart-legend {
             display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
+            flex-wrap: wrap;
+            gap: var(--tc-s4);
+            font-family: var(--tc-font-mono);
+            font-size: var(--tc-mono-sm);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--tc-mute);
+            justify-content: center;
+            padding-top: var(--tc-s3);
+            margin-top: var(--tc-s3);
+            border-top: 1px solid var(--tc-line-soft);
         }
-        .lang-switch {
-            display: inline-flex;
-            gap: 4px;
-            background: var(--white);
-            border: 1px solid var(--medium-gray);
-            border-radius: 999px;
-            padding: 3px;
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .legend-swatch {
+            display: inline-block;
+            width: 14px;
+            height: 10px;
+            border-radius: 0;
             flex-shrink: 0;
-            box-shadow: var(--shadow-sm);
         }
-        .lang-btn {
-            border: none;
+        .legend-swatch.candidate { background: var(--tc-orange); }
+        .legend-swatch.cut-topp {
+            background: var(--tc-chart-faint);
+            border: 1px dashed var(--tc-mute);
+        }
+        .legend-swatch.cut-topk {
+            background: var(--tc-chart-faint);
+            opacity: 0.55;
+        }
+        .legend-swatch.ghost {
             background: transparent;
-            color: var(--dark-gray);
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 4px 11px;
-            border-radius: 999px;
-            cursor: pointer;
-            letter-spacing: 0.03em;
-            transition: all var(--transition-base);
+            border: 1px dashed var(--tc-mute);
+            height: 12px;
         }
-        .lang-btn:hover {
-            color: var(--cold-main-violet);
+
+        .control-hint {
+            font-family: var(--tc-font-mono);
+            font-size: var(--tc-mono-sm);
+            color: var(--tc-mute);
+            margin-top: 2px;
         }
-        .lang-btn.active {
-            background: var(--cold-main-violet);
-            color: var(--white);
+
+        @media (max-width: 640px) {
+            .demo-toolbar { gap: var(--tc-s3); }
+            #reset-btn { margin-left: 0; }
+            .chart-legend { gap: var(--tc-s3); }
         }
     </style>
 </head>
-<body class="min-h-screen p-2 sm:p-4 md:p-6">
-    <div id="app" class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        <header class="px-4 py-3 sm:px-6 sm:py-4 bg-purple-light border-b border-gray-200">
-            <div class="header-row">
-                <div>
-                    <h1 class="text-xl sm:text-2xl font-bold" data-i18n="h1">Cómo un LLM elige la siguiente palabra</h1>
-                    <p class="mt-0.5 text-xs sm:text-sm" data-i18n="subtitle">Aprendé cómo Top-K, Top-P y Temperatura moldean la salida de un LLM.</p>
-                </div>
-                <div class="lang-switch" role="group" aria-label="Idioma / Idioma">
-                    <button type="button" class="lang-btn" data-lang="es">ES</button>
-                    <button type="button" class="lang-btn" data-lang="pt">PT</button>
+<body>
+    <div id="app" class="tc-page tc-page-wide">
+        <header class="tc-chrome-top">
+            <div class="tc-chrome-left">
+                <a href="contenidos.html" aria-label="Volver al índice"><img class="tc-logo" src="imagenes/brand/logo-color.png" alt="Teamcubation"></a>
+                <a class="tc-chrome-path" href="contenidos.html">// BOOSTER · DEMO_01</a>
+            </div>
+            <div class="tc-chrome-right">
+                <span class="tc-chrome-path">DOC.ID · TC-BST-01</span>
+                <div class="tc-segmented" role="group" aria-label="Idioma / Idioma">
+                    <button type="button" data-lang="es">ES</button>
+                    <button type="button" data-lang="pt">PT</button>
                 </div>
             </div>
         </header>
 
-        <div class="px-4 py-3 sm:px-6 sm:py-4">
+        <div class="demo-headline">
+            <p class="tc-eyebrow">↳ demo_01 / sampling.tq</p>
+            <h1 class="tc-display tc-display-sm">
+                <span data-i18n="h1a">Cómo un LLM elige la</span>
+                <span class="tc-accent" data-i18n="h1b">siguiente palabra</span><span class="tc-dot"></span>
+            </h1>
+            <p class="tc-lede" data-i18n="subtitle">Temperatura, Top-K y Top-P moldean la salida del modelo. Movelos y mirá qué tokens sobreviven al filtro.</p>
+        </div>
+
+        <div>
             <div id="content-demo">
                 <!-- Toolbar horizontal de controles -->
-                <div class="bg-neutral-light px-4 py-3 rounded-xl shadow-md mb-4 demo-toolbar">
+                <div class="tc-surface mb-4 demo-toolbar">
                     <div class="toolbar-group">
                         <span class="toolbar-label">
                             <span data-i18n="presetsLabel">Presets</span>
@@ -695,7 +611,7 @@
                         <span class="slider-value" id="top_p-value">0.90</span>
                     </div>
 
-                    <button id="reset-btn" class="reset-compact" data-i18n="resetBtn">Borrar generación</button>
+                    <button id="reset-btn" type="button" data-i18n="resetBtn">Borrar generación</button>
                 </div>
 
                 <!-- Prompt bar: chips + output en una sola línea -->
@@ -712,19 +628,19 @@
                 </div>
 
                 <!-- Chart card: ocupa todo el ancho -->
-                <div class="bg-neutral-light p-4 rounded-xl shadow-md">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
-                        <h2 class="text-base font-bold" data-i18n="chartTitle">Probabilidades del siguiente token</h2>
+                <div class="tc-surface p-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2 pb-3" style="border-bottom: 1px solid var(--tc-line-soft);">
+                        <h2 class="section-title" data-i18n="chartTitle">Probabilidades del siguiente token</h2>
                         <div class="flex gap-2 w-full sm:w-auto">
-                            <button id="prepare-btn" class="flex-1 sm:flex-none py-1.5 px-3 text-sm font-semibold rounded-lg transition-colors shadow-md" data-i18n="prepareBtn">
+                            <button id="prepare-btn" type="button" class="flex-1 sm:flex-none" data-i18n="prepareBtn">
                                 Analizar opciones
                             </button>
-                            <button id="select-btn" class="flex-1 sm:flex-none py-1.5 px-3 text-sm font-semibold rounded-lg transition-colors shadow-md" data-i18n="selectBtn" disabled>
+                            <button id="select-btn" type="button" class="flex-1 sm:flex-none" data-i18n="selectBtn" disabled>
                                 Seleccionar token
                             </button>
                         </div>
                     </div>
-                    <div id="selection-status" class="text-center py-1 mb-2 rounded-lg font-semibold text-xs transition-all duration-300" style="min-height: 28px; opacity: 0;">
+                    <div id="selection-status" class="text-center py-1 mb-2 transition-all duration-300" style="min-height: 28px; opacity: 0;">
                         <span id="status-text"></span>
                     </div>
                     <div id="chart-container" class="d3-chart-container w-full h-72"></div>
@@ -738,6 +654,13 @@
             </div>
 
         </div>
+
+        <footer class="tc-chrome-bottom">
+            <span class="tc-chrome-anchor">[ TQ ]</span>
+            <span class="tc-chrome-section" data-i18n="chromeSection">SAMPLING</span>
+            <span class="tc-chrome-chapter">V1.2026</span>
+            <span class="tc-chrome-page">01 / 02</span>
+        </footer>
 
     </div>
 
@@ -1165,9 +1088,11 @@
             }
             const UI = {
                 es: {
-                    __title: "Panel Interactivo de Parámetros de IA Generativa",
-                    h1: "Cómo un LLM elige la siguiente palabra",
-                    subtitle: "Aprendé cómo Top-K, Top-P y Temperatura moldean la salida de un LLM.",
+                    __title: "Panel de IA Generativa · Booster",
+                    h1a: "Cómo un LLM elige la",
+                    h1b: "siguiente palabra",
+                    subtitle: "Temperatura, Top-K y Top-P moldean la salida del modelo. Movelos y mirá qué tokens sobreviven al filtro.",
+                    chromeSection: "SAMPLING",
                     presetsLabel: "Presets",
                     presetsInfoAria: "Qué son los presets",
                     presetsTip: "Configuraciones rápidas que mueven los tres parámetros juntos.",
@@ -1200,21 +1125,23 @@
                     legendCutP: "Descartado por Top-P",
                     legendCutK: "Descartado por Top-K",
                     legendGhost: "Probabilidad original (sin temperatura)",
-                    statusCalc: "⚙️ Calculando probabilidades...",
-                    statusReady: n => `✅ ${n} candidato${n > 1 ? 's' : ''} listo${n > 1 ? 's' : ''} — presioná "Seleccionar token"`,
-                    statusNoCandidates: "⚠️ No hay candidatos disponibles",
-                    statusAnalyzeFirst: "⚠️ Primero analizá las opciones",
-                    statusSampling: "🎲 Muestreando según probabilidades...",
-                    statusSelected: tok => `✨ Token seleccionado: "${tok}"`,
-                    statusParamsChanged: "Parámetros cambiaron — analizá de nuevo las opciones",
+                    statusCalc: "[ CALC ] Calculando probabilidades",
+                    statusReady: n => `[ OK ] ${n} candidato${n > 1 ? 's' : ''} listo${n > 1 ? 's' : ''} — presioná "Seleccionar token"`,
+                    statusNoCandidates: "[ ALERTA ] No hay candidatos disponibles",
+                    statusAnalyzeFirst: "[ ALERTA ] Primero analizá las opciones",
+                    statusSampling: "[ SAMPLING ] Muestreando según probabilidades",
+                    statusSelected: tok => `[ TOKEN ] Seleccionado: "${tok}"`,
+                    statusParamsChanged: "[ ALERTA ] Parámetros cambiaron — analizá de nuevo las opciones",
                     tipToken: "Token",
                     tipOrig: "Prob original",
                     tipTemp: "Post-temperatura"
                 },
                 pt: {
-                    __title: "Painel Interativo de Parâmetros de IA Generativa",
-                    h1: "Como um LLM escolhe a próxima palavra",
-                    subtitle: "Aprenda como Top-K, Top-P e Temperatura moldam a saída de um LLM.",
+                    __title: "Painel de IA Generativa · Booster",
+                    h1a: "Como um LLM escolhe a",
+                    h1b: "próxima palavra",
+                    subtitle: "Temperatura, Top-K e Top-P moldam a saída do modelo. Mova-os e veja quais tokens sobrevivem ao filtro.",
+                    chromeSection: "SAMPLING",
                     presetsLabel: "Presets",
                     presetsInfoAria: "O que são os presets",
                     presetsTip: "Configurações rápidas que movem os três parâmetros juntos.",
@@ -1247,13 +1174,13 @@
                     legendCutP: "Descartado por Top-P",
                     legendCutK: "Descartado por Top-K",
                     legendGhost: "Probabilidade original (sem temperatura)",
-                    statusCalc: "⚙️ Calculando probabilidades...",
-                    statusReady: n => `✅ ${n} candidato${n > 1 ? 's' : ''} pronto${n > 1 ? 's' : ''} — pressione "Selecionar token"`,
-                    statusNoCandidates: "⚠️ Não há candidatos disponíveis",
-                    statusAnalyzeFirst: "⚠️ Primeiro analise as opções",
-                    statusSampling: "🎲 Amostrando conforme as probabilidades...",
-                    statusSelected: tok => `✨ Token selecionado: "${tok}"`,
-                    statusParamsChanged: "Parâmetros mudaram — analise as opções novamente",
+                    statusCalc: "[ CALC ] Calculando probabilidades",
+                    statusReady: n => `[ OK ] ${n} candidato${n > 1 ? 's' : ''} pronto${n > 1 ? 's' : ''} — pressione "Selecionar token"`,
+                    statusNoCandidates: "[ ALERTA ] Não há candidatos disponíveis",
+                    statusAnalyzeFirst: "[ ALERTA ] Primeiro analise as opções",
+                    statusSampling: "[ SAMPLING ] Amostrando conforme as probabilidades",
+                    statusSelected: tok => `[ TOKEN ] Selecionado: "${tok}"`,
+                    statusParamsChanged: "[ ALERTA ] Parâmetros mudaram — analise as opções novamente",
                     tipToken: "Token",
                     tipOrig: "Prob. original",
                     tipTemp: "Pós-temperatura"
@@ -1334,7 +1261,7 @@
                 const max = parseFloat(slider.max);
                 const val = parseFloat(slider.value);
                 const pct = ((val - min) / (max - min)) * 100;
-                slider.style.background = `linear-gradient(to right, var(--cold-main-violet) 0%, var(--cold-main-violet) ${pct}%, var(--medium-gray) ${pct}%, var(--medium-gray) 100%)`;
+                slider.style.background = `linear-gradient(to right, var(--tc-orange) 0%, var(--tc-orange) ${pct}%, var(--tc-mute-light) ${pct}%, var(--tc-mute-light) 100%)`;
             }
 
             function updateStateAndViz() {
@@ -1367,7 +1294,7 @@
                     Math.abs(v.top_p - p) < 0.01
                 );
                 document.querySelectorAll('.preset-btn').forEach(btn => {
-                    btn.classList.toggle('active', match && btn.dataset.preset === match[0]);
+                    btn.classList.toggle('active', !!match && btn.dataset.preset === match[0]);
                 });
             }
 
@@ -1376,7 +1303,7 @@
                 prepareBtn.disabled = true;
                 selectBtn.disabled = true;
 
-                showStatus(t.statusCalc, 'var(--secondary-green)');
+                showStatus(t.statusCalc, '#2E7D5B');
 
                 const temp = parseFloat(tempSlider.value);
                 const k = parseInt(topKSlider.value);
@@ -1401,17 +1328,17 @@
                     prepareBtn.disabled = false;
                     selectBtn.disabled = false;
 
-                    showStatus(t.statusReady(candidates.length), 'var(--secondary-green)');
+                    showStatus(t.statusReady(candidates.length), '#2E7D5B');
                 } else {
                     prepareBtn.disabled = false;
-                    showStatus(t.statusNoCandidates, 'var(--primary-orange)');
+                    showStatus(t.statusNoCandidates, '#C97B1F');
                 }
             }
 
             // PASO 2: Ejecutar la selección
             async function executeTokenSelection() {
                 if (!currentCandidates || currentCandidates.length === 0) {
-                    showStatus(t.statusAnalyzeFirst, 'var(--primary-orange)');
+                    showStatus(t.statusAnalyzeFirst, '#C97B1F');
                     return;
                 }
 
@@ -1454,7 +1381,7 @@
                 const normalizedCandidates = candidates.map(c => ({...c, prob: c.prob / candidates.reduce((acc, x) => acc + x.prob, 0) }));
                 
                 // Mostrar estado: muestreando
-                showStatus(t.statusSampling, 'var(--primary-purple)');
+                showStatus(t.statusSampling, '#FF4933');
                 
                 // "Ruleta" - iluminar barras según probabilidad
                 const iterations = 10;
@@ -1487,7 +1414,7 @@
             }
 
             async function animateFinalSelection(baseProbs, tempProbs, candidates, k, selectedToken) {
-                showStatus(t.statusSelected(selectedToken.trim() || selectedToken), 'var(--secondary-green)');
+                showStatus(t.statusSelected(selectedToken.trim() || selectedToken), '#2E7D5B');
 
                 updateChart(baseProbs, tempProbs, candidates, k, selectedToken);
 
@@ -1502,9 +1429,9 @@
 
             function showStatus(message, color) {
                 statusText.textContent = message;
-                selectionStatus.style.backgroundColor = color + '15'; // 15% opacity
+                selectionStatus.style.backgroundColor = color + '12'; // 7% aprox
                 selectionStatus.style.color = color;
-                selectionStatus.style.border = `2px solid ${color}40`;
+                selectionStatus.style.borderLeft = `2px solid ${color}`;
                 selectionStatus.style.opacity = '1';
             }
 
@@ -1620,11 +1547,8 @@
                     .on("mouseout", () => {
                         tooltip.transition().duration(300).style("opacity", 0);
                     })
-                    .transition().duration(300)
-                    .attr("x", d => x(d.token))
-                    .attr("width", x.bandwidth())
-                    .attr("y", d => y(d.prob))
-                    .attr("height", d => height - y(d.prob))
+                    // El estado (candidato / descartado / elegido) se aplica ya mismo:
+                    // si esperara al final de la transición, cada barra parpadearía en gris.
                     .attr("class", (d, i) => {
                         let classes = "bar";
                         if (candidateTokens.has(d.token)) {
@@ -1636,7 +1560,12 @@
                         // else: i >= k → fuera de Top-K (estilo default)
                         if (d.token === selectedToken) classes += " selected";
                         return classes;
-                    });
+                    })
+                    .transition().duration(300)
+                    .attr("x", d => x(d.token))
+                    .attr("width", x.bandwidth())
+                    .attr("y", d => y(d.prob))
+                    .attr("height", d => height - y(d.prob));
 
                 // --- Línea de corte Top-K ---
                 overlayLayer.selectAll("*").remove();
@@ -1673,7 +1602,7 @@
                     currentTempProbs = null;
                     currentBaseProbs = null;
                     selectBtn.disabled = true;
-                    showStatus(t.statusParamsChanged, 'var(--primary-orange)');
+                    showStatus(t.statusParamsChanged, '#C97B1F');
                 }
             }
 
@@ -1742,7 +1671,7 @@
                     const key = el.getAttribute('data-i18n-aria');
                     if (typeof t[key] === 'string') el.setAttribute('aria-label', t[key]);
                 });
-                document.querySelectorAll('.lang-btn').forEach(btn => {
+                document.querySelectorAll('.tc-segmented [data-lang]').forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.lang === lang);
                 });
             }
@@ -1766,7 +1695,7 @@
                 updateStateAndViz();
             }
 
-            document.querySelectorAll('.lang-btn').forEach(btn => {
+            document.querySelectorAll('.tc-segmented [data-lang]').forEach(btn => {
                 btn.addEventListener('click', () => setLang(btn.dataset.lang));
             });
 

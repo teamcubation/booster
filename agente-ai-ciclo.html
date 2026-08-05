@@ -6,22 +6,12 @@
     <title>Ciclo de un Agente AI - Booster</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="imagenes/brand/iso-light.png">
+    <link rel="stylesheet" href="teamcubation.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        :root {
-            --warm-main-orange: #FF4933;
-            --cold-main-violet: #B636FF;
-            --cold-secondary-sky: #00B2FF;
-            --light-gray: #F5F5F5;
-            --white: #FFFFFF;
-            --dark-gray: #333333;
-            --medium-gray: #666666;
-            --font-title: 'Plus Jakarta Sans', sans-serif;
-            --font-body: 'Inter', sans-serif;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -29,9 +19,9 @@
         }
 
         body {
-            font-family: var(--font-body);
-            background-color: var(--white);
-            color: var(--dark-gray);
+            font-family: var(--tc-font-display);
+            background-color: var(--tc-white);
+            color: var(--tc-ink-soft);
             line-height: 1.5;
             padding: 0.5rem;
             min-height: 100vh;
@@ -50,27 +40,27 @@
         }
 
         h1 {
-            font-family: var(--font-title);
+            font-family: var(--tc-font-display);
             font-size: clamp(1.5rem, 4vw, 2rem);
-            color: var(--cold-main-violet);
+            color: var(--tc-ink);
             margin-bottom: 0.5rem;
             font-weight: 800;
         }
 
         .subtitle {
             font-size: clamp(0.85rem, 2vw, 1rem);
-            color: var(--medium-gray);
+            color: var(--tc-mute);
             max-width: 700px;
             margin: 0 auto;
         }
 
         .analogy-box {
-            background: var(--light-gray);
-            border-left: 4px solid var(--warm-main-orange);
+            background: var(--tc-cream);
+            border-left: 4px solid var(--tc-orange);
             padding: 0.75rem 1rem;
             margin: 0.75rem auto;
             max-width: 900px;
-            border-radius: 8px;
+            border-radius: 0;
             animation: fadeIn 1s ease-out;
         }
 
@@ -81,8 +71,8 @@
         }
 
         .scenario-selector {
-            background: var(--light-gray);
-            border-radius: 12px;
+            background: var(--tc-cream);
+            border-radius: 0;
             padding: 0.75rem 1rem;
             margin: 0.75rem auto;
             max-width: 900px;
@@ -98,26 +88,26 @@
         }
 
         .scenario-btn {
-            background: var(--white);
-            border: 2px solid var(--cold-main-violet);
-            color: var(--cold-main-violet);
+            background: var(--tc-white);
+            border: 2px solid var(--tc-orange);
+            color: var(--tc-orange);
             padding: 0.5rem 1rem;
-            border-radius: 8px;
+            border-radius: 0;
             cursor: pointer;
             font-size: 0.85rem;
             transition: all 0.3s ease;
-            font-family: var(--font-body);
+            font-family: var(--tc-font-display);
             font-weight: 500;
         }
 
         .scenario-btn:hover {
-            background: var(--cold-main-violet);
+            background: var(--tc-orange);
             color: white;
             transform: translateY(-2px);
         }
 
         .scenario-btn.active {
-            background: var(--cold-main-violet);
+            background: var(--tc-orange);
             color: white;
         }
 
@@ -130,9 +120,9 @@
 
         .cycle-step {
             flex: 1;
-            background: var(--white);
-            border: 2px solid var(--light-gray);
-            border-radius: 12px;
+            background: var(--tc-white);
+            border: 2px solid var(--tc-cream);
+            border-radius: 0;
             padding: 1rem;
             position: relative;
             transition: all 0.3s ease;
@@ -143,8 +133,8 @@
         }
 
         .cycle-step.active {
-            border-color: var(--cold-main-violet);
-            box-shadow: 0 8px 24px rgba(182, 54, 255, 0.15);
+            border-color: var(--tc-orange);
+            box-shadow: none;
         }
 
         .step-header {
@@ -157,21 +147,21 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--cold-main-violet);
+            background: var(--tc-orange);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: var(--font-title);
+            font-family: var(--tc-font-display);
             font-size: 1.25rem;
             font-weight: 800;
             margin: 0 auto 0.5rem;
         }
 
         .step-title {
-            font-family: var(--font-title);
+            font-family: var(--tc-font-display);
             font-size: clamp(1rem, 2vw, 1.25rem);
-            color: var(--cold-main-violet);
+            color: var(--tc-orange);
             font-weight: 800;
             margin-bottom: 0.25rem;
             display: inline-block;
@@ -192,16 +182,16 @@
             width: 22px;
             height: 22px;
             border-radius: 50%;
-            background: var(--cold-main-violet);
+            background: var(--tc-orange);
             color: white;
-            border: 2px solid var(--cold-main-violet);
+            border: 2px solid var(--tc-orange);
             font-size: 0.7rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 6px rgba(182, 54, 255, 0.3);
+            box-shadow: none;
             flex-shrink: 0;
             padding: 0;
             line-height: 1;
@@ -209,22 +199,22 @@
 
         .prompt-button:hover {
             transform: scale(1.1);
-            box-shadow: 0 3px 10px rgba(182, 54, 255, 0.5);
-            background: var(--warm-main-orange);
-            border-color: var(--warm-main-orange);
+            box-shadow: none;
+            background: var(--tc-orange);
+            border-color: var(--tc-orange);
         }
 
         .step-description {
             font-size: clamp(0.75rem, 1.2vw, 0.85rem);
-            color: var(--medium-gray);
+            color: var(--tc-mute);
             margin-bottom: 0.75rem;
             line-height: 1.5;
             text-align: center;
         }
 
         .demo-area {
-            background: var(--light-gray);
-            border-radius: 8px;
+            background: var(--tc-cream);
+            border-radius: 0;
             padding: 0.75rem;
             flex: 1;
             display: flex;
@@ -252,9 +242,9 @@
         }
 
         .perceive-item {
-            background: var(--white);
-            border: 2px solid var(--cold-main-violet);
-            border-radius: 6px;
+            background: var(--tc-white);
+            border: 2px solid var(--tc-orange);
+            border-radius: 0;
             padding: 0.5rem;
             margin: 0.15rem 0;
             width: 100%;
@@ -269,11 +259,11 @@
 
         .perceive-item:hover {
             transform: scale(1.02);
-            box-shadow: 0 2px 8px rgba(182, 54, 255, 0.2);
+            box-shadow: none;
         }
 
         .perceive-item.selected {
-            border-color: var(--warm-main-orange);
+            border-color: var(--tc-orange);
             background: rgba(255, 73, 51, 0.1);
             animation: none;
         }
@@ -285,7 +275,7 @@
 
         .perceive-text {
             font-weight: 600;
-            color: var(--dark-gray);
+            color: var(--tc-ink-soft);
             font-size: 0.7rem;
             line-height: 1.2;
         }
@@ -316,13 +306,13 @@
 
         .prompt-modal-content {
             background: white;
-            border-radius: 12px;
+            border-radius: 0;
             padding: 1.5rem;
             max-width: 600px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            box-shadow: none;
             animation: slideUp 0.3s ease-out;
             position: relative;
         }
@@ -335,9 +325,9 @@
         }
 
         .prompt-modal-title {
-            font-family: var(--font-title);
+            font-family: var(--tc-font-display);
             font-size: 1.1rem;
-            color: var(--cold-main-violet);
+            color: var(--tc-orange);
             font-weight: 800;
         }
 
@@ -346,32 +336,32 @@
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
-            color: var(--medium-gray);
+            color: var(--tc-mute);
             padding: 0.25rem 0.5rem;
             transition: all 0.3s ease;
             line-height: 1;
         }
 
         .prompt-modal-close:hover {
-            color: var(--dark-gray);
+            color: var(--tc-ink-soft);
             transform: scale(1.1);
         }
 
         .system-prompt-text {
             font-size: 0.85rem;
-            color: var(--dark-gray);
+            color: var(--tc-ink-soft);
             line-height: 1.6;
             font-style: italic;
-            background: var(--light-gray);
+            background: var(--tc-cream);
             padding: 1rem;
-            border-radius: 8px;
-            border-left: 4px solid var(--cold-main-violet);
+            border-radius: 0;
+            border-left: 4px solid var(--tc-orange);
         }
 
         .reasoning-bubble {
-            background: var(--white);
-            border: 2px solid var(--cold-main-violet);
-            border-radius: 8px;
+            background: var(--tc-white);
+            border: 2px solid var(--tc-orange);
+            border-radius: 0;
             padding: 0.75rem;
             margin: 0.5rem 0;
             width: 100%;
@@ -386,7 +376,7 @@
 
         .reasoning-text {
             font-size: 0.75rem;
-            color: var(--dark-gray);
+            color: var(--tc-ink-soft);
             line-height: 1.5;
         }
 
@@ -400,7 +390,7 @@
             content: '→';
             position: absolute;
             left: 0;
-            color: var(--cold-main-violet);
+            color: var(--tc-orange);
             font-weight: bold;
         }
 
@@ -417,16 +407,16 @@
         /* Email Preview (reutilizado de workflow.html) */
         .email-preview {
             background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            border: 1px solid #C9C7C2;
+            border-radius: 0;
             overflow: hidden;
             font-size: 0.7rem;
         }
 
         .email-header {
-            background: #f8f9fa;
+            background: #F7F4EE;
             padding: 8px 10px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #C9C7C2;
         }
 
         .email-field {
@@ -442,20 +432,20 @@
 
         .email-label {
             font-weight: 700;
-            color: #4a5568;
+            color: #4A4A4A;
             width: 50px;
             flex-shrink: 0;
         }
 
         .email-value {
-            color: #2d3748;
+            color: #0D0C0D;
             flex: 1;
         }
 
         .email-body {
             padding: 10px;
             line-height: 1.5;
-            color: #2d3748;
+            color: #0D0C0D;
             font-size: 0.7rem;
             background: white;
         }
@@ -474,12 +464,12 @@
             border-collapse: collapse;
             font-size: 0.65rem;
             background: white;
-            border-radius: 6px;
+            border-radius: 0;
             overflow: hidden;
         }
 
         .excel-table th {
-            background: #B636FF;
+            background: #FF4933;
             color: white;
             padding: 6px 4px;
             text-align: left;
@@ -489,7 +479,7 @@
 
         .excel-table td {
             padding: 6px 4px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #C9C7C2;
         }
 
         .excel-table tr:last-child td {
@@ -497,22 +487,22 @@
         }
 
         .excel-table tr.new-row {
-            background: #fff3cd;
+            background: #FFE0D9;
             font-weight: 600;
             animation: highlightRow 0.5s ease-out;
         }
 
         @keyframes highlightRow {
-            from { background: #ffc107; }
-            to { background: #fff3cd; }
+            from { background: #FFB3A6; }
+            to { background: #FFE0D9; }
         }
 
         /* Teams Message Bubble */
         .teams-message {
             background: white;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 10px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #C9C7C2;
             max-width: 100%;
         }
 
@@ -527,7 +517,7 @@
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #B636FF 0%, #6D00FF 100%);
+            background: #FF4933;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -540,21 +530,21 @@
         .teams-sender {
             font-weight: 700;
             font-size: 0.7rem;
-            color: #2d3748;
+            color: #0D0C0D;
         }
 
         .teams-time {
             font-size: 0.6rem;
-            color: #718096;
+            color: #8A8A8A;
             margin-left: auto;
         }
 
         .teams-bubble {
-            background: #f8f9fa;
-            border-radius: 8px;
+            background: #F7F4EE;
+            border-radius: 0;
             padding: 8px 10px;
             font-size: 0.7rem;
-            color: #2d3748;
+            color: #0D0C0D;
             line-height: 1.4;
             margin-top: 4px;
         }
@@ -564,7 +554,7 @@
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
-            color: var(--cold-main-violet);
+            color: var(--tc-orange);
             opacity: 0.5;
             flex-shrink: 0;
             width: 30px;
@@ -572,7 +562,7 @@
         }
 
         .d3-flow-line {
-            stroke: var(--cold-main-violet);
+            stroke: var(--tc-orange);
             stroke-width: 2;
             fill: none;
             opacity: 0;
@@ -585,7 +575,7 @@
         }
 
         .d3-flow-circle {
-            fill: var(--cold-main-violet);
+            fill: var(--tc-orange);
             opacity: 0;
             transition: opacity 0.3s ease;
         }
@@ -606,7 +596,7 @@
         }
 
         .d3-reasoning-node {
-            fill: var(--cold-main-violet);
+            fill: var(--tc-orange);
             opacity: 0;
             transition: opacity 0.3s ease;
         }
@@ -628,17 +618,17 @@
         }
 
         .play-button {
-            background: var(--warm-main-orange);
+            background: var(--tc-orange);
             color: white;
             border: none;
             padding: 0.75rem 2rem;
             border-radius: 50px;
             font-size: 1rem;
             font-weight: 600;
-            font-family: var(--font-body);
+            font-family: var(--tc-font-display);
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 16px rgba(255, 73, 51, 0.3);
+            box-shadow: none;
         }
 
         .play-button::before {
@@ -647,7 +637,7 @@
 
         .play-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 73, 51, 0.4);
+            box-shadow: none;
         }
 
         .play-button:active {
@@ -675,7 +665,7 @@
         }
 
         .waiting-text {
-            color: var(--medium-gray);
+            color: var(--tc-mute);
             font-style: italic;
             margin-top: 0.5rem;
             font-size: 0.75rem;
@@ -714,13 +704,22 @@
 </head>
 <body>
     <div class="container">
+        <header class="tc-chrome-top">
+            <div class="tc-chrome-left">
+                <a href="contenidos.html" aria-label="Volver al índice"><img class="tc-logo" src="imagenes/brand/logo-color.png" alt="Teamcubation"></a>
+                <a class="tc-chrome-path" href="contenidos.html">// BOOSTER · AGENTE_CICLO</a>
+            </div>
+            <div class="tc-chrome-right">
+                <span class="tc-chrome-path">DOC.ID · TC-BST-A1</span>
+            </div>
+        </header>
         <div class="header">
             <h1>¿Cómo funciona un Agente AI?</h1>
             <p class="subtitle">Descubrí el ciclo que sigue un agente de inteligencia artificial para tomar decisiones y actuar</p>
         </div>
 
         <div class="scenario-selector">
-            <h3 style="font-family: var(--font-title); color: var(--cold-main-violet); margin-bottom: 0.5rem; font-size: 0.9rem;">Elegí qué quiere percibir el agente:</h3>
+            <h3 style="font-family: var(--tc-font-display); color: var(--tc-orange); margin-bottom: 0.5rem; font-size: 0.9rem;">Elegí qué quiere percibir el agente:</h3>
             <div class="scenario-buttons">
                 <button class="scenario-btn active" data-scenario="email">📧 Nuevo Email</button>
                 <button class="scenario-btn" data-scenario="form">📝 Nueva Respuesta en Formulario</button>
@@ -835,6 +834,11 @@
                 Instrucciones del agente...
             </div>
         </div>
+        <footer class="tc-chrome-bottom">
+            <span class="tc-chrome-anchor">[ TQ ]</span>
+            <span class="tc-chrome-section">CICLO DEL AGENTE</span>
+            <span class="tc-chrome-chapter">V1.2026</span>
+        </footer>
     </div>
 
     <script>
@@ -1042,7 +1046,7 @@
                     const target = nodes[d.target];
                     return `M ${source.x} ${source.y} L ${target.x} ${target.y}`;
                 })
-                .attr('stroke', '#B636FF')
+                .attr('stroke', '#FF4933')
                 .attr('stroke-width', 2)
                 .attr('fill', 'none')
                 .attr('opacity', 0);
@@ -1057,7 +1061,7 @@
                 .attr('cx', d => d.x)
                 .attr('cy', d => d.y)
                 .attr('r', 6)
-                .attr('fill', '#B636FF')
+                .attr('fill', '#FF4933')
                 .attr('opacity', 0);
 
             return { link, node };

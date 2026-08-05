@@ -7,26 +7,26 @@
     <link rel="stylesheet" href="teamcubation.css">
     <style>
         body {
-            background: var(--light-gray);
+            background: var(--tc-cream);
             padding: var(--spacing-md);
         }
 
         header {
             text-align: center;
             padding: var(--spacing-xl) var(--spacing-lg);
-            background: var(--white);
+            background: var(--tc-white);
             border-radius: var(--radius-xl);
             margin-bottom: var(--spacing-xl);
-            box-shadow: var(--shadow-lg);
+            box-shadow: none;
             animation: fadeInUp 0.6s ease-out;
         }
 
         h1 {
-            color: var(--cold-main-violet);
+            color: var(--tc-ink);
         }
 
         .subtitle {
-            color: var(--dark-gray);
+            color: var(--tc-ink-soft);
             font-size: 1.2em;
             font-weight: 300;
             margin-bottom: var(--spacing-md);
@@ -34,7 +34,7 @@
         }
 
         .intro-text {
-            color: var(--dark-gray);
+            color: var(--tc-ink-soft);
             font-size: 1.1em;
             max-width: 800px;
             margin: 0 auto;
@@ -49,15 +49,15 @@
         }
 
         .panel {
-            background: var(--white);
+            background: var(--tc-white);
             border-radius: var(--radius-lg);
             padding: var(--spacing-xl);
-            box-shadow: var(--shadow-md);
+            box-shadow: none;
             animation: fadeInUp 0.6s ease-out;
         }
 
         .panel-title {
-            color: var(--cold-main-violet);
+            color: var(--tc-orange);
             font-size: 1.8em;
             margin-bottom: var(--spacing-md);
             display: flex;
@@ -68,21 +68,21 @@
         .icon {
             width: 35px;
             height: 35px;
-            background: var(--cold-main-violet);
+            background: var(--tc-orange);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--white);
+            color: var(--tc-white);
             font-size: 1.2em;
         }
 
         .field-builder {
-            background: var(--light-gray);
+            background: var(--tc-cream);
             padding: var(--spacing-md);
             border-radius: var(--radius-md);
             margin-bottom: var(--spacing-md);
-            border: 2px solid var(--medium-gray);
+            border: 2px solid var(--tc-mute);
         }
 
         .input-group {
@@ -91,7 +91,7 @@
 
         .input-group label {
             display: block;
-            color: var(--cold-main-violet);
+            color: var(--tc-orange);
             font-weight: 600;
             margin-bottom: var(--spacing-xs);
             font-size: 0.95em;
@@ -101,18 +101,18 @@
         .input-group select {
             width: 100%;
             padding: var(--spacing-sm) var(--spacing-md);
-            border: 2px solid var(--medium-gray);
+            border: 2px solid var(--tc-mute);
             border-radius: var(--radius-sm);
             font-size: 1em;
-            font-family: var(--font-body);
+            font-family: var(--tc-font-display);
             transition: all var(--transition-base);
         }
 
         .input-group input:focus,
         .input-group select:focus {
             outline: none;
-            border-color: var(--cold-main-violet);
-            box-shadow: 0 0 0 3px rgba(182, 54, 255, 0.1);
+            border-color: var(--tc-orange);
+            box-shadow: none;
         }
 
         .btn {
@@ -130,38 +130,38 @@
         }
 
         .btn-primary {
-            background: var(--cold-main-violet);
-            color: var(--white);
+            background: var(--tc-orange);
+            color: var(--tc-white);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-            background: var(--cold-secondary-violet);
+            box-shadow: none;
+            background: var(--tc-orange-hover);
         }
 
         .btn-secondary {
-            background: var(--white);
-            border: 2px solid var(--cold-main-violet);
-            color: var(--cold-main-violet);
+            background: var(--tc-white);
+            border: 2px solid var(--tc-orange);
+            color: var(--tc-orange);
         }
 
         .btn-secondary:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-            background: var(--cold-main-violet);
-            color: var(--white);
+            box-shadow: none;
+            background: var(--tc-orange);
+            color: var(--tc-white);
         }
 
         .btn-success {
-            background: var(--cold-main-violet);
-            color: var(--white);
+            background: var(--tc-orange);
+            color: var(--tc-white);
         }
 
         .btn-success:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-            background: var(--cold-secondary-violet);
+            box-shadow: none;
+            background: var(--tc-orange-hover);
         }
 
         .fields-list {
@@ -169,16 +169,16 @@
         }
 
         .field-item {
-            background: var(--white);
+            background: var(--tc-white);
             padding: var(--spacing-md);
             border-radius: var(--radius-sm);
             margin-bottom: var(--spacing-sm);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 4px solid var(--cold-main-violet);
+            border-left: 4px solid var(--tc-orange);
             animation: slideIn 0.3s ease-out;
-            box-shadow: var(--shadow-sm);
+            box-shadow: none;
         }
 
         .field-info {
@@ -186,29 +186,29 @@
         }
 
         .field-name {
-            color: var(--cold-main-violet);
+            color: var(--tc-orange);
             font-weight: 600;
             font-size: 1.1em;
         }
 
         .field-type {
-            color: var(--cold-main-violet);
+            color: var(--tc-orange);
             font-size: 0.9em;
             margin-top: 3px;
             opacity: 0.7;
         }
 
         .field-value {
-            color: var(--dark-gray);
+            color: var(--tc-ink-soft);
             font-size: 0.9em;
             margin-top: 5px;
             font-family: 'Courier New', monospace;
         }
 
         .btn-delete {
-            background: var(--white);
-            border: 1px solid var(--medium-gray);
-            color: var(--dark-gray);
+            background: var(--tc-white);
+            border: 1px solid var(--tc-mute);
+            color: var(--tc-ink-soft);
             padding: var(--spacing-xs) var(--spacing-md);
             border-radius: var(--radius-sm);
             cursor: pointer;
@@ -217,13 +217,13 @@
         }
 
         .btn-delete:hover {
-            background: var(--medium-gray);
+            background: var(--tc-mute);
             transform: scale(1.05);
         }
 
         .json-preview {
-            background: #2d3748;
-            color: #e2e8f0;
+            background: #0D0C0D;
+            color: #C9C7C2;
             padding: var(--spacing-md);
             border-radius: var(--radius-md);
             font-family: 'Courier New', monospace;
@@ -233,34 +233,34 @@
             overflow-y: auto;
             white-space: pre-wrap;
             word-break: break-all;
-            border: 1px solid var(--medium-gray);
+            border: 1px solid var(--tc-mute);
         }
 
         .json-preview .key {
-            color: #a78bfa;
+            color: #FFB3A6;
         }
 
         .json-preview .string {
-            color: #8BDCB3;
+            color: #C9C7C2;
         }
 
         .json-preview .number {
-            color: #ffd700;
+            color: #FFB3A6;
         }
 
         .json-preview .boolean {
-            color: #ff6b9d;
+            color: #E63A26;
         }
 
         .copy-notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: #8BDCB3;
-            color: #484848;
+            background: #C9C7C2;
+            color: #4A4A4A;
             padding: 15px 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            border-radius: 0;
+            box-shadow: none;
             animation: slideInRight 0.3s ease-out;
             font-weight: 500;
             z-index: 1000;
@@ -278,16 +278,16 @@
         }
 
         .help-box {
-            background: #f0f7ff;
-            border-left: 4px solid #551872;
+            background: #F7F4EE;
+            border-left: 4px solid #E63A26;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 0;
             margin-bottom: 20px;
             font-size: 0.95em;
         }
 
         .help-box strong {
-            color: #551872;
+            color: #E63A26;
         }
 
         .value-input-container {
@@ -377,8 +377,17 @@
 </head>
 <body>
     <div class="container">
+        <header class="tc-chrome-top">
+            <div class="tc-chrome-left">
+                <a href="contenidos.html" aria-label="Volver al índice"><img class="tc-logo" src="imagenes/brand/logo-color.png" alt="Teamcubation"></a>
+                <a class="tc-chrome-path" href="contenidos.html">// BOOSTER · GENERADOR</a>
+            </div>
+            <div class="tc-chrome-right">
+                <span class="tc-chrome-path">DOC.ID · TC-BST-A3</span>
+            </div>
+        </header>
         <header>
-            <h1>🎯 Generador de Estructura de Datos</h1>
+            <h1>Generador de <span class="tc-accent">estructura de datos</span><span class="tc-dot"></span></h1>
             <div class="subtitle">Crea la estructura de datos que necesitás sin conocimientos técnicos</div>
             <p class="intro-text">
                 Esta herramienta te ayuda a crear una <strong>estructura de datos</strong> (JSON) que luego podrás usar en 
@@ -474,6 +483,11 @@
                 </div>
             </div>
         </div>
+        <footer class="tc-chrome-bottom">
+            <span class="tc-chrome-anchor">[ TQ ]</span>
+            <span class="tc-chrome-section">ESTRUCTURA DE DATOS</span>
+            <span class="tc-chrome-chapter">V1.2026</span>
+        </footer>
     </div>
 
     <script>

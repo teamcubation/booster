@@ -3,120 +3,322 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Cómo un LLM interpreta tu prompt y genera un embedding (demo interactiva)</title>
-<meta name="description" content="Demostración visual y accesible de cómo un modelo LLM descompone un prompt en palabras, mapea cada una a un vector y las promedia para obtener un embedding que luego se compara con el conocimiento usando similitud de coseno." />
+<title>Conocimiento LLM · Booster</title>
+<meta name="description" content="Demo interactiva de Teamcubation: cómo un LLM descompone un prompt en palabras, mapea cada una a un vector y las promedia para obtener un embedding que compara con su conocimiento usando similitud de coseno." />
+<link rel="icon" href="imagenes/brand/iso-light.png">
 <link rel="stylesheet" href="teamcubation.css">
 <style>
-  :root{
-    --success-green:#10B981;
-    --success-green-soft:#D1FADF;
+  /* ============================================
+     CONOCIMIENTO LLM — Cubation Design System
+     Editorial · una sola tinta · chrome monoespaciado
+     ============================================ */
+  html, body { height: 100% }
+  body {
+    margin: 0;
+    background: var(--tc-cream);
+    color: var(--tc-ink-soft);
+    font-family: var(--tc-font-display);
+    line-height: 1.45;
+    font-size: 16px;
+    overflow: hidden;
+  }
+  .app {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    height: 100vh;
+    max-width: 1456px;
+    margin: 0 auto;
+    padding: var(--tc-s4) var(--tc-s5) var(--tc-s3);
   }
 
-  html,body{height:100%}
-  body{margin:0; background:var(--light-gray); color:var(--dark-gray); font-family:var(--font-body); line-height:1.45; font-size:16px; overflow:hidden}
-  .app{display:grid; grid-template-rows:auto 1fr auto; height:100vh}
-
-  .page-header{padding:10px var(--spacing-md) 0}
-  .header-row{display:flex; align-items:center; justify-content:space-between; gap:12px}
-  .page-header h1{margin:0; color:var(--cold-main-violet); font-family:var(--font-heading); font-weight:800; font-size:clamp(16px,1.8vw,22px)}
-
-  /* Selector de idioma (compartido entre páginas) */
-  .lang-switch{display:inline-flex; gap:4px; background:var(--white); border:1px solid var(--medium-gray); border-radius:999px; padding:3px; flex-shrink:0; box-shadow:var(--shadow-sm)}
-  .lang-btn{border:none; background:transparent; color:var(--dark-gray); font-size:0.75rem; font-weight:700; padding:4px 11px; border-radius:999px; cursor:pointer; letter-spacing:0.03em; transition:var(--transition-fast)}
-  .lang-btn:hover{color:var(--cold-main-violet)}
-  .lang-btn.active{background:var(--cold-main-violet); color:var(--white)}
-
-  main{display:grid; grid-template-columns:minmax(0, 2.2fr) minmax(320px, 1fr); gap:var(--spacing-sm); padding:var(--spacing-sm) var(--spacing-md) var(--spacing-sm); min-height:0; overflow:hidden}
-  @media (max-width: 900px){
-    body{overflow:auto}
-    .app{height:auto; min-height:100vh}
-    main{grid-template-columns:1fr; overflow:visible}
-    .canvas-panel .canvasBox{height:420px !important}
-    .controls-panel{overflow:visible !important; max-height:none !important}
+  /* --- Chrome + headline --- */
+  .page-headline {
+    padding: var(--tc-s4) 0 var(--tc-s3);
+    border-bottom: 1px solid var(--tc-line);
+  }
+  .page-headline .tc-eyebrow { margin-bottom: var(--tc-s2); }
+  .page-headline h1 {
+    font-family: var(--tc-font-display);
+    font-size: clamp(22px, 2.6vw, 40px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--tc-ink);
+    margin: 0;
   }
 
-  .panel{background:var(--white); border-radius:var(--radius-lg); padding:var(--spacing-sm); box-shadow:var(--shadow-md); display:flex; flex-direction:column; gap:10px; min-height:0}
-  .panel h2{margin:0; color:var(--cold-main-violet); font-size:clamp(15px,1.5vw,18px); font-family:var(--font-heading); font-weight:800}
+  main {
+    display: grid;
+    grid-template-columns: minmax(0, 2.2fr) minmax(320px, 1fr);
+    gap: var(--tc-s4);
+    padding: var(--tc-s4) 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+  @media (max-width: 900px) {
+    body { overflow: auto }
+    .app { height: auto; min-height: 100vh; padding: var(--tc-s3) var(--tc-s4); }
+    main { grid-template-columns: 1fr; overflow: visible }
+    .canvas-panel .canvasBox { height: 420px !important }
+    .controls-panel { overflow: visible !important; max-height: none !important }
+  }
 
-  .canvas-panel{min-height:0}
-  .controls-panel{overflow-y:auto; gap:var(--spacing-sm)}
+  /* --- Paneles --- */
+  .panel {
+    background: var(--tc-white);
+    border: 1px solid var(--tc-line-soft);
+    border-radius: 0;
+    padding: var(--tc-s3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--tc-s2);
+    min-height: 0;
+  }
+  .panel h2 {
+    margin: 0;
+    font-family: var(--tc-font-mono);
+    font-size: var(--tc-mono);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tc-orange);
+  }
 
-  .canvasBox{position:relative; background:conic-gradient(from 0deg at 80% 20%, #fafafa, #fbfbff, #f8fffb, #fafafa); border:1px solid #ececf0; border-radius:16px; overflow:hidden; flex:1; min-height:280px; width:100%}
-  .legend{display:flex; gap:8px; flex-wrap:wrap; padding:2px 0}
-  .pill{display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; border:1px dashed #d9d9e0; background:#fff; font-size:12px}
-  .dot{width:10px; height:10px; border-radius:999px}
+  .canvas-panel { min-height: 0 }
+  .controls-panel { overflow-y: auto; gap: var(--tc-s3) }
 
-  .card{background:#fff; border:1px solid #eee; border-radius:14px; padding:12px}
-  .card h3{margin:0 0 8px 0; color:var(--dark-gray); font-size:15px}
-  .row{display:flex; gap:10px; flex-wrap:wrap}
-  label{font-weight:600}
-  input[type="text"], .chipInput{width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid #e5e5ea; font-size:16px; box-sizing:border-box}
-  .chips{display:flex; gap:var(--spacing-xs); flex-wrap:wrap; margin-top:10px; max-height:140px; overflow-y:auto; padding:6px; border:1px dashed var(--medium-gray); border-radius:12px; background:#fafafa}
-  .chip{background:var(--white); border:1px solid var(--medium-gray); padding:6px 10px; border-radius:999px; font-size:13px; cursor:pointer; transition:var(--transition-fast)}
-  .chip[aria-pressed="true"]{background:var(--cold-main-violet); color:var(--white); border-color:var(--cold-main-violet)}
+  .canvasBox {
+    position: relative;
+    background: var(--tc-white);
+    border: 1px solid var(--tc-line-soft);
+    border-radius: 0;
+    overflow: hidden;
+    flex: 1;
+    min-height: 280px;
+    width: 100%;
+  }
 
-  /* Panel de desglose del embedding */
-  .breakdown-section{margin-bottom:12px}
-  .breakdown-section:last-child{margin-bottom:0}
-  .breakdown-label{font-size:13px; font-weight:700; color:var(--dark-gray); margin-bottom:6px}
-  .breakdown-tokens{display:flex; flex-wrap:wrap; gap:6px}
-  .token{display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:13px; border:1px solid transparent}
-  .token-recognized{background:#FFF2EE; border-color:#FFD4C7; color:#8A2B1A}
-  .token-recognized .token-vec{font-family:monospace; font-size:11px; opacity:0.8}
-  .token-ignored{background:var(--medium-gray); color:var(--dark-gray); text-decoration:line-through; opacity:0.7}
-  .breakdown-result{background:var(--success-green-soft); border-radius:10px; padding:10px 12px; margin-top:4px}
-  .breakdown-result .breakdown-label{color:#065f46}
-  .breakdown-vector{font-family:monospace; font-size:15px; font-weight:700; color:#065f46}
-  .breakdown-empty{font-size:13px; color:#999; font-style:italic}
-  .empty-hint{font-size:14px; color:#888; margin:0}
+  /* --- Leyenda --- */
+  .legend {
+    display: flex;
+    gap: var(--tc-s3);
+    flex-wrap: wrap;
+    padding: var(--tc-s1) 0;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    font-family: var(--tc-font-mono);
+    font-size: var(--tc-mono-sm);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tc-mute);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 0 }
 
-  footer{padding:6px 16px; text-align:center; font-size:11px; color:#888}
+  /* --- Cards de control --- */
+  .card {
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--tc-line-soft);
+    border-radius: 0;
+    padding: var(--tc-s3) 0 0;
+  }
+  .card:first-child { border-top: none; padding-top: 0 }
+  .card h3 {
+    margin: 0 0 var(--tc-s2) 0;
+    font-family: var(--tc-font-mono);
+    font-size: var(--tc-mono-sm);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tc-orange);
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap }
+  label {
+    font-family: var(--tc-font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tc-ink);
+  }
+  small {
+    display: block;
+    margin-top: var(--tc-s1);
+    font-size: 12px;
+    color: var(--tc-mute);
+  }
+  input[type="text"], .chipInput {
+    width: 100%;
+    margin-top: var(--tc-s2);
+    padding: 10px 12px;
+    border-radius: 0;
+    border: 1px solid var(--tc-line-soft);
+    background: var(--tc-white);
+    font-family: var(--tc-font-mono);
+    font-size: 14px;
+    color: var(--tc-ink);
+    box-sizing: border-box;
+    transition: border-color var(--tc-transition-fast);
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--tc-orange);
+    box-shadow: inset 0 -2px 0 var(--tc-orange);
+  }
 
-  .canvasBox svg{position:absolute; inset:0; width:100%; height:100%}
-  .axis{stroke:#cfd1d6; stroke-width:1}
-  .grid-line{stroke:#f0f2f5; stroke-width:1}
+  /* --- Chips de vocabulario --- */
+  .chips {
+    display: flex;
+    gap: var(--tc-s1);
+    flex-wrap: wrap;
+    margin-top: var(--tc-s2);
+    max-height: 140px;
+    overflow-y: auto;
+    padding: var(--tc-s2);
+    border: 1px solid var(--tc-line-soft);
+    border-radius: 0;
+    background: var(--tc-cream);
+  }
+  .chip {
+    background: var(--tc-white);
+    border: 1px solid var(--tc-line-soft);
+    padding: 4px 8px;
+    border-radius: 0;
+    font-family: var(--tc-font-mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--tc-ink-soft);
+    cursor: pointer;
+    transition: background var(--tc-transition-fast), color var(--tc-transition-fast), border-color var(--tc-transition-fast);
+  }
+  .chip:hover { border-color: var(--tc-orange); color: var(--tc-orange) }
+  .chip[aria-pressed="true"] {
+    background: var(--tc-orange);
+    color: var(--tc-white);
+    border-color: var(--tc-orange);
+  }
 
-  /* Vectores */
-  .vec-prompt{stroke:var(--warm-main-orange); stroke-width:3; marker-end:url(#arrowOrange)}
-  .vec-word{stroke:var(--warm-secondary-orange); stroke-width:1.5; stroke-dasharray:5 3; opacity:0.7; marker-end:url(#arrowOrangeSoft)}
-  .vec-to-top{stroke:var(--success-green); stroke-width:1.5; stroke-dasharray:4 3; opacity:0.7}
+  /* --- Desglose del embedding --- */
+  .breakdown-section { margin-bottom: var(--tc-s3) }
+  .breakdown-section:last-child { margin-bottom: 0 }
+  .breakdown-label {
+    font-family: var(--tc-font-mono);
+    font-size: var(--tc-mono-sm);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tc-mute);
+    margin-bottom: var(--tc-s2);
+  }
+  .breakdown-tokens { display: flex; flex-wrap: wrap; gap: var(--tc-s1) }
+  .token {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: 0;
+    font-family: var(--tc-font-mono);
+    font-size: 11px;
+    border: 1px solid transparent;
+  }
+  .token-recognized {
+    background: var(--tc-orange-soft);
+    border-color: var(--tc-orange);
+    color: var(--tc-ink);
+  }
+  .token-recognized .token-vec { font-size: 10px; color: var(--tc-ink-soft) }
+  .token-ignored {
+    background: transparent;
+    border-color: var(--tc-line-soft);
+    color: var(--tc-mute);
+    text-decoration: line-through;
+  }
+  .breakdown-result {
+    background: var(--tc-cream);
+    border-left: 2px solid var(--tc-orange);
+    border-radius: 0;
+    padding: var(--tc-s2) var(--tc-s3);
+  }
+  .breakdown-result .breakdown-label { color: var(--tc-mute) }
+  .breakdown-vector {
+    font-family: var(--tc-font-mono);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--tc-orange);
+  }
+  .breakdown-empty { font-family: var(--tc-font-mono); font-size: 11px; color: var(--tc-mute) }
+  .empty-hint { font-size: 13px; color: var(--tc-mute); margin: 0 }
 
-  /* Puntos de documentos */
-  .point{fill:var(--white); stroke:var(--cold-main-violet); stroke-width:2}
-  .point.top{fill:var(--success-green); stroke:var(--success-green)}
+  /* ============================================
+     GRÁFICO
+     Naranja = el prompt del usuario. Tinta = el resultado. Grises = el resto.
+     ============================================ */
+  .canvasBox svg { position: absolute; inset: 0; width: 100%; height: 100% }
+  .axis { stroke: var(--tc-mute-light); stroke-width: 1 }
+  .grid-line { stroke: rgba(13, 12, 13, 0.05); stroke-width: 1 }
 
-  /* Labels */
-  .label{font-size:12px; fill:var(--dark-gray); user-select:none; pointer-events:none}
-  .label-word{font-size:11px; fill:var(--warm-main-orange); font-weight:600; user-select:none; pointer-events:none}
-  .label-sim{font-size:11px; fill:var(--cold-main-violet); font-weight:700; user-select:none; pointer-events:none}
-  .label-sim.top{fill:var(--success-green)}
+  .vec-prompt { stroke: var(--tc-orange); stroke-width: 3; marker-end: url(#arrowOrange) }
+  .vec-word { stroke: var(--tc-chart-hi-soft); stroke-width: 1.5; stroke-dasharray: 5 3; opacity: 0.85; marker-end: url(#arrowOrangeSoft) }
+  .vec-to-top { stroke: var(--tc-ink); stroke-width: 1; stroke-dasharray: 4 3; opacity: 0.5 }
 
-  .fadeIn{animation:fade .6s ease both}
-  @keyframes fade{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
-  .sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0}
+  .point { fill: var(--tc-white); stroke: var(--tc-mute); stroke-width: 1.5 }
+  .point.top { fill: var(--tc-ink); stroke: var(--tc-ink) }
+
+  .label { font-family: var(--tc-font-mono); font-size: 11px; fill: var(--tc-mute); user-select: none; pointer-events: none }
+  .label-word { font-family: var(--tc-font-mono); font-size: 10px; fill: var(--tc-orange); font-weight: 500; user-select: none; pointer-events: none }
+  .label-sim { font-family: var(--tc-font-mono); font-size: 10px; fill: var(--tc-mute); font-weight: 500; user-select: none; pointer-events: none }
+  .label-sim.top { fill: var(--tc-ink); font-weight: 700 }
+
+  #hint {
+    font-family: var(--tc-font-mono);
+    font-size: var(--tc-mono-sm);
+    letter-spacing: 0.04em;
+    color: var(--tc-mute);
+    margin: 0;
+  }
+
+  .fadeIn { animation: fade .5s ease both }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0 }
 </style>
 </head>
 <body>
 <div class="app">
-  <header class="page-header">
-    <div class="header-row">
-      <h1 data-i18n="h1">¿Cómo convierte el LLM tu prompt en un embedding?</h1>
-      <div class="lang-switch" role="group" aria-label="Idioma / Idioma">
-        <button type="button" class="lang-btn" data-lang="es">ES</button>
-        <button type="button" class="lang-btn" data-lang="pt">PT</button>
+  <header class="tc-chrome-top">
+    <div class="tc-chrome-left">
+      <a href="contenidos.html" aria-label="Volver al índice"><img class="tc-logo" src="imagenes/brand/logo-color.png" alt="Teamcubation"></a>
+      <a class="tc-chrome-path" href="contenidos.html">// BOOSTER · DEMO_02</a>
+    </div>
+    <div class="tc-chrome-right">
+      <span class="tc-chrome-path">DOC.ID · TC-BST-02</span>
+      <div class="tc-segmented" role="group" aria-label="Idioma / Idioma">
+        <button type="button" data-lang="es">ES</button>
+        <button type="button" data-lang="pt">PT</button>
       </div>
     </div>
   </header>
+
+  <div class="page-headline">
+    <p class="tc-eyebrow">↳ demo_02 / embeddings.tq</p>
+    <h1>
+      <span data-i18n="h1a">Cómo el LLM convierte tu prompt en un</span>
+      <span class="tc-accent" data-i18n="h1b">embedding</span><span class="tc-dot"></span>
+    </h1>
+  </div>
 
   <main>
     <!-- Canvas (izquierda) -->
     <section class="panel canvas-panel" aria-labelledby="vizTitle">
       <h2 id="vizTitle" data-i18n="vizTitle">Espacio vectorial (mapa 2D simplificado)</h2>
       <div class="legend" data-i18n-aria="legendAria" aria-label="Leyenda de elementos">
-        <span class="pill"><span class="dot" style="background:var(--cold-main-violet)"></span> <span data-i18n="legKnowledge">Conocimiento</span></span>
-        <span class="pill"><span class="dot" style="background:var(--warm-secondary-orange); border:1px dashed var(--warm-main-orange)"></span> <span data-i18n="legWord">Vector de cada palabra</span></span>
-        <span class="pill"><span class="dot" style="background:var(--warm-main-orange)"></span> <span data-i18n="legPrompt">Embedding del prompt (promedio)</span></span>
-        <span class="pill"><span class="dot" style="background:var(--success-green)"></span> <span data-i18n="legTop">Documento más relevante</span></span>
+        <span class="pill"><span class="dot" style="background:var(--tc-white); border:1.5px solid var(--tc-mute)"></span> <span data-i18n="legKnowledge">Conocimiento</span></span>
+        <span class="pill"><span class="dot" style="background:var(--tc-chart-hi-soft)"></span> <span data-i18n="legWord">Vector de cada palabra</span></span>
+        <span class="pill"><span class="dot" style="background:var(--tc-orange)"></span> <span data-i18n="legPrompt">Embedding del prompt (promedio)</span></span>
+        <span class="pill"><span class="dot" style="background:var(--tc-ink)"></span> <span data-i18n="legTop">Documento más relevante</span></span>
       </div>
       <div class="canvasBox" id="plot" aria-live="polite" data-i18n-aria="plotAria" aria-label="Gráfico del espacio vectorial, usa los controles para interactuar."></div>
       <p class="label fadeIn" id="hint" data-i18n="hint">💡 Tip: arrastrá un documento cerca de tu prompt o sumá palabras para ver cómo se promedia el vector.</p>
@@ -141,7 +343,12 @@
     </section>
   </main>
 
-  <footer data-i18n="footer">Hecho con ♥ para aprender. Alto contraste y navegación por teclado incluidos.</footer>
+  <footer class="tc-chrome-bottom">
+    <span class="tc-chrome-anchor">[ TQ ]</span>
+    <span class="tc-chrome-section" data-i18n="chromeSection">EMBEDDINGS</span>
+    <span class="tc-chrome-chapter">V1.2026</span>
+    <span class="tc-chrome-page">02 / 02</span>
+  </footer>
 </div>
 
 <script>
@@ -166,8 +373,10 @@
   // ---------- i18n: textos de UI, títulos de documentos y vocabulario por idioma ----------
   const I18N={
     es:{
-      __title:"Cómo un LLM interpreta tu prompt y genera un embedding (demo interactiva)",
-      h1:"¿Cómo convierte el LLM tu prompt en un embedding?",
+      __title:"Conocimiento LLM · Booster",
+      h1a:"Cómo el LLM convierte tu prompt en un",
+      h1b:"embedding",
+      chromeSection:"EMBEDDINGS",
       vizTitle:"Espacio vectorial (mapa 2D simplificado)",
       legendAria:"Leyenda de elementos",
       legKnowledge:"Conocimiento",
@@ -175,7 +384,7 @@
       legPrompt:"Embedding del prompt (promedio)",
       legTop:"Documento más relevante",
       plotAria:"Gráfico del espacio vectorial, usa los controles para interactuar.",
-      hint:"💡 Tip: arrastrá un documento cerca de tu prompt o sumá palabras para ver cómo se promedia el vector.",
+      hint:"[ TIP ] Arrastrá un documento cerca de tu prompt o sumá palabras para ver cómo se promedia el vector.",
       promptCardTitle:"Tu prompt",
       promptLabel:"¿Qué querés preguntar?",
       promptPlaceholder:"Ej: explicame la fotosíntesis para un niño",
@@ -244,8 +453,10 @@
       }
     },
     pt:{
-      __title:"Como um LLM interpreta seu prompt e gera um embedding (demo interativa)",
-      h1:"Como o LLM converte seu prompt em um embedding?",
+      __title:"Conhecimento LLM · Booster",
+      h1a:"Como o LLM converte seu prompt em um",
+      h1b:"embedding",
+      chromeSection:"EMBEDDINGS",
       vizTitle:"Espaço vetorial (mapa 2D simplificado)",
       legendAria:"Legenda de elementos",
       legKnowledge:"Conhecimento",
@@ -253,7 +464,7 @@
       legPrompt:"Embedding do prompt (média)",
       legTop:"Documento mais relevante",
       plotAria:"Gráfico do espaço vetorial, use os controles para interagir.",
-      hint:"💡 Dica: arraste um documento para perto do seu prompt ou adicione palavras para ver como o vetor é calculado pela média.",
+      hint:"[ DICA ] Arraste um documento para perto do seu prompt ou adicione palavras para ver como o vetor é calculado pela média.",
       promptCardTitle:"Seu prompt",
       promptLabel:"O que você quer perguntar?",
       promptPlaceholder:"Ex: explique a fotossíntese para uma criança",
@@ -398,10 +609,10 @@
   const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   defs.innerHTML=`
     <marker id="arrowOrange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto-start-reverse">
-      <path d="M0,0 L12,6 L0,12 z" fill="${cssVar('--warm-main-orange')}"></path>
+      <path d="M0,0 L12,6 L0,12 z" fill="${cssVar('--tc-orange')}"></path>
     </marker>
     <marker id="arrowOrangeSoft" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="${cssVar('--warm-secondary-orange')}" opacity="0.7"></path>
+      <path d="M0,0 L10,5 L0,10 z" fill="${cssVar('--tc-chart-hi-soft')}" opacity="0.7"></path>
     </marker>`;
   svg.appendChild(defs);
   const gGrid=document.createElementNS(svgNS,'g');
@@ -597,7 +808,7 @@
       const key=el.getAttribute('data-i18n-aria');
       if(t[key]!=null) el.setAttribute('aria-label', t[key]);
     });
-    document.querySelectorAll('.lang-btn').forEach(btn=>{
+    document.querySelectorAll('.tc-segmented [data-lang]').forEach(btn=>{
       btn.classList.toggle('active', btn.dataset.lang===lang);
     });
   }
@@ -614,7 +825,7 @@
     update();
   }
 
-  document.querySelectorAll('.lang-btn').forEach(btn=>{
+  document.querySelectorAll('.tc-segmented [data-lang]').forEach(btn=>{
     btn.addEventListener('click', ()=>setLang(btn.dataset.lang));
   });
 

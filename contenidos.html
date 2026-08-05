@@ -3,184 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booster - Índice de Contenidos</title>
+    <title>Booster · Índice de contenidos</title>
+    <meta name="description" content="Recursos y demos interactivas de Teamcubation para entender cómo funciona la IA generativa.">
+    <link rel="icon" href="imagenes/brand/iso-light.png">
     <link rel="stylesheet" href="teamcubation.css">
     <style>
-        /* Estilos específicos de contenidos */
-        .header {
-            position: relative;
-        }
-
-        /* Selector de idioma (compartido entre páginas) */
-        .lang-switch {
-            position: absolute;
-            top: var(--spacing-md);
-            right: var(--spacing-md);
-            display: inline-flex;
-            gap: 4px;
-            background: var(--white);
-            border: 1px solid var(--medium-gray);
-            border-radius: 999px;
-            padding: 3px;
-            box-shadow: var(--shadow-sm);
-        }
-        .lang-btn {
-            border: none;
-            background: transparent;
-            color: var(--dark-gray);
-            font-size: 0.78rem;
-            font-weight: 700;
-            padding: 5px 12px;
-            border-radius: 999px;
-            cursor: pointer;
-            transition: var(--transition-fast);
-            letter-spacing: 0.03em;
-        }
-        .lang-btn:hover {
-            color: var(--cold-main-violet);
-        }
-        .lang-btn.active {
-            background: var(--cold-main-violet);
-            color: var(--white);
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-xl);
-        }
-
-        .content-card {
+        body {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            gap: var(--spacing-sm);
-            padding: var(--spacing-md);
-            text-align: left;
-            animation: fadeInUp 0.5s ease-out;
-            animation-fill-mode: both;
+            min-height: 100vh;
         }
 
-        .content-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 32px rgba(182, 54, 255, 0.18);
-            border: 1px solid var(--cold-main-violet);
-        }
-
-        .card-icon {
-            font-size: 1.9rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            width: 56px;
-            height: 56px;
-            background: var(--cold-main-violet);
-            border-radius: var(--radius-md);
-        }
-
-        .card-content {
+        .tc-page {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
         }
 
-        .card-title {
-            font-size: 1.05rem;
-            margin-bottom: var(--spacing-xs);
-            color: var(--cold-main-violet);
+        .index-headline {
+            padding: var(--tc-s6) 0 var(--tc-s5);
+            border-bottom: 1px solid var(--tc-line);
+        }
+
+        .index-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            border-bottom: 1px solid var(--tc-line);
+        }
+
+        .index-card {
+            display: flex;
+            flex-direction: column;
+            gap: var(--tc-s3);
+            padding: var(--tc-s5) var(--tc-s5) var(--tc-s6) 0;
+            text-decoration: none;
+            border-top: none;
+            transition: background var(--tc-transition-fast);
+            animation: tcFadeUp 0.4s ease-out both;
+        }
+
+        .index-card + .index-card {
+            padding-left: var(--tc-s5);
+            border-left: 1px solid var(--tc-line-soft);
+        }
+
+        .index-card:nth-child(1) { animation-delay: 0.04s; }
+        .index-card:nth-child(2) { animation-delay: 0.10s; }
+
+        .index-card-num {
+            font-family: var(--tc-font-mono);
+            font-size: var(--tc-mono);
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            color: var(--tc-mute);
+        }
+
+        .index-card-title {
+            font-family: var(--tc-font-display);
+            font-size: var(--tc-h1);
             font-weight: 700;
-            line-height: 1.25;
+            line-height: 1.15;
+            letter-spacing: -0.01em;
+            color: var(--tc-ink);
+            margin: 0;
+            transition: color var(--tc-transition-fast);
         }
 
-        .card-description {
-            color: var(--dark-gray);
-            font-size: 0.82rem;
-            line-height: 1.5;
-            opacity: 0.9;
+        .index-card-desc {
+            font-size: var(--tc-body);
+            color: var(--tc-ink-soft);
+            line-height: 1.55;
+            margin: 0;
+            max-width: 46ch;
         }
 
-        .content-card:nth-child(1) { animation-delay: 0.05s; }
-        .content-card:nth-child(2) { animation-delay: 0.1s; }
+        .index-card-cta {
+            margin-top: auto;
+            padding-top: var(--tc-s4);
+            font-family: var(--tc-font-mono);
+            font-size: var(--tc-mono);
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--tc-mute);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--tc-s2);
+            transition: color var(--tc-transition-fast), gap var(--tc-transition-fast);
+        }
 
-        @media (max-width: 480px) {
-            .content-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: var(--spacing-sm);
+        .index-card:hover .index-card-title { color: var(--tc-orange); }
+        .index-card:hover .index-card-cta {
+            color: var(--tc-orange);
+            gap: var(--tc-s3);
+        }
+        .index-card:focus-visible {
+            outline: 1px solid var(--tc-orange);
+            outline-offset: -1px;
+        }
+
+        @media (max-width: 700px) {
+            .index-card { padding-right: 0; }
+            .index-card + .index-card {
+                padding-left: 0;
+                border-left: none;
+                border-top: 1px solid var(--tc-line-soft);
             }
-            .content-card {
-                padding: var(--spacing-sm);
-            }
-            .card-icon {
-                width: 48px;
-                height: 48px;
-                font-size: 1.6rem;
-            }
-            .card-title { font-size: 0.95rem; }
-            .lang-switch {
-                top: var(--spacing-sm);
-                right: var(--spacing-sm);
-            }
+            .index-card-title { font-size: var(--tc-h2); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="lang-switch" role="group" aria-label="Idioma / Idioma">
-                <button type="button" class="lang-btn" data-lang="es">ES</button>
-                <button type="button" class="lang-btn" data-lang="pt">PT</button>
+    <div class="tc-page">
+        <header class="tc-chrome-top">
+            <div class="tc-chrome-left">
+                <img class="tc-logo" src="imagenes/brand/logo-color.png" alt="Teamcubation">
+                <span class="tc-chrome-path">// BOOSTER · ÍNDICE</span>
             </div>
-            <h1 class="header-title">🚀 Booster</h1>
-            <p class="header-subtitle" data-i18n="subtitle">Recursos y herramientas educativas de Teamcubation</p>
+            <div class="tc-chrome-right">
+                <span class="tc-chrome-path">DOC.ID · TC-BST-00</span>
+                <div class="tc-segmented" role="group" aria-label="Idioma / Idioma">
+                    <button type="button" data-lang="es">ES</button>
+                    <button type="button" data-lang="pt">PT</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="index-headline">
+            <p class="tc-eyebrow">↳ booster / contenidos.tq</p>
+            <h1 class="tc-display">
+                <span data-i18n="titleA">Recursos</span>
+                <span class="tc-accent" data-i18n="titleB">interactivos</span><span class="tc-dot"></span>
+            </h1>
+            <p class="tc-lede" data-i18n="subtitle">
+                Demos que abren la caja negra de la IA generativa. Cada una explica un mecanismo real
+                del modelo con controles que podés mover en vivo.
+            </p>
         </div>
 
-        <div class="content-grid">
-            <a href="Panel-IA-Generativa.html" class="card content-card">
-                <span class="card-icon">🤖</span>
-                <div class="card-content">
-                    <h2 class="card-title" data-i18n="card1Title">Panel de IA Generativa</h2>
-                    <p class="card-description" data-i18n="card1Desc">
-                        Descubre cómo funciona la IA generativa. Una experiencia interactiva que te muestra los conceptos clave detrás de los sistemas de inteligencia artificial más avanzados.
-                    </p>
-                </div>
+        <nav class="index-grid" aria-label="Contenidos disponibles">
+            <a href="Panel-IA-Generativa.html" class="index-card">
+                <span class="index-card-num">01</span>
+                <p class="tc-tag" data-i18n="card1Tag">[ SAMPLING ]</p>
+                <h2 class="index-card-title" data-i18n="card1Title">Panel de IA Generativa</h2>
+                <p class="index-card-desc" data-i18n="card1Desc">
+                    Cómo un LLM elige la siguiente palabra. Movés Temperatura, Top-K y Top-P y
+                    ves en el gráfico exactamente qué tokens sobreviven al filtro.
+                </p>
+                <span class="index-card-cta"><span data-i18n="cta">Abrir demo</span> →</span>
             </a>
 
-            <a href="llm_conocimiento.html" class="card content-card">
-                <span class="card-icon">🧠</span>
-                <div class="card-content">
-                    <h2 class="card-title" data-i18n="card2Title">Conocimiento LLM</h2>
-                    <p class="card-description" data-i18n="card2Desc">
-                        Demostración visual de cómo un modelo LLM almacena conocimiento en un espacio vectorial y cómo encuentra respuestas usando similitud de coseno.
-                    </p>
-                </div>
+            <a href="llm_conocimiento.html" class="index-card">
+                <span class="index-card-num">02</span>
+                <p class="tc-tag" data-i18n="card2Tag">[ EMBEDDINGS ]</p>
+                <h2 class="index-card-title" data-i18n="card2Title">Conocimiento LLM</h2>
+                <p class="index-card-desc" data-i18n="card2Desc">
+                    Cómo un modelo guarda conocimiento en un espacio vectorial. Escribís un prompt
+                    y seguís paso a paso el embedding y la similitud de coseno.
+                </p>
+                <span class="index-card-cta"><span data-i18n="cta2">Abrir demo</span> →</span>
             </a>
-        </div>
+        </nav>
 
-        <div class="footer">
-            <p data-i18n="footer">Teamcubation © 2025 — Aprendizaje interactivo</p>
-        </div>
+        <footer class="tc-chrome-bottom">
+            <span class="tc-chrome-anchor">[ TQ ]</span>
+            <span class="tc-chrome-section" data-i18n="chromeSection">ÍNDICE</span>
+            <span class="tc-chrome-chapter">V1.2026</span>
+            <span class="tc-chrome-page">01 / 01</span>
+        </footer>
     </div>
 
     <script>
     (function () {
         const I18N = {
             es: {
-                __title: "Booster - Índice de Contenidos",
-                subtitle: "Recursos y herramientas educativas de Teamcubation",
+                __title: "Booster · Índice de contenidos",
+                titleA: "Recursos",
+                titleB: "interactivos",
+                subtitle: "Demos que abren la caja negra de la IA generativa. Cada una explica un mecanismo real del modelo con controles que podés mover en vivo.",
+                card1Tag: "[ SAMPLING ]",
                 card1Title: "Panel de IA Generativa",
-                card1Desc: "Descubre cómo funciona la IA generativa. Una experiencia interactiva que te muestra los conceptos clave detrás de los sistemas de inteligencia artificial más avanzados.",
+                card1Desc: "Cómo un LLM elige la siguiente palabra. Movés Temperatura, Top-K y Top-P y ves en el gráfico exactamente qué tokens sobreviven al filtro.",
+                card2Tag: "[ EMBEDDINGS ]",
                 card2Title: "Conocimiento LLM",
-                card2Desc: "Demostración visual de cómo un modelo LLM almacena conocimiento en un espacio vectorial y cómo encuentra respuestas usando similitud de coseno.",
-                footer: "Teamcubation © 2025 — Aprendizaje interactivo"
+                card2Desc: "Cómo un modelo guarda conocimiento en un espacio vectorial. Escribís un prompt y seguís paso a paso el embedding y la similitud de coseno.",
+                cta: "Abrir demo",
+                cta2: "Abrir demo",
+                chromeSection: "ÍNDICE"
             },
             pt: {
-                __title: "Booster - Índice de Conteúdos",
-                subtitle: "Recursos e ferramentas educativas da Teamcubation",
+                __title: "Booster · Índice de conteúdos",
+                titleA: "Recursos",
+                titleB: "interativos",
+                subtitle: "Demos que abrem a caixa-preta da IA generativa. Cada uma explica um mecanismo real do modelo com controles que você move ao vivo.",
+                card1Tag: "[ SAMPLING ]",
                 card1Title: "Painel de IA Generativa",
-                card1Desc: "Descubra como funciona a IA generativa. Uma experiência interativa que mostra os conceitos-chave por trás dos sistemas de inteligência artificial mais avançados.",
+                card1Desc: "Como um LLM escolhe a próxima palavra. Você move Temperatura, Top-K e Top-P e vê no gráfico exatamente quais tokens sobrevivem ao filtro.",
+                card2Tag: "[ EMBEDDINGS ]",
                 card2Title: "Conhecimento LLM",
-                card2Desc: "Demonstração visual de como um modelo LLM armazena conhecimento em um espaço vetorial e como encontra respostas usando similaridade de cosseno.",
-                footer: "Teamcubation © 2025 — Aprendizagem interativa"
+                card2Desc: "Como um modelo guarda conhecimento em um espaço vetorial. Você escreve um prompt e acompanha passo a passo o embedding e a similaridade de cosseno.",
+                cta: "Abrir demo",
+                cta2: "Abrir demo",
+                chromeSection: "ÍNDICE"
             }
         };
 
@@ -199,13 +224,13 @@
                 const key = el.getAttribute("data-i18n");
                 if (dict[key] != null) el.textContent = dict[key];
             });
-            document.querySelectorAll(".lang-btn").forEach(btn => {
+            document.querySelectorAll(".tc-segmented [data-lang]").forEach(btn => {
                 btn.classList.toggle("active", btn.dataset.lang === lang);
             });
             localStorage.setItem(LANG_KEY, lang);
         }
 
-        document.querySelectorAll(".lang-btn").forEach(btn => {
+        document.querySelectorAll(".tc-segmented [data-lang]").forEach(btn => {
             btn.addEventListener("click", () => applyLang(btn.dataset.lang));
         });
 

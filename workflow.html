@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Workflow - Automatización de Cumpleaños</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="imagenes/brand/iso-light.png">
+    <link rel="stylesheet" href="teamcubation.css">
     <style>
         * {
             margin: 0;
@@ -14,8 +18,8 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            color: #2d3748;
+            background: #F7F4EE;
+            color: #0D0C0D;
             line-height: 1.6;
             overflow-x: hidden;
         }
@@ -33,25 +37,25 @@
         }
 
         h1 {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
             font-size: clamp(1.3rem, 4vw, 1.8rem);
-            color: #B636FF;
+            color: #FF4933;
             margin-bottom: 8px;
             font-weight: 800;
         }
 
         .subtitle {
             font-size: clamp(0.8rem, 2vw, 0.95rem);
-            color: #4a5568;
+            color: #4A4A4A;
             max-width: 800px;
             margin: 0 auto 15px;
         }
 
         .workflow-container {
             background: white;
-            border-radius: 12px;
+            border-radius: 0;
             padding: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            box-shadow: none;
             animation: fadeIn 1.2s ease-out;
             margin-bottom: 20px;
         }
@@ -76,7 +80,7 @@
             height: 40px;
             padding: 0;
             border: none;
-            border-radius: 8px;
+            border-radius: 0;
             font-size: 1.3rem;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -84,25 +88,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: none;
         }
 
         .icon-button.run {
-            background: linear-gradient(135deg, #FF4933 0%, #FF2E5B 100%);
+            background: #FF4933;
         }
 
         .icon-button.run:hover:not(:disabled) {
             transform: scale(1.1);
-            box-shadow: 0 4px 15px rgba(255, 73, 51, 0.4);
+            box-shadow: none;
         }
 
         .icon-button.reset {
-            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+            background: #8A8A8A;
         }
 
         .icon-button.reset:hover:not(:disabled) {
             transform: scale(1.1);
-            box-shadow: 0 4px 15px rgba(74, 85, 104, 0.4);
+            box-shadow: none;
         }
 
         .icon-button:disabled {
@@ -111,12 +115,12 @@
         }
 
         .icon-button.edit {
-            background: linear-gradient(135deg, #B636FF 0%, #6D00FF 100%);
+            background: #FF4933;
         }
 
         .icon-button.edit:hover:not(:disabled) {
             transform: scale(1.1);
-            box-shadow: 0 4px 15px rgba(182, 54, 255, 0.4);
+            box-shadow: none;
         }
 
         /* Toggle orientación */
@@ -129,7 +133,7 @@
         .toggle-label {
             font-weight: 600;
             font-size: 0.9rem;
-            color: #4a5568;
+            color: #4A4A4A;
         }
 
         .toggle-switch {
@@ -152,7 +156,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, #B636FF 0%, #6D00FF 100%);
+            background: #FF4933;
             transition: .4s;
             border-radius: 34px;
             display: flex;
@@ -181,7 +185,7 @@
             background-color: white;
             transition: .4s;
             border-radius: 34px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: none;
         }
 
         input:checked + .slider:before {
@@ -227,9 +231,9 @@
 
         .flow-node {
             background: white;
-            border-radius: 12px;
+            border-radius: 0;
             padding: 15px 18px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            box-shadow: none;
             position: relative;
             z-index: 2;
             transition: all 0.3s ease;
@@ -249,7 +253,7 @@
 
         .flow-node.active {
             transform: scale(1.02);
-            box-shadow: 0 8px 30px rgba(255, 73, 51, 0.4);
+            box-shadow: none;
             border: 3px solid #FF4933;
             animation: activeBorder 1s ease-in-out infinite;
         }
@@ -257,11 +261,11 @@
         @keyframes activeBorder {
             0%, 100% {
                 border-color: #FF4933;
-                box-shadow: 0 8px 30px rgba(255, 73, 51, 0.4), 0 0 0 0 rgba(255, 73, 51, 0.4);
+                box-shadow: none;
             }
             50% {
-                border-color: #FF2E5B;
-                box-shadow: 0 8px 30px rgba(255, 73, 51, 0.6), 0 0 0 8px rgba(255, 73, 51, 0.1);
+                border-color: #E63A26;
+                box-shadow: none;
             }
         }
 
@@ -279,7 +283,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
+            border-radius: 0;
             flex-shrink: 0;
         }
 
@@ -294,22 +298,22 @@
         .node-title {
             font-size: 0.95rem;
             font-weight: 700;
-            color: #2d3748;
+            color: #0D0C0D;
             margin-top: 2px;
         }
 
         .node-description {
-            color: #718096;
+            color: #8A8A8A;
             font-size: 0.8rem;
             margin-top: 6px;
             line-height: 1.4;
         }
 
         .loop-counter {
-            background: linear-gradient(135deg, #00B2FF 0%, #001AFF 100%);
+            background: #8A8A8A;
             color: white;
             padding: 6px 12px;
-            border-radius: 6px;
+            border-radius: 0;
             font-weight: 700;
             font-size: 0.75rem;
             margin-top: 8px;
@@ -317,10 +321,10 @@
         }
 
         .current-person-card {
-            background: linear-gradient(135deg, #FFA232 0%, #FF4933 100%);
+            background: #FFB3A6;
             color: white;
             padding: 12px;
-            border-radius: 10px;
+            border-radius: 0;
             margin-top: 10px;
             font-size: 0.8rem;
             display: none;
@@ -350,7 +354,7 @@
 
         /* Estilos por tipo de nodo */
         .flow-node.trigger .node-icon {
-            background: linear-gradient(135deg, #FF4933 0%, #FF2E5B 100%);
+            background: #FF4933;
             color: white;
         }
 
@@ -359,38 +363,38 @@
         }
 
         .flow-node.action .node-icon {
-            background: linear-gradient(135deg, #B636FF 0%, #6D00FF 100%);
+            background: #FF4933;
             color: white;
         }
 
         .flow-node.action .node-type {
-            color: #B636FF;
+            color: #FF4933;
         }
 
         .flow-node.loop .node-icon {
-            background: linear-gradient(135deg, #00B2FF 0%, #001AFF 100%);
+            background: #8A8A8A;
             color: white;
         }
 
         .flow-node.loop .node-type {
-            color: #00B2FF;
+            color: #8A8A8A;
         }
 
         .flow-node.condition .node-icon {
-            background: linear-gradient(135deg, #DCDF30 0%, #FFA232 100%);
-            color: #4a4a00;
+            background: #FFE0D9;
+            color: #4A4A4A;
         }
 
         .flow-node.condition .node-type {
-            color: #8b8b00;
+            color: #8A8A8A;
         }
 
         /* Data panel (tabla, resultados) */
         .data-panel {
-            background: #f8f9fa;
-            border-radius: 10px;
+            background: #F7F4EE;
+            border-radius: 0;
             padding: 15px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            box-shadow: none;
             flex-shrink: 0;
         }
 
@@ -403,10 +407,10 @@
         }
 
         .data-panel h4 {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
             font-size: 0.85rem;
             margin-bottom: 10px;
-            color: #2d3748;
+            color: #0D0C0D;
             font-weight: 800;
         }
 
@@ -415,12 +419,12 @@
             border-collapse: collapse;
             font-size: 0.75rem;
             background: white;
-            border-radius: 6px;
+            border-radius: 0;
             overflow: hidden;
         }
 
         .excel-table th {
-            background: #B636FF;
+            background: #FF4933;
             color: white;
             padding: 8px 6px;
             text-align: left;
@@ -430,7 +434,7 @@
 
         .excel-table td {
             padding: 8px 6px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #C9C7C2;
         }
 
         .excel-table tr:last-child td {
@@ -438,23 +442,23 @@
         }
 
         .excel-table tr.highlighted {
-            background: #fff3cd;
+            background: #FFE0D9;
             font-weight: 600;
         }
 
         /* Email preview */
         .email-preview {
             background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            border: 1px solid #C9C7C2;
+            border-radius: 0;
             overflow: hidden;
             font-size: 0.8rem;
         }
 
         .email-header {
-            background: #f8f9fa;
+            background: #F7F4EE;
             padding: 10px 12px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #C9C7C2;
         }
 
         .email-field {
@@ -470,20 +474,20 @@
 
         .email-label {
             font-weight: 700;
-            color: #4a5568;
+            color: #4A4A4A;
             width: 60px;
             flex-shrink: 0;
         }
 
         .email-value {
-            color: #2d3748;
+            color: #0D0C0D;
             flex: 1;
         }
 
         .email-body {
             padding: 15px 12px;
             line-height: 1.6;
-            color: #2d3748;
+            color: #0D0C0D;
             font-size: 0.8rem;
             background: white;
         }
@@ -521,13 +525,13 @@
 
         .modal-content {
             background: white;
-            border-radius: 16px;
+            border-radius: 0;
             padding: 30px;
             max-width: 600px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            box-shadow: none;
             animation: slideUp 0.3s ease-out;
         }
 
@@ -550,9 +554,9 @@
         }
 
         .modal-title {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
             font-size: 1.5rem;
-            color: #B636FF;
+            color: #FF4933;
             font-weight: 800;
         }
 
@@ -561,13 +565,13 @@
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
-            color: #718096;
+            color: #8A8A8A;
             padding: 5px 10px;
             transition: all 0.3s ease;
         }
 
         .modal-close:hover {
-            color: #2d3748;
+            color: #0D0C0D;
             transform: scale(1.1);
         }
 
@@ -586,8 +590,8 @@
 
         .edit-row input {
             padding: 10px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
+            border: 2px solid #C9C7C2;
+            border-radius: 0;
             font-family: 'Inter', sans-serif;
             font-size: 0.9rem;
             transition: all 0.3s ease;
@@ -595,17 +599,17 @@
 
         .edit-row input:focus {
             outline: none;
-            border-color: #B636FF;
-            box-shadow: 0 0 0 3px rgba(182, 54, 255, 0.1);
+            border-color: #FF4933;
+            box-shadow: none;
         }
 
         .delete-row-btn {
-            background: #f56565;
+            background: #B23A2E;
             border: none;
             color: white;
             width: 36px;
             height: 36px;
-            border-radius: 8px;
+            border-radius: 0;
             cursor: pointer;
             font-size: 1.2rem;
             transition: all 0.3s ease;
@@ -615,17 +619,17 @@
         }
 
         .delete-row-btn:hover {
-            background: #e53e3e;
+            background: #B23A2E;
             transform: scale(1.1);
         }
 
         .add-row-btn {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #B636FF 0%, #6D00FF 100%);
+            background: #FF4933;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 0;
             font-weight: 700;
             cursor: pointer;
             margin-bottom: 15px;
@@ -634,7 +638,7 @@
 
         .add-row-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(182, 54, 255, 0.3);
+            box-shadow: none;
         }
 
         .modal-actions {
@@ -646,7 +650,7 @@
         .modal-btn {
             padding: 12px 24px;
             border: none;
-            border-radius: 8px;
+            border-radius: 0;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -654,22 +658,22 @@
         }
 
         .modal-btn.cancel {
-            background: #e2e8f0;
-            color: #4a5568;
+            background: #C9C7C2;
+            color: #4A4A4A;
         }
 
         .modal-btn.cancel:hover {
-            background: #cbd5e0;
+            background: #C9C7C2;
         }
 
         .modal-btn.save {
-            background: linear-gradient(135deg, #FF4933 0%, #FF2E5B 100%);
+            background: #FF4933;
             color: white;
         }
 
         .modal-btn.save:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255, 73, 51, 0.3);
+            box-shadow: none;
         }
 
         /* Toggle para loop manual */
@@ -688,7 +692,7 @@
 
         .loop-control-toggle label {
             cursor: pointer;
-            color: #4a5568;
+            color: #4A4A4A;
             font-weight: 600;
         }
 
@@ -709,7 +713,7 @@
             flex: 1;
             padding: 8px 14px;
             border: 2px solid;
-            border-radius: 6px;
+            border-radius: 0;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -719,23 +723,23 @@
 
         .condition-btn.yes {
             background: white;
-            border-color: #48bb78;
-            color: #48bb78;
+            border-color: #2E7D5B;
+            color: #2E7D5B;
         }
 
         .condition-btn.yes:hover {
-            background: #48bb78;
+            background: #2E7D5B;
             color: white;
         }
 
         .condition-btn.no {
             background: white;
-            border-color: #f56565;
-            color: #f56565;
+            border-color: #B23A2E;
+            color: #B23A2E;
         }
 
         .condition-btn.no:hover {
-            background: #f56565;
+            background: #B23A2E;
             color: white;
         }
 
@@ -746,29 +750,29 @@
 
         .result-badge {
             padding: 6px 12px;
-            border-radius: 6px;
+            border-radius: 0;
             font-weight: 700;
             font-size: 0.75rem;
             display: inline-block;
         }
 
         .result-badge.yes {
-            background: #48bb78;
+            background: #2E7D5B;
             color: white;
         }
 
         .result-badge.no {
-            background: #f56565;
+            background: #B23A2E;
             color: white;
         }
 
         .continue-button {
             margin-top: 10px;
             padding: 8px 16px;
-            background: linear-gradient(135deg, #00B2FF 0%, #001AFF 100%);
+            background: #8A8A8A;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 0;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -779,7 +783,7 @@
 
         .continue-button:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 178, 255, 0.3);
+            box-shadow: none;
         }
 
         .continue-button:disabled {
@@ -788,10 +792,10 @@
         }
 
         .result-summary {
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            background: #2E7D5B;
             color: white;
             padding: 20px;
-            border-radius: 12px;
+            border-radius: 0;
             margin-top: 20px;
             text-align: center;
             display: none;
@@ -803,7 +807,7 @@
         }
 
         .result-summary h3 {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
             font-size: 1.4rem;
             margin-bottom: 12px;
             font-weight: 800;
@@ -825,14 +829,14 @@
         .stat-item {
             background: rgba(255, 255, 255, 0.2);
             padding: 12px 20px;
-            border-radius: 10px;
+            border-radius: 0;
             backdrop-filter: blur(10px);
         }
 
         .stat-number {
             font-size: 1.8rem;
             font-weight: 800;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
         }
 
         .stat-label {
@@ -842,7 +846,7 @@
 
         /* Conectores */
         .connector {
-            background: linear-gradient(to bottom, #cbd5e0 0%, #e2e8f0 100%);
+            background: #C9C7C2;
             margin: 0 auto;
             position: relative;
             z-index: 1;
@@ -869,7 +873,7 @@
             height: 0;
             border-left: 5px solid transparent;
             border-right: 5px solid transparent;
-            border-top: 7px solid #cbd5e0;
+            border-top: 7px solid #C9C7C2;
         }
 
         .workflow-flow.horizontal .connector::after {
@@ -882,7 +886,7 @@
             height: 0;
             border-top: 5px solid transparent;
             border-bottom: 5px solid transparent;
-            border-left: 7px solid #cbd5e0;
+            border-left: 7px solid #C9C7C2;
         }
 
         /* Círculo animado - Oculto */
@@ -891,16 +895,16 @@
         }
 
         .info-box {
-            background: linear-gradient(135deg, #B636FF 0%, #6D00FF 100%);
+            background: #FF4933;
             color: white;
             padding: 20px;
-            border-radius: 12px;
+            border-radius: 0;
             margin-top: 20px;
             animation: fadeIn 1.4s ease-out;
         }
 
         .info-box h3 {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
             font-size: 1.2rem;
             margin-bottom: 12px;
             font-weight: 800;
@@ -914,14 +918,14 @@
 
         .nested-node {
             padding-left: 15px;
-            border-left: 3px solid #e2e8f0;
+            border-left: 3px solid #C9C7C2;
         }
 
         .workflow-flow.horizontal .nested-node {
             padding-left: 0;
             padding-top: 15px;
             border-left: none;
-            border-top: 3px solid #e2e8f0;
+            border-top: 3px solid #C9C7C2;
         }
 
         @keyframes fadeIn {
@@ -1030,8 +1034,9 @@
         <nav class="navbar-fixed">
             <div class="nav-inner">
                 <div class="navbar-left">
+                    <a href="contenidos.html" aria-label="Volver al índice"><img class="tc-logo" src="imagenes/brand/logo-color.png" alt="Teamcubation" style="height:22px;width:auto;display:block"></a>
                     <div class="workflow-title">
-                        <h1>🔄 Workflow Automático</h1>
+                        <h1>Workflow Automático</h1>
                     </div>
                 </div>
                 <div class="navbar-center">
@@ -1069,7 +1074,7 @@
                 left: 0;
                 width: 100%;
                 background: #fff;
-                box-shadow: 0 2px 14px 0 rgba(182,54,255,0.06);
+                box-shadow: none;
                 z-index: 1002;
                 min-height: 60px;
                 display: flex;
@@ -1092,6 +1097,7 @@
                 min-width: 0;
                 display: flex;
                 align-items: center;
+                gap: 16px;
             }
             .navbar-center {
                 flex: 1 1 0;
@@ -1107,9 +1113,9 @@
             }
             .workflow-title h1 {
                 margin: 0;
-                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-family: 'Inter', system-ui, sans-serif;
                 font-size: clamp(1.15rem, 2vw, 1.55rem);
-                color: #B636FF;
+                color: #FF4933;
                 font-weight: 800;
                 letter-spacing: -0.5px;
             }
@@ -1383,6 +1389,12 @@
                 </div>
             </div>
         </div>
+
+        <footer class="tc-chrome-bottom">
+            <span class="tc-chrome-anchor">[ TQ ]</span>
+            <span class="tc-chrome-section">AUTOMATIZACIÓN</span>
+            <span class="tc-chrome-chapter">V1.2026</span>
+        </footer>
     </div>
 
     <script>
