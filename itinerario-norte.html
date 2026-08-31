@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Itinerario del norte · Booster</title>
+<meta name="description" content="Demo interactiva de Teamcubation: escribí un pedido de itinerario al norte argentino y mirá en el mapa cómo cambia la respuesta de la IA a medida que le sumás contexto (días, origen, presupuesto, intereses)." />
+<link rel="icon" href="imagenes/brand/iso-light.png">
+<link rel="stylesheet" href="teamcubation.css">
+<style>
+  /* ============================================
+     ITINERARIO DEL NORTE — Cubation Design System
+     Editorial · una sola tinta · chrome monoespaciado
+     ============================================ */
+  html, body { height: 100% }
+  body {
+    margin: 0;
+    background: var(--tc-cream);
+    color: var(--tc-ink-soft);
+    font-family: var(--tc-font-display);
+    line-height: 1.45;
+    font-size: 16px;
+    overflow: hidden;
+  }
+  .app {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    height: 100vh;
+    max-width: 1456px;
+    margin: 0 auto;
+    padding: var(--tc-s4) var(--tc-s5) var(--tc-s3);
+  }
+
+  /* --- Chrome + headline --- */
+  .page-headline {
+    padding: var(--tc-s4) 0 var(--tc-s3);
+    border-bottom: 1px solid var(--tc-line);
+  }
+  .page-headline .tc-eyebrow { margin-bottom: var(--tc-s2) }
+  .page-headline h1 {
+    font-family: var(--tc-font-display);
+    font-size: clamp(22px, 2.6vw, 40px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--tc-ink);
+    margin: 0;
+  }
+
+  main {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(360px, 1fr);
+    gap: var(--tc-s4);
+    padding: var(--tc-s4) 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .side {
+    display: grid;
+    grid-template-rows: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: var(--tc-s4);
+    min-height: 0;
+  }
+  @media (max-width: 980px) {
+    body { overflow: auto }
+    .app { height: auto; min-height: 100vh; padding: var(--tc-s3) var(--tc-s4) }
+    main { grid-template-columns: 1fr; overflow: visible }
+    .side { grid-template-rows: auto auto }
+    .controls-panel, .result-panel { overflow: visible !important; max-height: none !important }
+  }
+
+  /* --- Paneles --- */
+  .panel {
+    background: var(--tc-white);
+    border: 1px solid var(--tc-line-soft);
+    border-radius: 0;
+    padding: var(--tc-s3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--tc-s2);
+    min-height: 0;
+  }
+  .panel h2 {
+    margin: 0;
+    font-family: var(--tc-font-mono);
+    font-size: var(--tc-mono);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tc-orange);
+  }
+  .canvas-panel { min-height: 0 }
+  .controls-panel { overflow-y: auto; gap: var(--tc-s3) }
+  .result-panel { overflow-y: auto }
+
+  .canvasBox {
+    position: relative;
+    background: var(--tc-white);
+    border: 1px solid var(--tc-line-soft);
+    border-radius: 0;
+    overflow: hidden;
+    flex: 1;
+    min-height: 260px;
+    width: 100%;
+    display: flex;
+  }
+  @media (max-width: 980px) {
+    /* min-height + aspect-ratio impone un min-width: en mobile manda el ancho */
+    .canvasBox { flex: none; aspect-ratio: 700 / 499; height: auto; min-height: 0 }
+  }
+  .canvasBox svg { width: 100%; height: 100%; display: block }
+
+  /* --- Leyenda --- */
+  .legend { display: flex; gap: var(--tc-s3); flex-wrap: wrap; padding: var(--tc-s1) 0 }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--tc-font-mono);
+    font-size: var(--tc-mono-sm);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tc-mute);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 0 }
+
+  /* --- Cards de control --- */
+  .card {
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--tc-line-soft);
+    border-radius: 0;
+    padding: var(--tc-s3) 0 0;
+  }
+  .card:first-child { border-top: none; padding-top: 0 }
+  .card h3 {
+    margin: 0 0 var(--tc-s2) 0;
+    font-family: var(--tc-font-mono);
+    font-size: var(--tc-mono-sm);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tc-orange);
+  }
+  .card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--tc-s2);
+    margin-bottom: var(--tc-s2);
+  }
+  .card-head h3 { margin: 0 }
+  label { font-size: 14px; font-weight: 600; color: var(--tc-ink) }
+  small { display: block; margin-top: var(--tc-s1); font-size: 12px; color: var(--tc-mute) }
+
+  textarea#prompt {
+    width: 100%;
+    margin-top: var(--tc-s2);
+    padding: 10px 12px;
+    min-height: 72px;
+    resize: vertical;
+    border-radius: 0;
+    border: 1px solid var(--tc-line-soft);
+    background: var(--tc-white);
+    font-family: var(--tc-font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--tc-ink);
+    box-sizing: border-box;
+    transition: border-color var(--tc-transition-fast);
+  }
+  textarea#prompt:focus {
+    outline: none;
+    border-color: var(--tc-orange);
+    box-shadow: inset 0 -2px 0 var(--tc-orange);
+  }
+
+  /* --- Señales leídas --- */
+  .slots { display: flex; flex-direction: column; gap: 6px }
+  .slot {
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    align-items: center;
+    gap: var(--tc-s2);
+  }
+  .slot-key {
+    font-family: var(--tc-font-mono);
+    font-size: var(--tc-mono-sm);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tc-mute);
+  }
+  .token {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: 0;
+    font-family: var(--tc-font-mono);
+    font-size: 11px;
+    border: 1px solid transparent;
+  }
+  .slot .token { justify-self: start; max-width: 100% }
+  .token-recognized { background: var(--tc-orange-soft); border-color: var(--tc-orange); color: var(--tc-ink) }
+  .token-ignored { background: transparent; border-color: var(--tc-line-soft); color: var(--tc-mute) }
+
+  /* --- Chips de señales faltantes --- */
+  .chips {
+    display: flex;
+    gap: var(--tc-s1);
+    flex-wrap: wrap;
+    margin-top: var(--tc-s3);
+    padding: var(--tc-s2);
+    max-height: 84px;
+    overflow-y: auto;
+    border: 1px solid var(--tc-line-soft);
+    border-radius: 0;
+    background: var(--tc-cream);
+  }
+  .chip {
+    background: var(--tc-white);
+    border: 1px solid var(--tc-line-soft);
+    padding: 4px 8px;
+    border-radius: 0;
+    font-family: var(--tc-font-mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--tc-ink-soft);
+    cursor: pointer;
+    transition: background var(--tc-transition-fast), color var(--tc-transition-fast), border-color var(--tc-transition-fast);
+  }
+  .chip:hover { border-color: var(--tc-orange); color: var(--tc-orange) }
+  .chips-empty { font-size: 12px; color: var(--tc-mute); margin: 0; font-family: var(--tc-font-mono) }
+
+  /* --- Barra de precisión --- */
+  .meter {
+    display: flex;
+    align-items: center;
+    gap: var(--tc-s2);
+    margin-top: var(--tc-s2);
+  }
+  .meter-label {
+    font-family: var(--tc-font-mono);
+    font-size: var(--tc-mono-sm);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tc-mute);
+    white-space: nowrap;
+  }
+  .meter-track {
+    flex: 1;
+    height: 6px;
+    background: var(--tc-cream-dim);
+    border: 1px solid var(--tc-line-soft);
+    overflow: hidden;
+  }
+  .meter-fill {
+    height: 100%;
+    width: 0;
+    background: var(--tc-orange);
+    transition: width var(--tc-transition-base);
+  }
+  .meter-copy { font-size: 13px; color: var(--tc-ink-soft); margin: 6px 0 0 }
+  .meter-count {
+    font-family: var(--tc-font-mono);
+    font-size: var(--tc-mono-sm);
+    letter-spacing: 0.06em;
+    color: var(--tc-mute);
+    white-space: nowrap;
+  }
+
+  /* --- Itinerario --- */
+  .etapas { list-style: none; margin: 0; padding: 0 }
+  .etapa {
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    gap: var(--tc-s2);
+    padding: var(--tc-s2) 0;
+    border-bottom: 1px solid var(--tc-line-soft);
+  }
+  .etapa:last-child { border-bottom: none }
+  .etapa-num {
+    font-family: var(--tc-font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--tc-white);
+    background: var(--tc-orange);
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .etapa-nombre { font-size: 14px; font-weight: 700; color: var(--tc-ink) }
+  .etapa-noches {
+    font-family: var(--tc-font-mono);
+    font-size: 11px;
+    color: var(--tc-orange);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .etapa-detalle { font-size: 12px; color: var(--tc-ink-soft); margin-top: 2px }
+  .etapa-motivo {
+    font-family: var(--tc-font-mono);
+    font-size: 11px;
+    color: var(--tc-mute);
+    margin-top: 3px;
+  }
+  .avisos { list-style: none; margin: var(--tc-s3) 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px }
+  .aviso {
+    font-size: 12px;
+    color: var(--tc-ink-soft);
+    border-left: 2px solid var(--tc-orange);
+    background: var(--tc-cream);
+    padding: 6px var(--tc-s2);
+  }
+  .empty-hint { font-size: 13px; color: var(--tc-mute); margin: 0 }
+
+  /* ============================================
+     MAPA
+     Naranja = lo que la IA elige. Naranja suave = lo que todavía duda.
+     ============================================ */
+  .prov {
+    fill: var(--tc-white);
+    stroke: var(--tc-line-soft);
+    stroke-width: calc(var(--k, 1) * 0.8px);
+    opacity: 0.55;
+    transition: fill var(--tc-transition-base), opacity var(--tc-transition-base), stroke var(--tc-transition-base);
+  }
+  .prov.norte { opacity: 1; stroke: var(--tc-mute-light); stroke-width: calc(var(--k, 1) * 1px) }
+  .prov.candidata { fill: var(--tc-orange-soft); stroke: var(--tc-chart-hi-soft) }
+  .prov.elegida { fill: var(--tc-orange); stroke: var(--tc-orange) }
+
+  .lblProv {
+    font-family: var(--tc-font-mono);
+    font-size: calc(var(--k, 1) * 12px);
+    fill: var(--tc-mute);
+    text-anchor: middle;
+    user-select: none;
+    pointer-events: none;
+    transition: fill var(--tc-transition-base);
+  }
+  .lblProv.on {
+    fill: var(--tc-ink);
+    font-weight: 700;
+    paint-order: stroke;
+    stroke: var(--tc-white);
+    stroke-width: calc(var(--k, 1) * 3px);
+    stroke-linejoin: round;
+  }
+  .lblProv.cand { fill: var(--tc-ink-soft) }
+
+  .ruta { stroke: var(--tc-ink); stroke-width: calc(var(--k, 1) * 1.6px); stroke-dasharray: calc(var(--k, 1) * 6px) calc(var(--k, 1) * 4px); fill: none; opacity: 0.55 }
+  .entrada { stroke: var(--tc-mute); stroke-width: calc(var(--k, 1) * 1.4px); stroke-dasharray: calc(var(--k, 1) * 4px) calc(var(--k, 1) * 4px); fill: none }
+  .lblEntrada {
+    font-family: var(--tc-font-mono);
+    font-size: calc(var(--k, 1) * 12px);
+    fill: var(--tc-mute);
+    letter-spacing: 0.04em;
+    user-select: none;
+    pointer-events: none;
+  }
+  .badge { fill: var(--tc-ink); stroke: var(--tc-white); stroke-width: calc(var(--k, 1) * 2px) }
+  .badge-num {
+    font-family: var(--tc-font-mono);
+    font-size: calc(var(--k, 1) * 13px);
+    font-weight: 700;
+    fill: var(--tc-white);
+    text-anchor: middle;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .fadeIn { animation: fade .5s ease both }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0 }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="tc-chrome-top">
+    <div class="tc-chrome-left">
+      <a href="contenidos.html" aria-label="Volver al índice"><img class="tc-logo" src="imagenes/brand/logo-color.png" alt="Teamcubation"></a>
+      <a class="tc-chrome-path" href="contenidos.html">// BOOSTER · DEMO_03</a>
+    </div>
+    <div class="tc-chrome-right">
+      <span class="tc-chrome-path">DOC.ID · TC-BST-03</span>
+    </div>
+  </header>
+
+  <div class="page-headline">
+    <p class="tc-eyebrow">↳ demo_03 / contexto.tq</p>
+    <h1>
+      Cuánto cambia el itinerario según el
+      <span class="tc-accent">contexto</span> que le des<span class="tc-dot"></span>
+    </h1>
+  </div>
+
+  <main>
+    <!-- Mapa (izquierda) -->
+    <section class="panel canvas-panel" aria-labelledby="mapaTitle">
+      <h2 id="mapaTitle">Provincias que la IA incluiría</h2>
+      <div class="legend" aria-label="Leyenda del mapa">
+        <span class="pill"><span class="dot" style="background:var(--tc-orange)"></span> Etapa del itinerario</span>
+        <span class="pill"><span class="dot" style="background:var(--tc-orange-soft); border:1px solid var(--tc-chart-hi-soft)"></span> Todavía duda entre estas</span>
+        <span class="pill"><span class="dot" style="background:var(--tc-white); border:1px solid var(--tc-mute-light)"></span> Queda afuera</span>
+      </div>
+      <div class="canvasBox">
+        <svg id="mapa" viewBox="0 0 700 499" role="img" aria-label="Mapa del norte argentino. Escribí un prompt para ver qué provincias incluiría la IA.">
+          <defs>
+            <marker id="puntaEntrada" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto-start-reverse">
+              <path d="M0,0 L9,4.5 L0,9 z" fill="var(--tc-mute)"></path>
+            </marker>
+          </defs>
+          <g id="gProv">
+<path id="AR-Y" class="prov norte" d="M121.2 102.7L130.9 70.0L123.5 62.1L126.8 57.1L130.4 54.0L130.1 48.9L132.4 48.8L134.1 46.9L140.3 44.6L140.0 42.9L142.3 35.6L143.8 34.6L146.1 35.1L146.7 34.2L156.9 31.3L158.7 29.3L159.8 29.1L162.6 16.6L163.3 16.3L168.5 18.3L169.8 19.7L170.5 22.1L175.1 23.3L181.6 30.3L182.8 30.7L189.6 29.5L194.6 30.2L205.5 30.1L203.6 35.6L203.5 39.8L199.6 47.9L199.1 51.7L200.9 52.2L202.4 53.9L201.6 57.7L202.3 63.0L203.8 67.5L205.8 69.3L210.9 69.6L212.6 71.2L213.0 73.3L211.6 81.4L212.2 82.3L215.2 83.7L217.8 89.1L218.4 92.0L221.6 92.4L223.6 90.8L227.2 90.2L228.3 91.3L231.5 92.5L236.3 97.6L237.2 96.9L237.9 94.4L239.2 92.7L246.5 92.8L247.7 122.8L245.5 128.0L242.0 132.6L240.9 133.3L237.1 133.9L235.9 135.5L233.6 136.2L230.8 138.9L229.3 142.0L228.6 142.1L220.3 135.0L217.3 141.2L215.9 141.4L210.7 139.1L207.2 136.2L206.5 135.0L202.0 137.1L195.8 135.3L193.7 133.5L191.7 134.0L189.3 132.7L182.5 122.4L182.2 118.0L176.4 113.7L174.0 114.3L172.4 112.0L172.7 110.2L171.3 107.8L171.5 104.3L172.9 102.0L172.4 100.5L172.9 94.2L171.2 92.2L165.4 88.7L163.7 88.7L161.9 87.4L158.4 86.4L156.9 87.4L155.7 93.1L158.5 102.2L158.0 116.4L156.5 120.9L151.7 125.2L147.7 125.0L144.7 123.5L140.9 119.0L136.6 116.8L133.6 112.5L131.9 112.0L131.5 110.7L128.2 107.1L125.5 106.4Z"><title>Jujuy</title></path>
+<path id="AR-A" class="prov norte" d="M119.8 107.2L121.2 102.7L125.5 106.4L128.2 107.1L131.5 110.7L131.9 112.0L133.6 112.5L136.6 116.8L140.9 119.0L144.7 123.5L147.7 125.0L151.7 125.2L156.5 120.9L158.0 116.4L158.5 102.2L155.7 93.1L156.9 87.4L158.0 86.4L161.9 87.4L163.7 88.7L165.4 88.7L171.2 92.2L172.7 93.8L172.9 99.5L172.4 100.5L172.9 102.0L171.5 104.3L171.3 107.8L172.7 110.2L172.4 112.0L174.0 114.3L176.4 113.7L182.2 118.0L182.5 122.4L189.5 132.9L191.7 134.0L193.7 133.5L195.8 135.3L202.0 137.1L206.5 135.0L207.2 136.2L210.7 139.1L216.5 141.5L217.3 141.2L220.3 135.0L228.9 142.2L230.8 138.9L233.6 136.2L235.9 135.5L237.1 133.9L240.9 133.3L242.0 132.6L246.9 125.4L247.7 122.8L246.7 93.4L245.1 92.5L239.2 92.7L237.9 94.4L237.2 96.9L236.3 97.6L231.5 92.5L228.3 91.3L227.2 90.2L223.6 90.8L221.6 92.4L218.2 91.8L218.0 89.6L215.2 83.7L212.2 82.3L211.5 81.2L213.0 73.3L212.7 71.5L210.9 69.6L205.8 69.3L204.0 67.8L202.3 63.0L201.6 58.1L201.6 55.9L202.4 53.9L200.9 52.2L199.1 51.7L199.6 47.9L203.5 39.8L203.6 35.6L205.5 30.1L212.4 30.0L220.1 31.8L223.0 33.4L227.3 33.6L230.2 35.1L232.0 37.9L230.8 40.9L232.7 42.7L232.5 44.5L233.8 46.6L236.7 49.7L235.6 54.1L239.6 59.0L239.5 61.2L240.1 63.9L240.9 64.3L243.9 49.6L247.6 45.1L250.7 37.1L252.1 35.8L254.0 30.1L255.5 28.6L256.2 26.2L256.9 25.8L261.8 25.8L264.8 27.9L266.7 26.2L268.9 25.6L300.7 25.4L303.1 25.9L304.0 31.5L308.2 34.3L309.0 35.9L310.4 36.6L310.4 39.2L312.9 39.9L314.6 41.8L316.8 42.6L318.1 44.3L322.0 46.6L322.3 132.7L278.8 189.4L257.3 189.1L246.3 185.8L236.8 206.1L236.5 209.3L234.3 214.9L225.7 215.1L222.8 214.5L219.4 215.5L217.3 217.1L215.5 217.4L212.6 215.9L210.7 215.9L202.9 212.7L200.4 208.3L195.2 210.3L186.1 208.3L185.4 209.3L184.7 217.3L183.9 218.5L170.2 216.4L168.4 215.5L165.9 212.6L163.8 212.4L160.0 216.1L157.6 221.8L156.0 222.5L150.6 216.7L147.0 209.3L140.4 200.1L139.0 196.3L139.2 192.6L141.9 190.2L149.0 189.7L152.1 187.1L153.2 181.2L151.1 177.9L150.4 173.3L149.5 171.9L98.5 172.3L70.3 166.8L71.2 166.1L74.2 166.1L75.6 165.1L75.5 164.2L72.4 160.5L72.7 158.4L71.4 156.7L71.2 155.4L68.0 153.6L66.9 150.9L70.3 141.6L70.8 141.5L72.1 142.8L74.3 137.1L77.2 137.0L80.6 131.9L116.6 116.0L117.6 114.6Z"><title>Salta</title></path>
+<path id="AR-T" class="prov norte" d="M186.3 208.3L189.7 209.5L195.2 210.3L200.4 208.3L202.9 212.7L210.7 215.9L212.6 215.9L215.5 217.4L217.3 217.1L219.4 215.5L222.8 214.5L225.7 215.1L234.3 214.9L234.3 219.4L232.8 225.2L233.7 235.8L230.4 235.8L228.7 241.0L226.6 241.6L224.4 250.0L222.5 252.7L221.2 257.7L218.2 264.8L215.7 266.5L210.7 272.3L214.5 274.2L213.5 276.2L210.9 277.0L210.4 278.2L213.3 286.4L212.0 287.0L210.8 290.7L209.5 292.0L207.4 292.0L204.0 293.2L199.0 290.4L193.0 294.9L190.5 299.2L186.1 294.2L184.5 288.3L182.3 286.9L179.7 287.7L178.5 286.5L177.4 282.7L175.3 280.7L172.9 270.4L173.1 268.7L164.4 265.3L166.3 261.5L169.3 258.4L170.8 255.4L177.1 247.8L178.5 239.2L177.6 236.8L171.1 231.9L167.4 230.8L166.2 229.4L166.0 227.6L168.0 222.1L168.3 219.5L170.2 216.4L182.2 218.5L184.2 218.3L184.8 217.0L185.5 208.8Z"><title>Tucumán</title></path>
+<path id="AR-K" class="prov norte" d="M76.7 252.7L78.1 245.9L67.2 230.0L66.2 225.7L67.0 218.7L73.4 213.0L73.8 211.4L70.2 193.7L67.7 189.6L67.3 186.1L67.9 185.5L65.9 182.7L65.6 181.0L69.4 167.8L70.3 166.8L98.5 172.3L149.7 172.0L151.1 177.9L153.2 181.2L152.1 187.1L149.0 189.7L142.3 190.1L139.7 192.1L139.0 194.5L139.5 198.5L147.0 209.3L150.6 216.7L155.6 222.3L156.6 222.5L157.6 221.8L160.0 216.1L161.6 215.0L163.2 212.7L165.9 212.6L168.4 215.5L170.2 216.4L168.3 219.5L168.0 222.1L166.0 227.6L166.2 229.4L167.4 230.8L171.7 232.3L175.8 235.9L177.8 236.9L178.4 238.2L177.1 247.8L170.8 255.4L169.3 258.4L166.3 261.5L164.4 265.3L173.1 268.7L172.9 270.4L175.3 280.7L177.4 282.7L178.5 286.5L179.7 287.7L182.3 286.9L184.5 288.3L186.1 294.2L189.9 299.0L190.5 299.2L193.0 294.9L199.0 290.4L204.0 293.2L206.4 292.5L210.0 309.4L210.3 316.4L210.1 319.1L207.1 324.0L205.9 324.8L205.9 326.7L209.1 329.0L209.5 330.2L210.0 343.3L211.8 357.0L218.1 369.4L215.3 370.4L214.8 371.9L216.0 383.7L207.6 393.2L205.6 394.4L196.8 396.9L190.0 382.8L183.4 366.8L182.4 358.0L180.9 355.0L167.4 341.9L157.6 336.5L156.9 335.0L158.6 332.1L158.6 330.9L156.1 329.4L153.4 326.0L152.1 319.9L148.5 315.5L132.4 309.1L129.7 309.9L127.4 312.5L123.8 313.2L102.7 312.4L97.8 314.5L96.9 312.3L94.1 308.2L93.3 302.5L92.1 302.2L86.8 303.9L84.4 301.6L79.2 300.7L76.3 297.6L72.5 296.7L73.0 292.2L72.2 289.8L73.1 286.1L72.5 284.8L69.7 284.6L67.0 286.2L63.7 285.2L55.8 287.1L44.2 286.2L44.8 283.8L46.6 282.6L45.9 280.1L48.5 276.0L48.9 271.8L52.5 268.8L54.4 264.1L54.9 259.7L57.2 256.1L61.2 255.5L64.0 257.5L66.6 258.1L67.8 255.5L69.4 254.1Z"><title>Catamarca</title></path>
+<path id="AR-F" class="prov norte" d="M32.5 306.6L36.9 298.4L37.2 296.7L41.9 294.5L44.2 286.2L55.8 287.1L63.7 285.2L67.3 286.2L70.1 284.5L72.5 284.8L73.0 285.6L72.2 289.8L73.0 292.2L72.5 296.7L76.3 297.6L79.2 300.7L84.4 301.6L86.8 303.9L92.1 302.2L93.3 302.5L94.1 308.2L96.9 312.3L97.8 314.5L102.7 312.4L123.8 313.2L127.4 312.5L129.7 309.9L132.4 309.1L148.5 315.5L151.2 318.4L152.1 319.9L153.4 326.0L156.1 329.4L158.6 331.1L156.9 334.7L157.6 336.5L167.4 341.9L180.9 355.0L182.4 358.0L183.4 366.8L190.0 382.8L196.8 396.9L193.5 406.7L191.7 409.9L181.9 442.3L182.2 480.2L176.2 480.9L173.6 479.9L170.1 479.5L163.5 482.1L157.1 482.5L154.7 481.6L151.9 481.9L150.3 481.0L148.1 481.6L142.5 479.8L140.4 474.8L138.1 473.5L137.4 468.2L133.7 467.2L129.5 462.8L129.4 459.7L127.2 454.7L129.0 441.6L126.8 439.6L128.0 432.6L123.6 424.1L121.0 422.6L117.4 417.1L113.3 413.5L111.5 410.5L108.3 408.2L107.7 405.6L105.5 402.0L99.8 397.5L97.8 394.7L94.1 392.7L92.1 390.0L90.1 388.6L89.4 386.8L87.4 384.7L84.2 383.1L83.3 381.1L78.7 377.9L76.8 375.5L70.2 373.5L65.8 373.5L61.9 371.5L56.9 373.0L53.9 372.3L50.6 373.1L49.1 372.5L48.6 370.1L48.9 367.7L50.5 364.5L50.7 359.3L52.0 357.8L49.6 354.2L49.5 350.3L50.7 346.9L52.9 345.6L53.2 343.3L50.7 340.7L48.8 336.1L45.4 332.9L44.2 328.3L41.9 324.3L35.9 319.2L32.4 318.9L30.3 316.5L27.4 317.0L22.9 315.3L28.8 309.1L29.6 305.9L30.2 305.4Z"><title>La Rioja</title></path>
+<path id="AR-G" class="prov norte" d="M278.8 189.4L346.1 189.5L347.4 193.2L347.9 216.7L347.9 296.7L332.4 397.7L326.1 381.1L324.2 379.7L279.4 379.5L278.9 377.4L276.4 376.8L276.2 374.0L273.6 374.2L270.1 373.1L265.3 373.9L262.1 373.7L260.2 372.5L256.9 371.7L256.1 370.5L253.1 368.8L252.2 367.9L252.2 365.4L243.8 363.1L218.1 369.4L211.8 357.0L210.0 343.3L209.5 330.2L209.1 329.0L205.9 326.7L205.9 324.8L207.1 324.0L210.1 319.1L210.3 316.4L210.0 309.4L206.4 292.5L210.3 291.6L212.0 287.0L213.3 286.4L210.4 278.2L210.9 277.0L213.5 276.2L214.5 274.2L210.7 272.3L215.7 266.5L218.2 264.8L221.2 257.7L222.5 252.7L224.4 250.0L226.6 241.6L228.7 241.0L230.4 235.8L233.7 235.8L232.8 224.8L234.3 219.4L234.6 213.4L236.5 209.3L236.8 206.1L246.3 185.8L257.3 189.1Z"><title>Santiago del Estero</title></path>
+<path id="AR-H" class="prov norte" d="M485.3 245.3L480.2 247.7L479.9 248.9L480.5 249.5L478.7 253.3L477.3 252.5L476.5 255.9L474.4 256.3L472.9 257.8L472.9 259.7L475.0 261.9L474.9 265.1L472.8 265.8L463.4 272.6L463.4 275.9L465.5 280.2L466.3 283.6L464.3 296.7L347.9 296.7L347.8 211.5L347.4 193.2L346.1 189.5L278.8 189.4L322.3 132.7L322.1 120.0L331.0 123.5L334.9 124.3L336.7 126.4L340.0 128.8L345.2 129.9L348.1 132.3L350.1 136.3L353.5 136.4L354.4 138.4L358.8 142.6L366.2 143.6L368.4 144.5L369.9 146.6L371.0 147.2L371.0 148.4L373.0 151.8L372.7 153.4L373.8 154.8L375.5 154.9L385.1 163.0L391.4 167.0L397.4 169.0L400.4 174.0L403.1 176.0L403.9 177.7L403.7 178.7L405.4 179.6L406.0 181.4L408.1 181.9L408.6 183.1L408.0 184.2L410.5 189.7L412.0 189.4L416.2 191.1L417.2 192.8L419.1 193.4L420.2 194.8L423.2 196.6L423.8 198.8L427.2 201.3L430.0 205.2L431.2 205.5L431.6 210.9L439.7 212.4L441.6 213.3L443.1 218.7L444.5 220.4L447.9 220.7L452.5 218.4L454.8 220.8L460.6 223.4L464.3 227.9L467.2 229.4L469.3 232.0L471.4 232.4L472.9 234.4L476.3 236.6L477.3 238.7L480.2 241.3L480.7 242.8L482.2 243.6L484.0 243.5L484.2 244.8Z"><title>Chaco</title></path>
+<path id="AR-P" class="prov norte" d="M322.0 46.6L324.3 47.1L324.5 48.3L326.1 49.5L326.5 50.3L325.7 52.4L328.1 53.5L328.0 55.5L328.8 56.0L328.3 57.0L334.5 64.9L335.8 67.2L335.8 69.1L337.8 71.5L342.3 74.3L345.4 77.4L346.9 80.8L349.1 82.4L352.2 82.9L354.2 85.0L355.8 85.3L355.4 86.7L356.4 88.1L364.8 91.4L365.8 93.3L368.1 94.8L369.5 94.8L372.4 97.0L372.0 99.7L374.9 102.7L376.6 105.9L377.9 106.7L379.5 106.3L383.6 108.9L388.0 108.9L389.6 109.8L392.0 109.8L393.5 110.4L394.2 112.1L395.9 112.2L398.0 113.6L402.3 114.1L404.0 115.3L412.0 115.7L416.4 114.9L431.2 124.7L433.7 127.6L436.6 128.4L439.7 130.4L440.3 131.7L443.3 134.0L444.8 136.5L458.7 143.5L466.5 149.5L469.5 149.8L471.2 151.1L480.3 152.8L481.7 153.8L485.9 159.2L486.9 159.3L490.5 156.9L494.6 160.1L497.9 161.6L499.6 161.6L500.3 162.9L504.9 163.4L509.7 167.7L511.0 170.7L513.1 172.7L514.3 176.4L517.7 179.6L517.0 185.1L515.5 186.1L515.0 187.4L513.2 187.3L512.8 188.8L510.2 189.5L508.9 191.3L510.3 192.2L507.0 194.8L507.7 197.2L504.7 199.2L505.7 200.7L503.5 203.4L505.4 204.0L504.8 205.3L500.1 208.9L496.1 210.7L494.6 214.1L493.4 213.1L495.3 215.8L492.7 217.2L492.8 220.1L490.9 224.0L492.0 225.5L490.7 228.9L492.9 231.9L491.8 232.8L492.3 234.6L490.0 234.5L489.5 239.5L487.9 240.0L488.4 241.3L487.8 241.9L485.7 241.8L485.2 242.8L486.5 244.0L486.7 244.8L486.2 245.3L484.4 244.9L484.0 243.5L482.2 243.6L480.9 243.0L480.2 241.3L477.3 238.7L476.3 236.6L472.9 234.4L471.4 232.4L469.3 232.0L467.2 229.4L464.3 227.9L460.6 223.4L454.8 220.8L452.5 218.4L447.9 220.7L444.5 220.4L443.1 218.7L441.6 213.3L439.7 212.4L431.6 210.9L431.2 205.5L430.0 205.2L427.2 201.3L423.8 198.8L423.2 196.6L420.2 194.8L419.1 193.4L417.2 192.8L416.2 191.1L412.0 189.4L410.5 189.7L408.0 184.2L408.6 183.1L408.1 181.9L406.0 181.4L405.4 179.6L403.7 178.7L403.9 177.7L403.1 176.0L400.4 174.0L397.4 169.0L391.4 167.0L385.1 163.0L375.5 154.9L373.8 154.8L372.7 153.4L373.0 151.8L371.0 148.4L371.0 147.2L369.9 146.6L368.4 144.5L366.2 143.6L358.8 142.6L354.4 138.4L353.5 136.4L350.1 136.3L348.1 132.3L345.2 129.9L340.0 128.8L336.7 126.4L334.9 124.3L331.0 123.5L322.1 120.0Z"><title>Formosa</title></path>
+<path id="AR-W" class="prov norte" d="M489.9 262.4L494.4 263.0L498.7 262.5L501.9 263.2L512.0 265.9L519.5 269.6L526.8 269.4L533.2 273.0L537.4 272.9L541.5 270.6L544.4 269.8L549.9 273.9L556.4 271.1L559.1 271.5L562.6 276.1L565.1 277.6L566.4 277.3L569.3 272.7L570.0 268.5L573.0 267.2L575.3 264.9L577.4 264.4L582.8 265.8L581.4 267.2L580.7 271.4L586.6 283.6L588.0 292.4L590.4 295.4L592.2 299.8L596.9 303.4L594.4 305.8L590.7 307.5L591.0 308.7L594.2 310.2L595.2 311.9L594.0 315.3L593.1 315.5L592.3 313.7L587.9 312.8L585.3 314.2L585.5 318.3L581.0 319.8L580.5 323.9L579.8 325.0L577.2 326.8L573.9 331.3L569.7 333.0L569.1 337.7L568.2 339.3L565.4 341.0L563.9 346.5L559.0 348.4L556.2 350.8L554.8 353.0L554.8 355.0L553.3 358.7L549.9 361.0L547.9 365.5L541.9 371.4L539.7 375.3L535.9 379.2L531.6 379.8L528.6 381.5L527.9 383.1L527.2 389.4L523.7 392.1L519.8 397.1L518.1 398.3L514.3 399.4L515.0 402.5L513.8 405.8L505.8 413.2L504.1 416.3L504.3 418.2L506.7 422.9L507.5 425.7L500.2 418.8L498.1 415.0L496.8 410.2L492.6 406.4L490.6 402.7L489.0 401.2L473.9 397.5L467.9 400.0L463.8 401.0L458.5 399.9L448.9 406.5L442.8 404.7L440.1 405.4L438.3 404.9L435.5 406.0L431.7 406.2L431.3 404.2L432.6 397.4L434.4 392.6L432.9 387.0L431.2 383.0L433.1 378.5L434.5 372.1L434.9 361.0L436.3 355.4L437.8 353.0L444.0 350.0L450.0 345.5L450.6 344.3L450.8 339.6L452.5 336.2L452.9 331.4L455.2 325.8L455.0 321.4L456.0 315.3L455.0 311.6L455.1 304.8L456.3 302.7L460.7 301.9L463.0 300.0L465.2 292.8L465.1 289.4L466.2 286.2L466.3 283.6L465.5 280.2L463.4 275.9L463.4 272.6L472.8 265.8L478.7 263.4Z"><title>Corrientes</title></path>
+<path id="AR-N" class="prov norte" d="M638.8 189.1L639.4 188.7L638.7 185.6L640.3 185.3L641.5 187.2L642.3 187.0L643.9 187.9L645.0 190.7L645.5 190.2L645.4 188.7L646.7 187.6L647.1 185.8L649.0 185.9L650.1 184.7L651.0 184.6L652.8 186.6L653.3 185.7L655.5 185.8L654.5 183.6L656.5 183.7L658.5 181.9L658.2 185.4L659.2 186.6L659.7 186.3L659.9 184.4L661.0 185.4L662.0 185.0L663.4 185.6L664.6 189.1L666.9 188.0L667.4 188.5L668.3 191.1L668.0 192.9L669.8 195.4L670.1 203.2L672.9 206.2L674.2 210.6L676.9 214.9L676.6 218.2L674.5 222.0L675.0 227.7L674.0 228.8L674.4 229.9L673.8 232.3L673.9 235.7L672.5 237.5L673.6 238.6L673.4 240.2L674.1 240.4L674.6 242.1L675.1 244.8L674.5 247.9L672.5 252.0L671.4 252.4L670.2 257.8L669.7 258.1L668.1 256.1L667.0 258.3L665.3 257.4L664.7 257.7L664.8 259.4L663.0 259.2L659.5 263.7L656.8 263.4L656.9 262.4L656.0 261.8L653.8 266.7L653.8 268.1L652.6 268.5L651.5 270.3L650.7 270.3L649.0 268.7L649.0 270.6L648.1 271.5L647.3 269.5L645.1 269.4L644.3 270.1L644.9 271.7L641.0 273.0L639.1 271.4L637.7 274.3L636.6 274.8L636.0 273.8L635.0 276.0L631.6 276.5L630.8 275.9L630.9 274.7L630.3 274.8L629.4 275.7L628.7 278.8L626.5 279.3L625.9 284.5L623.0 286.8L619.0 286.4L621.1 289.8L618.3 289.5L617.5 291.2L615.1 289.9L611.7 293.0L609.5 292.8L608.5 295.0L606.8 295.7L606.7 297.4L604.3 300.4L601.7 300.4L599.7 303.5L598.7 303.4L598.6 302.3L597.6 302.1L596.9 303.4L592.2 299.8L590.4 295.4L588.3 292.9L587.2 285.3L580.7 271.4L580.9 268.7L581.5 267.0L582.8 265.8L585.0 265.7L585.8 266.0L587.4 269.0L591.5 271.0L594.5 268.0L598.2 265.7L599.1 261.9L597.9 258.3L599.6 257.7L600.5 255.2L603.5 255.1L604.2 251.3L605.4 249.7L610.9 247.6L614.1 248.5L616.7 248.5L617.5 246.9L617.2 244.3L619.9 241.6L623.4 240.9L625.6 235.6L627.3 234.7L629.8 235.3L630.8 234.3L631.3 231.1L630.9 229.0L634.7 224.4L636.1 218.9L636.1 215.6L637.1 213.8L636.1 211.7L637.0 207.7L636.2 204.0L638.5 202.4L638.1 199.5L639.2 196.3L638.0 194.6L637.0 189.5Z"><title>Misiones</title></path>
+<path id="AR-X" class="prov" d="M332.4 397.7L330.6 411.1L341.8 424.9L331.0 466.9L330.3 468.4L326.4 472.2L327.1 474.6L327.2 481.3L328.5 483.9L327.3 487.3L327.1 492.4L330.3 495.9L332.8 497.5L335.4 504.4L339.4 507.9L340.3 512.6L341.5 514.1L340.3 517.6L342.8 518.5L345.0 522.8L346.5 524.3L346.9 525.8L346.0 528.2L345.8 533.3L345.0 535.7L342.3 538.1L340.4 538.3L339.3 539.8L301.1 602.2L281.2 602.1L279.8 603.7L279.4 633.0L209.7 633.0L209.7 581.4L207.9 544.2L209.6 540.9L212.0 539.6L211.5 537.1L213.0 533.9L212.7 531.7L214.4 528.3L215.6 521.8L216.7 520.2L218.1 515.7L218.4 512.3L216.5 506.5L216.6 500.6L215.3 499.8L210.4 501.2L205.5 501.5L203.3 491.7L200.6 488.7L187.1 480.6L182.2 480.2L181.9 442.3L191.7 409.9L193.5 406.7L196.8 396.9L205.6 394.4L207.6 393.2L215.6 384.5L216.1 382.8L214.8 371.9L215.3 370.4L237.7 364.3L243.8 363.1L252.2 365.4L252.2 367.9L253.1 368.8L256.1 370.5L256.9 371.7L260.2 372.5L262.1 373.7L265.3 373.9L270.1 373.1L273.6 374.2L276.2 374.0L276.4 376.8L278.9 377.4L279.4 379.5L324.2 379.7L326.1 381.1Z"><title>Córdoba</title></path>
+<path id="AR-S" class="prov" d="M434.3 296.7L464.3 296.7L463.8 298.7L462.0 301.1L460.7 301.9L456.3 302.7L455.1 304.8L455.0 311.6L456.0 315.3L455.0 321.4L455.2 325.8L452.9 331.4L452.5 336.2L450.8 339.6L450.6 344.3L450.0 345.5L444.0 350.0L437.8 353.0L436.3 355.4L434.9 361.0L434.5 372.1L433.1 378.5L431.2 383.0L432.9 387.0L434.4 392.6L432.6 397.4L431.3 404.2L432.0 408.4L433.6 412.2L433.2 418.3L431.7 425.2L417.8 447.9L415.2 450.6L414.0 454.6L411.1 458.9L407.4 461.9L400.9 470.0L398.4 471.1L393.1 471.2L391.3 472.0L390.2 478.6L388.4 482.0L388.5 484.4L390.7 489.1L388.9 493.2L389.1 498.0L387.9 502.8L388.0 507.7L386.4 513.7L388.9 518.6L390.2 526.7L393.8 533.1L395.2 537.2L397.5 540.2L401.7 542.7L403.6 545.2L405.8 546.7L406.5 547.8L406.5 549.2L403.9 551.1L403.6 554.3L401.0 556.7L400.2 561.0L398.7 564.2L397.4 565.3L395.6 565.7L394.0 565.3L390.1 562.4L386.2 562.3L383.4 561.1L380.6 561.8L379.5 563.7L379.9 565.2L378.4 567.4L347.8 601.9L301.1 602.2L339.3 539.8L340.4 538.3L341.8 538.3L343.5 537.2L345.7 534.2L345.9 529.2L346.8 525.1L342.8 518.5L340.3 517.6L341.5 514.1L340.3 512.6L339.5 508.1L335.4 504.4L332.8 497.5L330.3 495.9L327.1 492.4L327.3 487.3L328.5 483.9L327.2 481.3L327.1 474.6L326.3 472.8L330.3 468.4L331.0 466.9L341.8 424.9L330.9 411.9L330.5 410.0L347.9 296.7Z"><title>Santa Fe</title></path>
+<path id="AR-J" class="prov" d="M10.5 394.6L9.5 393.7L11.7 389.2L12.2 381.1L11.6 377.0L9.8 374.5L10.0 370.6L7.0 360.3L7.1 357.2L7.5 356.2L9.6 355.0L9.2 353.3L11.9 351.1L12.4 350.0L15.1 349.3L16.8 347.9L16.8 340.4L19.7 333.6L18.8 328.0L20.1 325.1L21.9 323.4L22.1 318.0L22.9 315.3L27.4 317.0L30.3 316.5L32.4 318.9L35.9 319.2L43.0 325.6L45.4 332.9L48.8 336.1L50.7 340.7L53.4 343.9L52.9 345.6L51.1 346.5L49.7 348.8L49.6 354.2L52.0 357.8L50.5 359.9L50.5 364.5L48.9 367.7L48.9 372.2L50.6 373.1L53.9 372.3L56.9 373.0L61.9 371.5L65.8 373.5L70.2 373.5L76.8 375.5L78.7 377.9L83.3 381.1L84.2 383.1L87.4 384.7L89.4 386.8L90.1 388.6L92.1 390.0L94.1 392.7L97.8 394.7L99.8 397.5L105.5 402.0L107.7 405.6L108.3 408.2L111.5 410.5L113.3 413.5L117.4 417.1L121.0 422.6L123.6 424.1L128.0 432.6L126.8 439.6L129.0 441.6L127.2 454.7L129.4 459.7L129.5 462.8L133.7 467.2L137.4 468.2L138.1 473.5L140.4 474.8L142.5 479.8L132.1 480.3L127.1 478.6L121.9 479.3L117.4 478.3L116.5 478.9L115.6 480.5L116.2 485.1L115.3 488.8L115.4 498.4L111.3 496.0L101.2 497.9L97.4 497.3L95.7 495.1L93.0 493.4L92.7 491.8L91.2 490.0L89.7 489.0L88.3 489.0L83.7 490.2L80.3 492.4L74.5 493.0L71.7 495.8L62.3 501.9L54.3 502.0L53.7 501.4L52.8 489.4L48.1 489.1L44.6 484.6L42.5 483.6L39.3 485.7L37.7 488.3L31.3 488.3L28.8 490.0L24.8 491.5L23.9 493.1L23.8 497.0L22.6 498.2L17.5 498.5L9.5 500.5L5.0 499.7L-1.7 500.9L-3.9 499.6L-5.4 494.1L-5.0 492.5L-5.8 491.6L-7.1 487.7L-6.5 487.2L-2.9 488.0L-1.3 482.9L-4.1 480.0L-8.8 479.4L-10.7 477.0L-11.1 472.8L-12.8 470.5L-15.4 464.9L-14.9 458.4L-13.9 455.1L-14.5 452.3L-13.6 450.4L-13.2 446.0L-10.9 442.3L-9.6 442.4L-9.1 444.5L-8.0 444.9L-5.2 439.7L-2.2 439.5L-5.1 434.8L-4.3 428.2L-2.6 424.7L-2.5 422.2L-0.1 414.7L2.9 411.1L1.7 407.5L2.7 407.0L7.5 409.0L10.2 408.0L12.3 405.8L13.2 401.1L14.9 399.7L15.5 397.9L13.6 395.0L12.1 394.4Z"><title>San Juan</title></path>
+<path id="AR-D" class="prov" d="M209.7 633.0L209.7 683.1L146.9 683.1L146.7 680.6L147.5 674.6L149.6 661.5L151.1 657.7L151.7 650.1L151.2 646.1L151.7 644.3L150.9 642.9L151.7 639.1L149.9 633.4L150.0 629.2L149.0 625.6L144.1 615.9L142.2 613.7L140.8 608.7L140.5 604.4L139.1 602.3L139.6 601.2L138.8 594.6L139.6 592.7L140.8 593.1L141.3 592.4L141.8 586.4L140.5 582.9L138.8 581.3L137.8 578.2L134.3 575.3L130.7 564.4L125.3 555.2L125.4 552.1L123.7 545.4L123.4 533.6L122.2 530.1L123.0 529.0L122.5 525.8L123.6 522.6L122.7 519.8L120.9 517.3L118.3 506.5L116.7 504.9L115.5 500.4L115.3 488.8L116.2 485.1L115.6 480.8L116.5 478.9L117.4 478.3L121.9 479.3L127.1 478.6L132.1 480.3L142.5 479.8L148.1 481.6L150.3 481.0L151.9 481.9L154.7 481.6L157.1 482.5L163.5 482.1L170.1 479.5L173.6 479.9L176.2 480.9L185.8 480.2L189.2 481.6L200.6 488.7L203.3 491.7L205.5 501.5L210.4 501.2L215.3 499.8L216.4 500.2L216.5 506.5L218.4 512.3L218.1 515.7L216.7 520.2L215.6 521.8L214.4 528.3L212.7 531.7L213.0 533.9L211.5 537.1L212.0 539.6L209.6 540.9L207.9 544.2L209.7 581.4Z"><title>San Luis</title></path>
+<path id="AR-E" class="prov" d="M491.4 507.3L490.5 511.6L492.3 525.8L494.0 529.4L493.1 533.2L493.6 536.7L491.3 538.7L484.0 537.9L482.0 539.2L482.7 540.0L481.9 545.6L482.8 548.8L480.8 550.6L478.9 554.1L477.9 558.4L478.0 562.5L477.2 567.7L477.5 570.7L480.8 576.3L481.7 582.3L481.3 583.6L475.5 585.7L473.5 585.7L471.8 584.8L467.6 580.9L464.9 580.2L457.4 574.9L452.1 574.8L450.5 573.1L449.3 573.3L448.6 572.8L447.7 569.5L446.2 570.4L442.7 570.4L440.6 569.3L437.4 566.3L434.1 567.4L427.1 564.1L424.2 560.3L420.0 558.4L413.0 553.5L407.7 547.8L404.5 546.0L401.7 542.7L397.5 540.2L395.2 537.2L393.8 533.1L390.2 526.7L388.9 518.6L386.4 513.7L388.0 507.7L387.9 502.8L389.1 498.0L388.9 493.2L390.7 489.1L388.5 484.4L388.4 482.0L390.2 478.6L391.3 472.0L393.1 471.2L398.4 471.1L402.2 468.8L407.4 461.9L411.1 458.9L414.0 454.6L415.2 450.6L417.8 447.9L424.3 436.6L429.3 429.7L431.7 425.2L433.3 417.5L433.6 412.2L431.7 406.2L435.5 406.0L438.3 404.9L440.1 405.4L442.8 404.7L448.9 406.5L458.5 399.9L463.8 401.0L467.9 400.0L473.9 397.5L475.6 397.5L478.3 398.9L481.0 399.0L489.0 401.2L490.2 402.2L492.6 406.4L496.8 410.2L498.1 415.0L500.2 418.8L507.5 425.7L508.0 431.0L507.5 433.3L504.3 433.9L503.2 435.2L505.2 438.3L505.6 440.5L503.2 445.9L503.5 449.2L501.0 452.8L500.0 456.8L497.1 459.0L496.6 460.5L500.2 464.3L500.1 468.5L497.2 476.6L493.4 477.8L491.3 480.6L493.1 483.0L493.7 486.6L493.1 490.6L492.0 493.1L495.7 499.3L495.5 500.8Z"><title>Entre Ríos</title></path>          </g>
+          <g id="gLbl"></g>
+          <g id="gRuta"></g>
+          <g id="gStops"></g>
+        </svg>
+      </div>
+      <div class="meter">
+        <span class="meter-label">Precisión del prompt</span>
+        <div class="meter-track"><div class="meter-fill" id="meterFill"></div></div>
+        <span class="meter-count" id="meterCount">0 / 6</span>
+      </div>
+      <p class="meter-copy" id="meterCopy">La IA está adivinando casi todo.</p>
+    </section>
+
+    <!-- Controles y resultado (derecha) -->
+    <div class="side">
+    <section class="panel controls-panel">
+      <div class="card">
+        <div class="card-head">
+          <h3>Tu prompt</h3>
+          <div class="tc-segmented" role="group" aria-label="Prompts de ejemplo">
+            <button type="button" data-preset="vago">Vago</button>
+            <button type="button" data-preset="medio">Medio</button>
+            <button type="button" data-preset="completo">Completo</button>
+          </div>
+        </div>
+        <label for="prompt">Pedile un itinerario al norte argentino</label>
+        <textarea id="prompt" rows="3" placeholder="Ej: quiero un itinerario por el norte argentino de 9 días, salgo de Buenos Aires en avión en julio, presupuesto ajustado, me interesan el vino y la quebrada" aria-describedby="promptHelp"></textarea>
+        <small id="promptHelp">Cada dato que sumás recorta el mapa. Probá los chips de más abajo.</small>
+      </div>
+
+      <div class="card">
+        <h3>Lo que la IA entendió</h3>
+        <div class="slots" id="slots"></div>
+        <div class="chips" id="chips" aria-label="Datos que le podés agregar al prompt"></div>
+      </div>
+
+    </section>
+
+    <section class="panel result-panel" aria-labelledby="itinTitle">
+      <h2 id="itinTitle">Itinerario propuesto</h2>
+      <div id="itinerario" aria-live="polite"></div>
+    </section>
+    </div>
+  </main>
+
+  <footer class="tc-chrome-bottom">
+    <span class="tc-chrome-anchor">[ TQ ]</span>
+    <span class="tc-chrome-section">CONTEXTO</span>
+    <span class="tc-chrome-chapter">V1.2026</span>
+    <span class="tc-chrome-page">03 / 03</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  // ============================================
+  // Normalización (mismo criterio que la demo de embeddings)
+  // ============================================
+  const normalize = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  // Las palabras clave se buscan completas: "cataratas" no debe activar "cata".
+  const RE_CACHE = {};
+  function reKw(k){
+    if(!RE_CACHE[k]){
+      RE_CACHE[k] = new RegExp('(^|[^a-z0-9])' + k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^a-z0-9]|$)');
+    }
+    return RE_CACHE[k];
+  }
+  const tiene = (n, lista) => lista.some(k => reKw(k).test(n));
+  const donde = (n, k) => n.search(reKw(k));
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+  // ============================================
+  // Centroides del mapa (unidades del viewBox 700x499)
+  // ============================================
+  const CENTROS = {
+    'AR-Y': {x:181.6, y:84.4},
+    'AR-A': {x:220.5, y:128.2},
+    'AR-T': {x:198.3, y:248.5},
+    'AR-K': {x:132.7, y:266.0},
+    'AR-F': {x:123.5, y:375.4},
+    'AR-G': {x:283.1, y:284.9},
+    'AR-H': {x:387.0, y:223.5},
+    'AR-P': {x:420.9, y:155.3},
+    'AR-W': {x:507.7, y:332.7},
+    'AR-N': {x:636.3, y:244.9}
+  };
+
+  // ============================================
+  // Intereses que el motor sabe leer
+  // ============================================
+  const INTERESES = {
+    puna:        { label:'la puna y las quebradas', corto:'puna y quebradas', kw:['puna','altiplano','quebrada','humahuaca','purmamarca','tilcara','maimara','iruya','hornocal','salinas','siete colores','7 colores','altura','desierto','cardones','estrellas'] },
+    vino:        { label:'el vino', corto:'vino', kw:['vino','vinos','bodega','bodegas','vinedo','vinedos','torrontes','malbec','cata de vinos','degustacion','enoturismo','cafayate','chilecito','vendimia'] },
+    cataratas:   { label:'las cataratas y la selva', corto:'cataratas y selva', kw:['cataratas','iguazu','garganta del diablo','selva','yerba','yerbatales','jesuitica','jesuiticas','san ignacio','tierra colorada','wanda','mocona'] },
+    esteros:     { label:'los esteros y la fauna', corto:'esteros y fauna', kw:['esteros','ibera','humedal','humedales','carpinchos','yacare','aves','avistaje','pesca','dorado','laguna','banado','impenetrable','fauna','naturaleza','animales'] },
+    historia:    { label:'la historia y las ruinas', corto:'historia y ruinas', kw:['historia','historico','historica','ruinas','quilmes','pucara','colonial','museo','museos','independencia','casa de tucuman','arqueologia','patrimonio','capillas','iglesias'] },
+    trekking:    { label:'el trekking', corto:'trekking', kw:['trekking','senderismo','caminar','caminatas','sendero','senderos','montana','cerro','aventura','4x4','bicicleta','mountain bike','escalada','seismiles','talampaya','naturaleza','acampar','camping'] },
+    gastronomia: { label:'la gastronomía', corto:'gastronomía', kw:['comida','gastronomia','empanadas','locro','humita','humitas','tamales','comer','restaurante','restaurantes','asado','pena','penas','folclore','folklore','cocina','quesos','dulces'] },
+    pueblos:     { label:'los pueblos y las artesanías', corto:'pueblos y artesanías', kw:['pueblos','pueblito','artesanias','artesanal','feria','ferias','tranquilo','tranquila','autentico','autentica','tradiciones','textil','ponchos','comunidades','originarios','sin turistas'] },
+    tren:        { label:'el Tren a las Nubes', corto:'Tren a las Nubes', kw:['tren','nubes','ferrocarril','viaducto','polvorilla'] }
+  };
+
+  // ============================================
+  // Las diez provincias del norte
+  // costo: 1 barata / 3 cara (distancia + precios)
+  // ============================================
+  const PROVINCIAS = [
+    { iso:'AR-Y', fama:0.95, nombre:'Jujuy', label:'Jujuy', cluster:'noa', costo:2, aeropuerto:true, nochesMin:2,
+      vecinas:['AR-A'],
+      afinidad:{ puna:1, vino:0.3, cataratas:0, esteros:0.1, historia:0.7, trekking:0.8, gastronomia:0.6, pueblos:1, tren:0.7 },
+      highlight:'Quebrada de Humahuaca, Purmamarca y las Salinas Grandes.' },
+
+    { iso:'AR-A', fama:1, nombre:'Salta', label:'Salta', cluster:'noa', costo:2, aeropuerto:true, nochesMin:2,
+      vecinas:['AR-Y','AR-T','AR-K','AR-G','AR-H','AR-P'],
+      afinidad:{ puna:0.8, vino:1, cataratas:0, esteros:0.1, historia:0.8, trekking:0.7, gastronomia:1, pueblos:0.8, tren:1 },
+      highlight:'Cafayate, los Valles Calchaquíes y el Tren a las Nubes.' },
+
+    { iso:'AR-T', fama:0.6, nombre:'Tucumán', label:'Tucumán', cluster:'noa', costo:1, aeropuerto:true, nochesMin:1,
+      vecinas:['AR-A','AR-K','AR-G'],
+      afinidad:{ puna:0.3, vino:0.5, cataratas:0, esteros:0.1, historia:1, trekking:0.8, gastronomia:0.8, pueblos:0.7, tren:0.4 },
+      highlight:'Tafí del Valle, las ruinas de Quilmes y la Casa de Tucumán.' },
+
+    { iso:'AR-K', fama:0.4, nombre:'Catamarca', label:'Catamarca', cluster:'noa', costo:2, aeropuerto:true, nochesMin:2,
+      vecinas:['AR-A','AR-T','AR-G','AR-F'],
+      afinidad:{ puna:1, vino:0.7, cataratas:0, esteros:0, historia:0.6, trekking:0.9, gastronomia:0.4, pueblos:0.8, tren:0.2 },
+      highlight:'Antofagasta de la Sierra, Fiambalá y la Ruta de los Seismiles.' },
+
+    { iso:'AR-F', fama:0.4, nombre:'La Rioja', label:'La Rioja', cluster:'noa', costo:1, aeropuerto:true, nochesMin:1,
+      vecinas:['AR-K','AR-G'],
+      afinidad:{ puna:0.6, vino:0.8, cataratas:0, esteros:0, historia:0.5, trekking:1, gastronomia:0.4, pueblos:0.7, tren:0.1 },
+      highlight:'Talampaya, la Cuesta de Miranda y los viñedos de Chilecito.' },
+
+    { iso:'AR-G', fama:0.3, nombre:'Santiago del Estero', label:'Santiago', cluster:'noa', costo:1, aeropuerto:true, nochesMin:1,
+      vecinas:['AR-A','AR-T','AR-K','AR-F','AR-H'],
+      afinidad:{ puna:0.1, vino:0.2, cataratas:0, esteros:0.4, historia:0.8, trekking:0.3, gastronomia:0.6, pueblos:0.6, tren:0.2 },
+      highlight:'Las Termas de Río Hondo y la ciudad más antigua del país.' },
+
+    { iso:'AR-H', fama:0.25, nombre:'Chaco', label:'Chaco', cluster:'nea', costo:1, aeropuerto:true, nochesMin:1,
+      vecinas:['AR-A','AR-G','AR-P','AR-W'],
+      afinidad:{ puna:0, vino:0.1, cataratas:0.2, esteros:0.9, historia:0.4, trekking:0.5, gastronomia:0.4, pueblos:0.5, tren:0.1 },
+      highlight:'El Impenetrable y los humedales del río Bermejo.' },
+
+    { iso:'AR-P', fama:0.2, nombre:'Formosa', label:'Formosa', cluster:'nea', costo:2, aeropuerto:true, nochesMin:1,
+      vecinas:['AR-A','AR-H'],
+      afinidad:{ puna:0, vino:0, cataratas:0.2, esteros:1, historia:0.3, trekking:0.5, gastronomia:0.3, pueblos:0.5, tren:0 },
+      highlight:'El Bañado La Estrella y el Parque Nacional Río Pilcomayo.' },
+
+    { iso:'AR-W', fama:0.5, nombre:'Corrientes', label:'Corrientes', cluster:'nea', costo:2, aeropuerto:true, nochesMin:2,
+      vecinas:['AR-H','AR-N'],
+      afinidad:{ puna:0, vino:0.2, cataratas:0.3, esteros:1, historia:0.5, trekking:0.5, gastronomia:0.6, pueblos:0.7, tren:0.1 },
+      highlight:'Los Esteros del Iberá y el carnaval correntino.' },
+
+    { iso:'AR-N', fama:0.9, nombre:'Misiones', label:'Misiones', cluster:'nea', costo:3, aeropuerto:true, nochesMin:2,
+      vecinas:['AR-W'],
+      afinidad:{ puna:0, vino:0.1, cataratas:1, esteros:0.6, historia:0.7, trekking:0.8, gastronomia:0.5, pueblos:0.5, tren:0 },
+      highlight:'Las Cataratas del Iguazú y las ruinas jesuíticas de San Ignacio.' }
+  ];
+
+  const PROV_POR_ISO = {};
+  PROVINCIAS.forEach(p => { PROV_POR_ISO[p.iso] = p; });
+
+  // ============================================
+  // Diccionarios de las seis señales
+  // ============================================
+  const NUMEROS = { un:1, una:1, uno:1, dos:2, tres:3, cuatro:4, cinco:5, seis:6, siete:7,
+                    ocho:8, nueve:9, diez:10, once:11, doce:12, trece:13, catorce:14,
+                    quince:15, dieciseis:16, veinte:20, treinta:30 };
+
+  const ORIGEN_SUR   = ['AR-W','AR-N','AR-H'];
+  const ORIGEN_OESTE = ['AR-F','AR-K'];
+  const ORIGENES = {
+    'buenos aires':      { etiqueta:'Buenos Aires', cerca:ORIGEN_SUR, anchor:'sureste' },
+    'caba':              { etiqueta:'CABA', cerca:ORIGEN_SUR, anchor:'sureste' },
+    'capital federal':   { etiqueta:'Capital Federal', cerca:ORIGEN_SUR, anchor:'sureste' },
+    'bs as':             { etiqueta:'Buenos Aires', cerca:ORIGEN_SUR, anchor:'sureste' },
+    'bsas':              { etiqueta:'Buenos Aires', cerca:ORIGEN_SUR, anchor:'sureste' },
+    'la plata':          { etiqueta:'La Plata', cerca:ORIGEN_SUR, anchor:'sureste' },
+    'mar del plata':     { etiqueta:'Mar del Plata', cerca:ORIGEN_SUR, anchor:'sureste' },
+    'cordoba':           { etiqueta:'Córdoba', cerca:['AR-G','AR-K','AR-T','AR-F'], anchor:'suroeste' },
+    'rosario':           { etiqueta:'Rosario', cerca:['AR-H','AR-W','AR-G'], anchor:'sureste' },
+    'santa fe':          { etiqueta:'Santa Fe', cerca:['AR-H','AR-W','AR-G'], anchor:'sureste' },
+    'mendoza':           { etiqueta:'Mendoza', cerca:ORIGEN_OESTE, anchor:'suroeste' },
+    'san juan':          { etiqueta:'San Juan', cerca:ORIGEN_OESTE, anchor:'suroeste' },
+    'neuquen':           { etiqueta:'Neuquén', cerca:ORIGEN_OESTE, anchor:'suroeste' },
+    'bariloche':         { etiqueta:'Bariloche', cerca:ORIGEN_OESTE, anchor:'suroeste' },
+    'salta':             { etiqueta:'Salta', cerca:['AR-A','AR-Y','AR-T'], anchor:'interno' },
+    'jujuy':             { etiqueta:'Jujuy', cerca:['AR-Y','AR-A'], anchor:'interno' },
+    'tucuman':           { etiqueta:'Tucumán', cerca:['AR-T','AR-K','AR-A','AR-G'], anchor:'interno' },
+    'resistencia':       { etiqueta:'Resistencia', cerca:['AR-H','AR-P','AR-W'], anchor:'interno' },
+    'corrientes':        { etiqueta:'Corrientes', cerca:['AR-W','AR-N','AR-H'], anchor:'interno' },
+    'posadas':           { etiqueta:'Posadas', cerca:['AR-N','AR-W'], anchor:'interno' },
+    'san pablo':         { etiqueta:'San Pablo', cerca:['AR-N','AR-W'], anchor:'noreste' },
+    'sao paulo':         { etiqueta:'São Paulo', cerca:['AR-N','AR-W'], anchor:'noreste' },
+    'brasil':            { etiqueta:'Brasil', cerca:['AR-N','AR-W'], anchor:'noreste' },
+    'montevideo':        { etiqueta:'Montevideo', cerca:['AR-W','AR-N'], anchor:'sureste' },
+    'uruguay':           { etiqueta:'Uruguay', cerca:['AR-W','AR-N'], anchor:'sureste' },
+    'santiago de chile': { etiqueta:'Santiago de Chile', cerca:ORIGEN_OESTE, anchor:'suroeste' },
+    'chile':             { etiqueta:'Chile', cerca:ORIGEN_OESTE, anchor:'suroeste' }
+  };
+  // "desde", "salgo de", "vivo en"... lo que delata de dónde sale el viaje
+  const CUES_ORIGEN = ['saliendo de','salimos de','salgo de','salir de','salida desde','partimos de','parto de',
+                       'vivimos en','vivo en','somos de','soy de','estamos en','estoy en','arrancamos de',
+                       'arranco de','viajamos desde','viajo desde','volando desde','vuelo desde','despego de','desde'];
+
+  const PRESUPUESTO = {
+    bajo:  { etiqueta:'ajustado', kw:['ajustado','ajustada','bajo presupuesto','presupuesto bajo','mochilero','barato','economico','economica','poco dinero','low cost','austero','gastar poco','sin gastar mucho','lo mas barato'] },
+    medio: { etiqueta:'intermedio', kw:['presupuesto medio','presupuesto intermedio','moderado','moderada','intermedio','razonable','ni muy caro'] },
+    alto:  { etiqueta:'holgado', kw:['sin limite','sin restriccion','holgado','comodo','comoda','lujo','alta gama','buenos hoteles','todo incluido','no importa el precio','premium','sin mirar el precio'] }
+  };
+  // Umbrales de monto: [tope bajo, tope medio]
+  const MONTOS = { usdDia:[60,150], usdTotal:[800,2500], arsTotal:[500000,2000000] };
+
+  const TRANSPORTE = {
+    avion: { etiqueta:'en avión', kw:['avion','vuelo','vuelos','volar','volando','aereo'] },
+    auto:  { etiqueta:'en auto',  kw:['en auto','manejar','manejando','camioneta','road trip','roadtrip','conducir','motorhome','alquilar un auto','alquilo un auto','con el auto','en coche','por ruta','ruta 40'] },
+    bus:   { etiqueta:'en micro', kw:['micro','colectivo','omnibus','en bus','terrestre'] }
+  };
+
+  const EPOCAS = {
+    verano:    { etiqueta:'verano',    kw:['verano','enero','febrero','diciembre'] },
+    otono:     { etiqueta:'otoño',     kw:['otono','marzo','abril','mayo'] },
+    invierno:  { etiqueta:'invierno',  kw:['invierno','junio','julio','agosto'] },
+    primavera: { etiqueta:'primavera', kw:['primavera','septiembre','setiembre','octubre','noviembre'] }
+  };
+
+  // ============================================
+  // Lectura del prompt
+  // ============================================
+  const NUM_ALT = Object.keys(NUMEROS).sort((a,b) => b.length - a.length).join('|');
+  const RE_DIAS = new RegExp('(\\d{1,2}|' + NUM_ALT + ')\\s*(semanas?|dias?|noches?|jornadas?)');
+
+  function leerDias(n){
+    if(/fin(de)?\s*(de\s*semana)?\s*largo/.test(n)) return { dias:4, txt:'un finde largo (4 días)' };
+    if(/\bfinde\b|fin de semana/.test(n))           return { dias:3, txt:'un fin de semana (3 días)' };
+    const m = n.match(RE_DIAS);
+    if(!m) return null;
+    const v = /^\d+$/.test(m[1]) ? parseInt(m[1], 10) : NUMEROS[m[1]];
+    if(!v || v > 60) return null;
+    if(m[2].indexOf('semana') === 0) return { dias:v*7, txt:(v===1 ? 'una semana' : v + ' semanas') + ' (' + v*7 + ' días)' };
+    if(m[2].indexOf('noche')  === 0) return { dias:v+1, txt:v + ' noches (' + (v+1) + ' días)' };
+    return { dias:v, txt:v + ' días' };
+  }
+
+  const CLAVES_ORIGEN = Object.keys(ORIGENES).sort((a,b) => b.length - a.length);
+  function leerOrigen(n){
+    for(const cue of CUES_ORIGEN){
+      let i = n.indexOf(cue + ' ');
+      while(i !== -1){
+        const chunk = n.slice(i + cue.length, i + cue.length + 34);
+        const clave = CLAVES_ORIGEN.find(k => reKw(k).test(chunk));
+        if(clave) return Object.assign({ clave:clave }, ORIGENES[clave]);
+        i = n.indexOf(cue + ' ', i + 1);
+      }
+    }
+    return null;
+  }
+
+  const RE_MONTO_PRE  = /(?:\$|usd|u\$s|us\$)\s*(\d[\d.]*)\s*(mil)?/;
+  const RE_MONTO_POST = /(\d[\d.]*)\s*(mil)?\s*(pesos|dolares|dolar|usd|u\$s|us\$)/;
+  const limpiarMonto = t => t.trim().replace(/usd|u\$s|us\$/g, x => x.toUpperCase());
+
+  function leerMontoCrudo(n){
+    let m = n.match(RE_MONTO_POST);
+    if(m){
+      const v = parseFloat(m[1].replace(/\./g, '')) * (m[2] ? 1000 : 1);
+      const usd = m[3] !== 'pesos';
+      return { valor:v, usd:usd, txt:limpiarMonto(m[0]) };
+    }
+    m = n.match(RE_MONTO_PRE);
+    if(m){
+      const v = parseFloat(m[1].replace(/\./g, '')) * (m[2] ? 1000 : 1);
+      const usd = /usd|u\$s|us\$/.test(m[0]);
+      return { valor:v, usd:usd, txt:limpiarMonto(m[0]) };
+    }
+    return null;
+  }
+
+  function leerPresupuesto(n, dias){
+    for(const clave of ['bajo','medio','alto']){
+      if(tiene(n, PRESUPUESTO[clave].kw)) return { clave:clave, txt:PRESUPUESTO[clave].etiqueta };
+    }
+    const monto = leerMontoCrudo(n);
+    if(!monto) return null;
+    let topes, ref;
+    if(monto.usd && dias){ topes = MONTOS.usdDia;   ref = monto.valor / dias; }
+    else if(monto.usd)   { topes = MONTOS.usdTotal; ref = monto.valor; }
+    else                 { topes = MONTOS.arsTotal; ref = monto.valor; }
+    const clave = ref < topes[0] ? 'bajo' : ref <= topes[1] ? 'medio' : 'alto';
+    return { clave:clave, txt:monto.txt + ' → ' + PRESUPUESTO[clave].etiqueta };
+  }
+
+  function leerIntereses(n){
+    return Object.keys(INTERESES).filter(k => tiene(n, INTERESES[k].kw));
+  }
+
+  function leerTransporte(n){
+    let mejor = null;
+    Object.keys(TRANSPORTE).forEach(clave => {
+      TRANSPORTE[clave].kw.forEach(k => {
+        const i = donde(n, k);
+        if(i !== -1 && (!mejor || i < mejor.pos)) mejor = { clave:clave, pos:i, txt:TRANSPORTE[clave].etiqueta };
+      });
+    });
+    return mejor;
+  }
+
+  function leerEpoca(n){
+    let mejor = null;
+    Object.keys(EPOCAS).forEach(clave => {
+      EPOCAS[clave].kw.forEach(k => {
+        const i = donde(n, k);
+        if(i !== -1 && (!mejor || i < mejor.pos)){
+          const txt = (k === EPOCAS[clave].etiqueta || k === clave) ? EPOCAS[clave].etiqueta
+                                                                   : k + ' (' + EPOCAS[clave].etiqueta + ')';
+          mejor = { clave:clave, pos:i, txt:txt };
+        }
+      });
+    });
+    return mejor;
+  }
+
+  function leerSenales(texto){
+    const n = ' ' + normalize(texto).replace(/\s+/g, ' ') + ' ';
+    const dias = leerDias(n);
+    return {
+      dias:        dias,
+      origen:      leerOrigen(n),
+      presupuesto: leerPresupuesto(n, dias && dias.dias),
+      intereses:   leerIntereses(n),
+      transporte:  leerTransporte(n),
+      epoca:       leerEpoca(n)
+    };
+  }
+
+  // ============================================
+  // Cómo la IA arma el itinerario
+  // ============================================
+  const PESOS = { base:1.0, fama:0.9, interes:1.6, origen:0.8, presupuesto:0.9, epoca:0.5, transporte:0.4 };
+
+  // Intereses que sólo se satisfacen en una de las dos zonas
+  const INT_NEA = ['cataratas','esteros'];
+  const INT_NOA = ['puna','vino','tren'];
+
+  // Verano: lluvias en la quebrada y calor extremo en el Litoral. Invierno: la mejor época del norte.
+  const EPOCA_BONUS = {
+    verano:    { 'AR-Y':-0.8,'AR-A':-0.5,'AR-K':-0.6,'AR-F':-0.4,'AR-T':-0.3,'AR-G':-0.4,'AR-H':-0.7,'AR-P':-0.7,'AR-W':-0.4,'AR-N':-0.5 },
+    invierno:  { 'AR-Y':1,'AR-A':1,'AR-K':0.7,'AR-F':0.7,'AR-T':0.6,'AR-G':0.5,'AR-H':0.5,'AR-P':0.5,'AR-W':0.6,'AR-N':0.7 },
+    otono:     { def:0.6 },
+    primavera: { def:0.6 }
+  };
+
+  function afinidad(p, intereses){
+    if(!intereses.length) return 0;
+    const vals = intereses.map(i => p.afinidad[i] || 0);
+    const max = Math.max.apply(null, vals);
+    const avg = vals.reduce((a,b) => a+b, 0) / vals.length;
+    return 0.6*max + 0.4*avg;   // premia a la provincia que es *la mejor* en algo que pediste
+  }
+
+  function penalPresupuesto(costo, clave){
+    const f = clave === 'bajo' ? 0.6 : clave === 'medio' ? 0.2 : clave === 'alto' ? 0 : 0.15;
+    return (costo - 1) * f;
+  }
+
+  function bonusEpoca(p, epoca){
+    if(!epoca) return 0;
+    const t = EPOCA_BONUS[epoca.clave];
+    if(!t) return 0;
+    return t[p.iso] != null ? t[p.iso] : (t.def || 0);
+  }
+
+  function factorOrigen(tr){
+    if(!tr) return 0.7;
+    return tr.clave === 'avion' ? 0.35 : 1;
+  }
+
+  function bonusTransporte(p, tr){
+    if(!tr) return 0;
+    if(tr.clave === 'avion') return p.aeropuerto ? p.costo/3 : -0.5;
+    if(tr.clave === 'auto')  return -(p.costo - 1)/2;
+    if(tr.clave === 'bus')   return -(p.costo - 1)/2 - 0.1;
+    return 0;
+  }
+
+  function etapasPorDias(d){
+    return d <= 3 ? 1 : d <= 6 ? 2 : d <= 9 ? 3 : d <= 14 ? 4 : 5;
+  }
+
+  const dist = (a,b) => Math.hypot(a.x - b.x, a.y - b.y);
+
+  function elegirConContiguidad(rank, n, origen){
+    const elegidas = [];
+    let inicio = origen ? rank.find(e => origen.cerca.indexOf(e.p.iso) !== -1) : null;
+    if(!inicio) inicio = rank[0];
+    elegidas.push(inicio);
+    while(elegidas.length < n){
+      const isos = elegidas.map(e => e.p.iso);
+      const sig = rank.find(e => isos.indexOf(e.p.iso) === -1 &&
+        elegidas.some(el => el.p.vecinas.indexOf(e.p.iso) !== -1 || e.p.vecinas.indexOf(el.p.iso) !== -1));
+      if(!sig) break;
+      elegidas.push(sig);
+    }
+    // si la contigüidad no alcanza, completar por puntaje
+    while(elegidas.length < n){
+      const isos = elegidas.map(e => e.p.iso);
+      const sig = rank.find(e => isos.indexOf(e.p.iso) === -1);
+      if(!sig) break;
+      elegidas.push(sig);
+    }
+    return elegidas;
+  }
+
+  function ordenarRuta(elegidas, origen){
+    const resto = elegidas.slice();
+    let inicio = origen ? resto.find(e => origen.cerca.indexOf(e.p.iso) !== -1) : null;
+    if(!inicio) inicio = resto[0];
+    const ruta = [inicio];
+    resto.splice(resto.indexOf(inicio), 1);
+    while(resto.length){
+      const ultimo = ruta[ruta.length - 1];
+      let mejor = 0, md = Infinity;
+      resto.forEach((e, i) => {
+        const d = dist(CENTROS[ultimo.p.iso], CENTROS[e.p.iso]);
+        if(d < md){ md = d; mejor = i; }
+      });
+      ruta.push(resto.splice(mejor, 1)[0]);
+    }
+    return ruta;
+  }
+
+  function repartirNoches(ruta, dias){
+    const total = Math.max(dias - 1, ruta.length);
+    const n = ruta.map(e => Math.max(1, e.p.nochesMin));
+    let suma = n.reduce((a,b) => a+b, 0);
+    if(suma > total){
+      const orden = ruta.map((e,i) => i).sort((a,b) => ruta[a].score - ruta[b].score);
+      let k = 0;
+      while(suma > total && k < 200){
+        const i = orden[k % orden.length];
+        if(n[i] > 1){ n[i]--; suma--; }
+        k++;
+      }
+    } else if(suma < total){
+      const orden = ruta.map((e,i) => i).sort((a,b) => ruta[b].score - ruta[a].score);
+      let k = 0;
+      while(suma < total && k < 200){ n[orden[k % orden.length]]++; suma++; k++; }
+    }
+    return n;
+  }
+
+  function motivo(p, intereses){
+    if(!intereses.length) return null;
+    const best = intereses.slice().sort((a,b) => (p.afinidad[b] || 0) - (p.afinidad[a] || 0))[0];
+    if(!(p.afinidad[best] > 0.35)) return null;
+    return 'Entra porque pediste ' + INTERESES[best].label + '.';
+  }
+
+  function calcular(s){
+    const rank = PROVINCIAS.map(p => ({
+      p: p,
+      score: PESOS.base
+           + PESOS.interes * afinidad(p, s.intereses)
+           + PESOS.fama * p.fama
+           + PESOS.origen * factorOrigen(s.transporte) * (s.origen && s.origen.cerca.indexOf(p.iso) !== -1 ? 1 : 0)
+           - PESOS.presupuesto * penalPresupuesto(p.costo, s.presupuesto && s.presupuesto.clave)
+           + PESOS.epoca * bonusEpoca(p, s.epoca)
+           + PESOS.transporte * bonusTransporte(p, s.transporte)
+    })).sort((a,b) => b.score - a.score);
+
+    // Sin días no hay itinerario posible: la IA sólo puede mostrar entre qué duda.
+    if(!s.dias){
+      const hayAlgo = s.origen || s.presupuesto || s.intereses.length || s.transporte || s.epoca;
+      return { ruta:[], noches:[], candidatas:rank.slice(0, hayAlgo ? 6 : 10).map(e => e.p.iso), avisos:[], rank:rank };
+    }
+
+    const n = etapasPorDias(s.dias.dias);
+    const pideAmbas = s.intereses.some(i => INT_NEA.indexOf(i) !== -1) &&
+                      s.intereses.some(i => INT_NOA.indexOf(i) !== -1);
+    let elegidas;
+    if(s.transporte && (s.transporte.clave === 'auto' || s.transporte.clave === 'bus')){
+      elegidas = elegirConContiguidad(rank, n, s.origen);
+    } else {
+      elegidas = rank.slice(0, n);
+      const mezcla = elegidas.some(e => e.p.cluster === 'noa') && elegidas.some(e => e.p.cluster === 'nea');
+      if(mezcla && !pideAmbas){
+        // Un itinerario coherente se queda en una zona, y la zona la manda la
+        // provincia que mejor responde al prompt. Si esa zona no alcanza para
+        // todas las etapas, se completa con la otra (y salta la advertencia).
+        const zona = rank[0].p.cluster;
+        const dentro = rank.filter(e => e.p.cluster === zona).slice(0, n);
+        const isos = dentro.map(e => e.p.iso);
+        elegidas = dentro.concat(rank.filter(e => isos.indexOf(e.p.iso) === -1).slice(0, n - dentro.length));
+      }
+    }
+
+    const isosElegidas = elegidas.map(e => e.p.iso);
+    const corte = elegidas.length ? elegidas[elegidas.length - 1].score - 0.8 : 0;
+    const candidatas = rank.filter(e => isosElegidas.indexOf(e.p.iso) === -1 && e.score > corte)
+                           .slice(0, 3).map(e => e.p.iso);
+
+    const ruta = ordenarRuta(elegidas, s.origen);
+    const noches = repartirNoches(ruta, s.dias.dias);
+
+    // ---- advertencias ----
+    const avisos = [];
+    const clusters = {};
+    ruta.forEach(e => { clusters[e.p.cluster] = true; });
+    if(clusters.noa && clusters.nea && s.dias.dias < 10){
+      avisos.push('El NOA y el Litoral están a más de 1.000 km. Con ' + s.dias.dias +
+                  ' días, o elegís una zona, o el viaje es casi todo traslado.');
+    }
+    if((s.dias.dias - 1) / ruta.length < 2){
+      avisos.push('Te quedan menos de 2 noches por provincia: van a ser más traslados que paseos.');
+    }
+    if(s.epoca && s.epoca.clave === 'verano' && ruta.some(e => ['AR-Y','AR-A','AR-K'].indexOf(e.p.iso) !== -1)){
+      avisos.push('En verano la Quebrada está en temporada de lluvias: los caminos de montaña se pueden cortar.');
+    }
+    if(s.presupuesto && s.presupuesto.clave === 'bajo' && s.transporte && s.transporte.clave === 'avion'){
+      avisos.push('Con presupuesto ajustado, los vuelos internos se comen buena parte del gasto.');
+    }
+    if(!s.intereses.length){
+      avisos.push('No le dijiste qué te interesa: va a elegir lo más turístico y previsible.');
+    }
+
+    return { ruta:ruta, noches:noches, candidatas:candidatas, avisos:avisos, rank:rank };
+  }
+
+  // ============================================
+  // DOM
+  // ============================================
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg        = document.getElementById('mapa');
+  const gLbl       = document.getElementById('gLbl');
+  const gRuta      = document.getElementById('gRuta');
+  const gStops     = document.getElementById('gStops');
+  const promptEl   = document.getElementById('prompt');
+  const slotsEl    = document.getElementById('slots');
+  const chipsEl    = document.getElementById('chips');
+  const meterFill  = document.getElementById('meterFill');
+  const meterCopy  = document.getElementById('meterCopy');
+  const meterCount = document.getElementById('meterCount');
+  const itinEl     = document.getElementById('itinerario');
+
+  const provPaths = {};
+  document.querySelectorAll('#gProv path').forEach(el => {
+    provPaths[el.id] = el;
+    el.dataset.base = el.getAttribute('class');
+  });
+
+  // Nombres de las diez provincias, dibujados una sola vez
+  const lblEls = {};
+  PROVINCIAS.forEach(p => {
+    const c = CENTROS[p.iso];
+    const t = document.createElementNS(svgNS, 'text');
+    t.setAttribute('x', c.x);
+    t.setAttribute('y', c.y + 4);
+    t.setAttribute('class', 'lblProv');
+    t.setAttribute('data-iso', p.iso);
+    t.textContent = p.label;
+    gLbl.appendChild(t);
+    lblEls[p.iso] = t;
+  });
+
+  // K = unidades del viewBox por píxel de pantalla. Todo lo que tiene que
+  // conservar su tamaño aparente (textos, números, offsets) se multiplica por K.
+  let K = 1;
+  function medirEscala(){
+    const r = svg.getBoundingClientRect();
+    // el svg entra por el lado más ajustado (preserveAspectRatio "meet")
+    const esc = Math.min(r.width / 700, r.height / 499);
+    K = esc > 0 ? 1 / esc : 1;
+    svg.style.setProperty('--k', K);
+  }
+
+  // Tucumán y Catamarca tienen los centroides muy cerca: se separan los rótulos
+  const AJUSTE_LBL = { 'AR-T': { dx:16, dy:0 }, 'AR-K': { dx:-20, dy:8 } };
+
+  const ANCHORS = {
+    sureste:  { p:{x:575, y:452}, lbl:{x:575, y:478}, align:'middle' },
+    suroeste: { p:{x:78,  y:452}, lbl:{x:96,  y:478}, align:'middle' },
+    noreste:  { p:{x:652, y:58},  lbl:{x:620, y:36},  align:'middle' }
+  };
+
+  // ============================================
+  // Render
+  // ============================================
+  function renderMapa(s, res){
+    medirEscala();
+    const R = 12 * K;                    // radio del número de etapa
+    const elegidas = res.ruta.map(e => e.p.iso);
+
+    Object.keys(provPaths).forEach(iso => {
+      const el = provPaths[iso];
+      let estado = '';
+      if(elegidas.indexOf(iso) !== -1) estado = ' elegida';
+      else if(res.candidatas.indexOf(iso) !== -1) estado = ' candidata';
+      el.setAttribute('class', el.dataset.base + estado);
+    });
+
+    PROVINCIAS.forEach(p => {
+      const el = lblEls[p.iso];
+      let cls = 'lblProv';
+      if(elegidas.indexOf(p.iso) !== -1) cls += ' on';
+      else if(res.candidatas.indexOf(p.iso) !== -1) cls += ' cand';
+      el.setAttribute('class', cls);
+      const c = CENTROS[p.iso];
+      const aj = AJUSTE_LBL[p.iso] || {};
+      // los elegidos corren el nombre para dejarle lugar al número de etapa
+      const dy = elegidas.indexOf(p.iso) !== -1 ? R + 8*K : 4*K;
+      el.setAttribute('x', c.x + (aj.dx || 0) * K);
+      el.setAttribute('y', c.y + dy + (aj.dy || 0) * K);
+    });
+
+    gRuta.innerHTML = '';
+    gStops.innerHTML = '';
+
+    // flecha de entrada desde el origen
+    if(s.origen && res.ruta.length){
+      const a = ANCHORS[s.origen.anchor];
+      const destino = CENTROS[res.ruta[0].p.iso];
+      if(a){
+        const l = document.createElementNS(svgNS, 'line');
+        l.setAttribute('x1', a.p.x); l.setAttribute('y1', a.p.y);
+        l.setAttribute('x2', destino.x); l.setAttribute('y2', destino.y);
+        l.setAttribute('class', 'entrada');
+        l.setAttribute('marker-end', 'url(#puntaEntrada)');
+        gRuta.appendChild(l);
+      }
+      const t = document.createElementNS(svgNS, 'text');
+      const pos = a ? a.lbl : { x:destino.x, y:destino.y - 30 * K };
+      t.setAttribute('x', pos.x); t.setAttribute('y', pos.y);
+      t.setAttribute('text-anchor', a ? a.align : 'middle');
+      t.setAttribute('class', 'lblEntrada');
+      t.textContent = (a ? '↳ desde ' : '↳ arranca en ') + s.origen.etiqueta;
+      gRuta.appendChild(t);
+    }
+
+    // línea de la ruta
+    if(res.ruta.length > 1){
+      const pts = res.ruta.map(e => CENTROS[e.p.iso].x + ',' + CENTROS[e.p.iso].y).join(' ');
+      const pl = document.createElementNS(svgNS, 'polyline');
+      pl.setAttribute('points', pts);
+      pl.setAttribute('class', 'ruta');
+      gRuta.appendChild(pl);
+    }
+
+    // números de etapa
+    res.ruta.forEach((e, i) => {
+      const c = CENTROS[e.p.iso];
+      const g = document.createElementNS(svgNS, 'g');
+      g.setAttribute('class', 'fadeIn');
+      const circ = document.createElementNS(svgNS, 'circle');
+      circ.setAttribute('cx', c.x); circ.setAttribute('cy', c.y - R/2);
+      circ.setAttribute('r', R);
+      circ.setAttribute('class', 'badge');
+      const num = document.createElementNS(svgNS, 'text');
+      num.setAttribute('x', c.x); num.setAttribute('y', c.y - R/2 + 4.5*K);
+      num.setAttribute('class', 'badge-num');
+      num.textContent = i + 1;
+      g.appendChild(circ); g.appendChild(num);
+      gStops.appendChild(g);
+    });
+
+    // descripción para lectores de pantalla
+    svg.setAttribute('aria-label', res.ruta.length
+      ? 'Mapa del norte argentino. Itinerario propuesto: ' +
+        res.ruta.map((e,i) => (i+1) + '. ' + e.p.nombre + ', ' + res.noches[i] + ' noches').join('; ') + '.'
+      : 'Mapa del norte argentino. Sin días de viaje la IA no puede priorizar: quedan ' +
+        res.candidatas.length + ' provincias candidatas.');
+  }
+
+  const SLOTS = [
+    { key:'dias',        rotulo:'Días' },
+    { key:'origen',      rotulo:'Origen' },
+    { key:'presupuesto', rotulo:'Plata' },
+    { key:'intereses',   rotulo:'Intereses' },
+    { key:'transporte',  rotulo:'Cómo vas' },
+    { key:'epoca',       rotulo:'Cuándo' }
+  ];
+
+  function valorSlot(s, key){
+    if(key === 'intereses') return s.intereses.length ? s.intereses.map(i => INTERESES[i].corto).join(' · ') : null;
+    if(key === 'origen')    return s.origen ? 'desde ' + s.origen.etiqueta : null;
+    const v = s[key];
+    return v ? v.txt : null;
+  }
+
+  function renderSlots(s){
+    slotsEl.innerHTML = SLOTS.map(sl => {
+      const v = valorSlot(s, sl.key);
+      const tok = v
+        ? '<span class="token token-recognized">' + v + '</span>'
+        : '<span class="token token-ignored">la IA lo va a inventar</span>';
+      return '<div class="slot"><span class="slot-key">' + sl.rotulo + '</span>' + tok + '</div>';
+    }).join('');
+  }
+
+  const SUGERENCIAS = {
+    dias:        ['7 días', 'un fin de semana largo', 'dos semanas'],
+    origen:      ['salgo de Buenos Aires', 'salgo de Córdoba', 'salgo de Rosario'],
+    presupuesto: ['presupuesto ajustado', 'presupuesto holgado'],
+    intereses:   ['me interesa el vino', 'quiero ver las cataratas', 'quiero la quebrada y la puna', 'quiero esteros y fauna'],
+    transporte:  ['voy en avión', 'voy en auto'],
+    epoca:       ['en julio', 'en enero']
+  };
+
+  function renderChips(s){
+    const faltantes = SLOTS.filter(sl => !valorSlot(s, sl.key));
+    if(!faltantes.length){
+      chipsEl.innerHTML = '<p class="chips-empty">Le diste las seis señales. Ahora el itinerario es tuyo, no de la IA.</p>';
+      return;
+    }
+    chipsEl.innerHTML = faltantes
+      .map(sl => SUGERENCIAS[sl.key]
+        .map(f => '<button class="chip" type="button" data-frase="' + f + '">+ ' + f + '</button>')
+        .join(''))
+      .join('');
+  }
+
+  const COPY_PRECISION = [
+    'La IA está adivinando casi todo.',
+    'La IA está adivinando casi todo.',
+    'Ya puede priorizar, pero sigue inventando el resto.',
+    'Ya puede priorizar, pero sigue inventando el resto.',
+    'El itinerario empieza a ser tuyo.',
+    'El itinerario empieza a ser tuyo.',
+    'La IA no tiene que adivinar nada.'
+  ];
+
+  function renderMeter(s){
+    const llenos = SLOTS.filter(sl => valorSlot(s, sl.key)).length;
+    meterFill.style.width = Math.round(llenos / SLOTS.length * 100) + '%';
+    meterCopy.textContent = COPY_PRECISION[llenos];
+    meterCount.textContent = llenos + ' / ' + SLOTS.length;
+  }
+
+  function renderItinerario(s, res){
+    if(!res.ruta.length){
+      const cuantas = res.candidatas.length;
+      itinEl.innerHTML = '<p class="empty-hint">' +
+        (promptEl.value.trim()
+          ? 'Todavía no le dijiste cuántos días tenés, así que la IA no puede armar una ruta: duda entre ' +
+            cuantas + ' provincias y te va a devolver un itinerario genérico.'
+          : 'Escribí tu pedido arriba. Con el prompt vacío, la IA duda entre las 10 provincias del norte.') +
+        '</p>';
+      return;
+    }
+    let html = '<ol class="etapas">';
+    res.ruta.forEach((e, i) => {
+      const m = motivo(e.p, s.intereses);
+      html += '<li class="etapa">' +
+        '<span class="etapa-num">' + (i+1) + '</span>' +
+        '<div>' +
+          '<span class="etapa-nombre">' + e.p.nombre + '</span> ' +
+          '<span class="etapa-noches">' + res.noches[i] + (res.noches[i] === 1 ? ' noche' : ' noches') + '</span>' +
+          '<p class="etapa-detalle">' + e.p.highlight + '</p>' +
+          (m ? '<p class="etapa-motivo">' + m + '</p>' : '') +
+        '</div>' +
+      '</li>';
+    });
+    html += '</ol>';
+    if(res.avisos.length){
+      html += '<ul class="avisos">' + res.avisos.map(a => '<li class="aviso">' + a + '</li>').join('') + '</ul>';
+    }
+    itinEl.innerHTML = html;
+  }
+
+  // ============================================
+  // Update
+  // ============================================
+  function update(){
+    const s = leerSenales(promptEl.value);
+    const res = calcular(s);
+    renderMapa(s, res);
+    renderSlots(s);
+    renderChips(s);
+    renderMeter(s);
+    renderItinerario(s, res);
+  }
+
+  // ============================================
+  // Eventos
+  // ============================================
+  promptEl.addEventListener('input', update);
+
+  chipsEl.addEventListener('click', e => {
+    const btn = e.target.closest('.chip');
+    if(!btn) return;
+    const base = promptEl.value.trim();
+    const sep = !base ? '' : /[.,;]$/.test(base) ? ' ' : ', ';
+    promptEl.value = (base + sep + btn.dataset.frase).replace(/\s+/g, ' ');
+    promptEl.focus();
+    update();
+  });
+
+  const PRESETS = {
+    vago: 'Quiero ir al norte argentino.',
+    medio: 'Quiero ir al norte argentino 7 días, salgo de Buenos Aires.',
+    completo: 'Quiero un itinerario por el norte argentino de 9 días. Salgo de Buenos Aires en avión, en julio, con presupuesto ajustado. Me interesan el vino, la quebrada y las peñas.'
+  };
+  document.querySelectorAll('[data-preset]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-preset]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      promptEl.value = PRESETS[btn.dataset.preset];
+      update();
+    });
+  });
+  promptEl.addEventListener('input', () => {
+    document.querySelectorAll('[data-preset]').forEach(b => b.classList.remove('active'));
+  });
+
+  update();
+  // se observa la caja (su tamaño lo define el layout) y no el svg,
+  // para que redibujar nunca vuelva a disparar el observer
+  if(window.ResizeObserver){
+    new ResizeObserver(() => requestAnimationFrame(update)).observe(document.querySelector('.canvasBox'));
+  }
+})();
+</script>
+</body>
+</html>
