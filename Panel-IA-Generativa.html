@@ -261,6 +261,15 @@
             align-self: stretch;
             background: var(--tc-linea);
         }
+        /* Los parámetros vienen ocultos: el recorrido arranca con los presets.
+           display:contents deja que los sliders sigan siendo hijos del flex de la barra. */
+        .toolbar-params { display: contents; }
+        .toolbar-params[hidden] { display: none; }
+        #params-toggle[aria-expanded="true"] {
+            background: var(--tc-tinta);
+            border-color: var(--tc-tinta);
+            color: var(--tc-blanco);
+        }
         .toolbar-label {
             font-family: var(--tc-font-body);
             font-size: var(--tc-ui-secundario);
@@ -333,9 +342,11 @@
             display: flex;
             align-items: center;
             gap: var(--tc-space-2);
-            flex: 1 1 190px;
-            min-width: 170px;
-            max-width: 260px;
+            /* Con el botón de parámetros en la barra, los tres sliders y el
+               "Borrar generación" tienen que seguir entrando en una sola fila. */
+            flex: 1 1 165px;
+            min-width: 150px;
+            max-width: 230px;
         }
         .slider-inline .slider-label-group {
             display: inline-flex;
@@ -578,7 +589,7 @@
                 <span class="tc-resaltado" data-i18n="h1b">calcula</span>
                 <span class="tc-coral" data-i18n="h1c">qué es probable.</span>
             </h1>
-            <p class="tc-lede" data-i18n="subtitle">Temperatura, Top-K y Top-P moldean la salida del modelo. Movelos y mirá qué tokens sobreviven al filtro.</p>
+            <p class="tc-lede" data-i18n="subtitle">Temperatura, Top-K y Top-P moldean la salida del modelo. Elegí un preset, o abrí los parámetros y movelos, para ver qué tokens sobreviven al filtro.</p>
         </div>
 
         <div>
@@ -600,6 +611,9 @@
                         </div>
                     </div>
 
+                    <button type="button" id="params-toggle" class="tc-btn tc-btn-sm" aria-expanded="false" aria-controls="params-avanzados">Ajustar parámetros</button>
+
+                    <div class="toolbar-params" id="params-avanzados" hidden>
                     <div class="toolbar-divider" aria-hidden="true"></div>
 
                     <div class="slider-inline">
@@ -636,6 +650,7 @@
                         </span>
                         <input type="range" id="top_p" min="0.01" max="1.0" step="0.01" value="0.9" class="slider-thumb" data-i18n-aria="toppAria" aria-label="Top-P, entre 0.01 y 1.0">
                         <span class="slider-value" id="top_p-value">0.90</span>
+                    </div>
                     </div>
 
                     <button id="reset-btn" type="button" data-i18n="resetBtn">Borrar generación</button>
@@ -1119,9 +1134,12 @@
                     h1a: "El modelo no sabe qué decir:",
                     h1b: "calcula",
                     h1c: "qué es probable.",
-                    subtitle: "Temperatura, Top-K y Top-P moldean la salida del modelo. Movelos y mirá qué tokens sobreviven al filtro.",
+                    subtitle: "Temperatura, Top-K y Top-P moldean la salida del modelo. Elegí un preset, o abrí los parámetros y movelos, para ver qué tokens sobreviven al filtro.",
                     footer: "La experiencia no se enseña: se entrena.",
                     presetsLabel: "Presets",
+                    paramsMostrar: "Ajustar parámetros",
+                    paramsOcultar: "Ocultar parámetros",
+                    paramsToggleAria: "Mostrar u ocultar temperatura, Top-K y Top-P",
                     presetsInfoAria: "Qué son los presets",
                     presetsTip: "Configuraciones rápidas que mueven los tres parámetros juntos.",
                     presetsGroupAria: "Presets de configuración",
@@ -1171,9 +1189,12 @@
                     h1a: "O modelo não sabe o que dizer:",
                     h1b: "calcula",
                     h1c: "o que é provável.",
-                    subtitle: "Temperatura, Top-K e Top-P moldam a saída do modelo. Mova-os e veja quais tokens sobrevivem ao filtro.",
+                    subtitle: "Temperatura, Top-K e Top-P moldam a saída do modelo. Escolha um preset, ou abra os parâmetros e mova-os, para ver quais tokens sobrevivem ao filtro.",
                     footer: "A experiência não se ensina: se treina.",
                     presetsLabel: "Presets",
+                    paramsMostrar: "Ajustar parâmetros",
+                    paramsOcultar: "Ocultar parâmetros",
+                    paramsToggleAria: "Mostrar ou ocultar temperatura, Top-K e Top-P",
                     presetsInfoAria: "O que são os presets",
                     presetsTip: "Configurações rápidas que movem os três parâmetros juntos.",
                     presetsGroupAria: "Presets de configuração",
@@ -1690,6 +1711,23 @@
             });
 
             // ---------- i18n: aplicar textos estáticos + cambio de idioma ----------
+            // Tweak: los tres parámetros arrancan ocultos. Quien quiera afinarlos los abre;
+            // el resto se maneja con los presets, que mueven los tres juntos.
+            const paramsBox = document.getElementById('params-avanzados');
+            const paramsToggle = document.getElementById('params-toggle');
+
+            function renderParamsToggle() {
+                const abierto = !paramsBox.hidden;
+                paramsToggle.textContent = abierto ? t.paramsOcultar : t.paramsMostrar;
+                paramsToggle.setAttribute('aria-expanded', String(abierto));
+                paramsToggle.setAttribute('aria-label', t.paramsToggleAria);
+            }
+
+            paramsToggle.addEventListener('click', () => {
+                paramsBox.hidden = !paramsBox.hidden;
+                renderParamsToggle();
+            });
+
             function applyStaticI18n() {
                 document.documentElement.lang = lang;
                 if (t.__title) document.title = t.__title;
@@ -1704,6 +1742,7 @@
                 document.querySelectorAll('.tc-grupo [data-lang]').forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.lang === lang);
                 });
+                renderParamsToggle();
             }
 
             function setLang(newLang) {
