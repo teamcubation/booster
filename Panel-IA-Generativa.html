@@ -18,7 +18,53 @@
             font-weight: var(--tc-weight-body);
             background: var(--tc-blanco);
             color: var(--tc-tinta);
+            overflow: hidden;
         }
+
+        /* Todo entra en una pantalla: el gráfico se queda con el alto sobrante. */
+        #app {
+            display: grid;
+            /* Sin columna declarada, la implícita se dimensiona al contenido y desborda. */
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-rows: auto 1fr auto;
+            gap: var(--tc-space-4);
+            height: 100vh;
+            padding-bottom: var(--tc-space-4);
+        }
+        #content-demo {
+            display: flex;
+            flex-direction: column;
+            gap: var(--tc-space-4);
+            min-height: 0;
+        }
+        .chart-card {
+            display: flex;
+            flex-direction: column;
+            gap: var(--tc-space-3);
+            flex: 1;
+            min-height: 0;
+            padding: var(--tc-space-4) var(--tc-space-6);
+        }
+        .chart-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--tc-space-6);
+            flex-wrap: wrap;
+            padding-bottom: var(--tc-space-3);
+            border-bottom: 1px solid var(--tc-linea);
+        }
+        .chart-actions { display: flex; gap: var(--tc-space-2); flex-shrink: 0 }
+        /* La frase que se va armando es el hilo de la demo: va a tamaño de lectura. */
+        .frase {
+            margin: 0;
+            min-width: 0;
+            font-size: 21px;
+            line-height: 1.35;
+            color: var(--tc-tinta);
+        }
+        #generated-text { color: var(--tc-coral); font-weight: var(--tc-weight-body-bold) }
+        .tc-footer { margin: 0; padding: var(--tc-space-4) var(--tc-space-6) }
 
         /* Utilidades mínimas: reemplazan a las pocas clases de Tailwind que usaba la página. */
         .flex { display: flex }
@@ -50,7 +96,6 @@
             color: var(--tc-tinta);
             margin: 0;
         }
-        .tc-footer { margin: var(--tc-space-6) 0; padding: var(--tc-space-4) var(--tc-space-6) }
 
         /* ============================================
            SUPERFICIES
@@ -73,17 +118,25 @@
            Tinta = candidato que sobrevive al filtro. Coral = el token que salió sorteado.
            Grises y punteados = descartado y referencia. El coral es el acento, no el fondo.
            ============================================ */
-        .d3-chart-container { height: clamp(300px, 44vh, 440px); }
+        .d3-chart-container { flex: 1; min-height: 0 }
+        @media (max-width: 900px) {
+            body { overflow: auto }
+            #app { height: auto; min-height: 100vh }
+            .chart-card { flex: none }
+            /* flex:1 implica basis 0: sin desactivarlo, la altura declarada no manda. */
+            .d3-chart-container { flex: none; height: clamp(320px, 62vh, 460px) }
+            .frase { font-size: 17px }
+        }
         .d3-chart-container text {
             font-family: var(--tc-font-body);
             fill: var(--tc-gris-texto);
-            font-size: 13px;
+            font-size: 14px;
             letter-spacing: normal;
         }
         /* El nombre del token es lo que hay que poder leer: tamaño de lectura,
            y el color dice de una si sobrevivió al filtro o no. */
         .d3-chart-container .tok {
-            font-size: 14px;
+            font-size: 17px;
             font-weight: var(--tc-weight-body-ui);
             fill: var(--tc-gris-texto);
             dominant-baseline: middle;
@@ -95,7 +148,7 @@
         }
         .d3-chart-container .tok-elegido { fill: var(--tc-coral) }
         .d3-chart-container .bar-value {
-            font-size: 12.5px;
+            font-size: 14.5px;
             font-weight: var(--tc-weight-body-ui);
             fill: var(--tc-gris-texto);
             dominant-baseline: middle;
@@ -105,8 +158,8 @@
             font-weight: var(--tc-weight-body-semibold);
         }
         @media (max-width: 640px) {
-            .d3-chart-container .tok { font-size: 12px }
-            .d3-chart-container .bar-value { font-size: 11px }
+            .d3-chart-container .tok { font-size: 13px }
+            .d3-chart-container .bar-value { font-size: 11.5px }
         }
         .d3-chart-container .bar {
             transition: fill var(--tc-transicion-lenta), opacity var(--tc-transicion-lenta);
@@ -159,7 +212,7 @@
         }
         .d3-chart-container .cut-label {
             font-family: var(--tc-font-body);
-            font-size: 12px;
+            font-size: 13.5px;
             font-weight: 500;
             letter-spacing: normal;
             fill: var(--tc-coral);
@@ -192,7 +245,10 @@
         }
 
         .tooltip {
+            /* Sin top/left propios se apoyaba después del footer y estiraba la página. */
             position: absolute;
+            top: 0;
+            left: 0;
             text-align: center;
             padding: 6px 10px;
             font-family: var(--tc-font-body);
@@ -213,11 +269,11 @@
         #select-btn,
         #reset-btn {
             font-family: var(--tc-font-body);
-            font-size: var(--tc-ui-secundario);
+            font-size: var(--tc-ui-cuerpo);
             font-weight: 500;
             letter-spacing: normal;
             border-radius: var(--tc-radius-capsula) !important;
-            padding: 8px 16px;
+            padding: 10px 20px;
             cursor: pointer;
             transition: background var(--tc-transicion), color var(--tc-transicion), border-color var(--tc-transicion);
             white-space: nowrap;
@@ -292,7 +348,7 @@
         }
         .toolbar-label {
             font-family: var(--tc-font-body);
-            font-size: var(--tc-ui-secundario);
+            font-size: var(--tc-ui-cuerpo);
             font-weight: 500;
             color: var(--tc-gris-texto);
             white-space: nowrap;
@@ -303,32 +359,6 @@
         }
 
         /* Chips de dominio */
-        .prompt-selector {
-            display: inline-flex;
-            flex-wrap: wrap;
-            border: 1px solid var(--tc-linea);
-        }
-        .prompt-chip {
-            padding: 5px 12px;
-            font-family: var(--tc-font-body);
-            font-size: var(--tc-ui-secundario);
-            font-weight: 500;
-            letter-spacing: normal;
-            border: none;
-            border-left: 1px solid var(--tc-linea);
-            border-radius: var(--tc-radius-capsula);
-            background: transparent;
-            color: var(--tc-gris-texto);
-            cursor: pointer;
-            transition: background var(--tc-transicion), color var(--tc-transicion);
-            white-space: nowrap;
-        }
-        .prompt-chip:first-child { border-left: none; }
-        .prompt-chip:hover { color: var(--tc-coral); }
-        .prompt-chip.active {
-            background: var(--tc-tinta);
-            color: var(--tc-gris-claro);
-        }
 
         /* Sliders inline */
         .slider-inline {
@@ -459,48 +489,13 @@
         /* ============================================
            PROMPT BAR
            ============================================ */
-        .prompt-bar {
-            display: flex;
-            align-items: center;
-            gap: var(--tc-space-4);
-            /* El sistema distingue superficies por color plano, no por borde de acento. */
-            background: var(--tc-gris-claro);
-            border-radius: var(--tc-radius-tarjeta);
-            padding: var(--tc-space-3) var(--tc-space-4);
-            min-width: 0;
-        }
-        .prompt-selector.compact-chips { flex-shrink: 0; }
-        .prompt-divider {
-            width: 1px;
-            align-self: stretch;
-            background: var(--tc-linea);
-            flex-shrink: 0;
-        }
-        .prompt-line {
-            flex: 1;
-            min-width: 0;
-            padding: 4px 0;
-            font-family: var(--tc-font-body);
-            font-size: 13px;
-            white-space: nowrap;
-            overflow-x: auto;
-            overflow-y: hidden;
-            color: var(--tc-tinta);
-            line-height: 1.5;
-        }
-        .prompt-line::-webkit-scrollbar { height: 3px; }
-        .prompt-line::-webkit-scrollbar-thumb { background: var(--tc-linea); }
-        .prompt-line #generated-text {
-            color: var(--tc-coral);
-            font-weight: 700;
-        }
 
         /* ============================================
            ESTADO Y LEYENDA
            ============================================ */
         #selection-status {
             font-family: var(--tc-font-body);
-            font-size: var(--tc-ui-secundario);
+            font-size: var(--tc-ui-cuerpo);
             font-weight: 500;
             letter-spacing: normal;
             border-radius: var(--tc-radius-capsula) !important;
@@ -511,7 +506,7 @@
             flex-wrap: wrap;
             gap: var(--tc-space-6);
             font-family: var(--tc-font-body);
-            font-size: var(--tc-ui-secundario);
+            font-size: var(--tc-ui-tabla);
             letter-spacing: normal;
             color: var(--tc-gris-texto);
             justify-content: center;
@@ -576,10 +571,9 @@
             </div>
         </header>
 
-        <div>
-            <div id="content-demo">
+        <div id="content-demo">
                 <!-- Toolbar horizontal de controles -->
-                <div class="tc-surface mb-4 demo-toolbar">
+                <div class="tc-surface demo-toolbar">
                     <button type="button" id="params-toggle" class="tc-btn tc-btn-sm" aria-expanded="false" aria-controls="params-avanzados">Ajustar parámetros</button>
 
                     <div class="toolbar-params" id="params-avanzados" hidden>
@@ -625,45 +619,27 @@
                     <button id="reset-btn" type="button" data-i18n="resetBtn">Borrar generación</button>
                 </div>
 
-                <!-- Prompt bar: chips + output en una sola línea -->
-                <div class="prompt-bar mb-3">
-                    <div id="prompt-selector" class="prompt-selector compact-chips" role="group" data-i18n-aria="promptSelectorAria" aria-label="Seleccionar prompt de ejemplo">
-                        <button type="button" class="prompt-chip active" data-domain="fantasia" data-i18n="domainFantasia">Fantasía</button>
-                        <button type="button" class="prompt-chip" data-domain="tecnico" data-i18n="domainTecnico">Técnico</button>
-                        <button type="button" class="prompt-chip" data-domain="cotidiano" data-i18n="domainCotidiano">Cotidiano</button>
-                    </div>
-                    <div class="prompt-divider" aria-hidden="true"></div>
-                    <div id="output-display" class="prompt-line" aria-live="polite">
-                        <span id="prompt-text">Había una vez, en una tierra lejana, vivía un</span><span id="generated-text"></span>
-                    </div>
-                </div>
-
-                <!-- Chart card: ocupa todo el ancho -->
-                <div class="tc-surface p-4">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2 pb-3" style="border-bottom: 1px solid var(--tc-linea);">
-                        <h2 class="section-title" data-i18n="chartTitle">Probabilidades del siguiente token</h2>
-                        <div class="flex gap-2 w-full sm:w-auto">
-                            <button id="prepare-btn" type="button" class="flex-1 sm:flex-none" data-i18n="prepareBtn">
-                                Analizar opciones
-                            </button>
-                            <button id="select-btn" type="button" class="flex-1 sm:flex-none" data-i18n="selectBtn" disabled>
-                                Seleccionar token
-                            </button>
+                <!-- Gráfico: la frase que se va armando hace de encabezado -->
+                <div class="tc-surface chart-card">
+                    <div class="chart-head">
+                        <h2 class="sr-only" data-i18n="chartTitle">Probabilidades del siguiente token</h2>
+                        <p id="output-display" class="frase" aria-live="polite"><span id="prompt-text">Había una vez, en una tierra lejana, vivía un</span><span id="generated-text"></span></p>
+                        <div class="chart-actions">
+                            <button id="prepare-btn" type="button" data-i18n="prepareBtn">Analizar opciones</button>
+                            <button id="select-btn" type="button" data-i18n="selectBtn" disabled>Seleccionar token</button>
                         </div>
                     </div>
-                    <div id="selection-status" class="text-center py-1 mb-2 transition-all duration-300" style="min-height: 28px; opacity: 0;">
+                    <div id="selection-status" class="text-center transition-all duration-300" style="opacity: 0;">
                         <span id="status-text"></span>
                     </div>
-                    <div id="chart-container" class="d3-chart-container w-full"></div>
+                    <div id="chart-container" class="d3-chart-container"></div>
                     <div class="chart-legend" data-i18n-aria="chartLegendAria" aria-label="Leyenda del gráfico">
                         <div class="legend-item"><span class="legend-swatch candidate"></span><span data-i18n="legendCandidate">Candidato final</span></div>
                         <div class="legend-item"><span class="legend-swatch cut-topp"></span><span data-i18n="legendCutP">Descartado por Top-P</span></div>
                         <div class="legend-item"><span class="legend-swatch cut-topk"></span><span data-i18n="legendCutK">Descartado por Top-K</span></div>
                         <div class="legend-item"><span class="legend-swatch ghost"></span><span data-i18n="legendGhost">Probabilidad original (sin temperatura)</span></div>
                     </div>
-                </div>
             </div>
-
         </div>
 
         <footer class="tc-footer">
@@ -1110,10 +1086,6 @@
                     toppTip: "Porcentaje de certeza acumulada para incluir opciones (0.9 = 90%).",
                     toppAria: "Top-P, entre 0.01 y 1.0",
                     resetBtn: "Borrar generación",
-                    promptSelectorAria: "Seleccionar prompt de ejemplo",
-                    domainFantasia: "Fantasía",
-                    domainTecnico: "Técnico",
-                    domainCotidiano: "Cotidiano",
                     chartTitle: "Probabilidades del siguiente token",
                     prepareBtn: "Analizar opciones",
                     selectBtn: "Seleccionar token",
@@ -1154,10 +1126,6 @@
                     toppTip: "Porcentagem de certeza acumulada para incluir opções (0.9 = 90%).",
                     toppAria: "Top-P, entre 0.01 e 1.0",
                     resetBtn: "Apagar geração",
-                    promptSelectorAria: "Selecionar prompt de exemplo",
-                    domainFantasia: "Fantasia",
-                    domainTecnico: "Técnico",
-                    domainCotidiano: "Cotidiano",
                     chartTitle: "Probabilidades do próximo token",
                     prepareBtn: "Analisar opções",
                     selectBtn: "Selecionar token",
@@ -1621,24 +1589,6 @@
                 });
             });
 
-            // Selector de prompt / dominio
-            document.querySelectorAll('.prompt-chip').forEach(chip => {
-                chip.addEventListener('click', () => {
-                    const domain = chip.dataset.domain;
-                    if (!domains[domain]) return;
-                    document.querySelectorAll('.prompt-chip').forEach(c => c.classList.toggle('active', c === chip));
-                    currentDomain = domain;
-                    promptTextEl.textContent = domains[domain].prompt;
-                    generatedTextEl.textContent = '';
-                    currentCandidates = null;
-                    currentTempProbs = null;
-                    currentBaseProbs = null;
-                    selectBtn.disabled = true;
-                    hideStatus();
-                    if (outputDisplay) outputDisplay.scrollLeft = 0;
-                    updateStateAndViz();
-                });
-            });
 
             prepareBtn.addEventListener('click', prepareTokenSelection);
             selectBtn.addEventListener('click', executeTokenSelection);
