@@ -32,7 +32,6 @@
         .gap-2 { gap: var(--tc-space-2) }
         .w-full { width: 100% }
         .w-auto { width: auto }
-        .h-72 { height: 288px }
         .p-4 { padding: var(--tc-space-4) }
         .py-1 { padding-top: var(--tc-space-1); padding-bottom: var(--tc-space-1) }
         .mb-2 { margin-bottom: var(--tc-space-2) }
@@ -74,11 +73,40 @@
            Tinta = candidato que sobrevive al filtro. Coral = el token que salió sorteado.
            Grises y punteados = descartado y referencia. El coral es el acento, no el fondo.
            ============================================ */
+        .d3-chart-container { height: clamp(300px, 44vh, 440px); }
         .d3-chart-container text {
             font-family: var(--tc-font-body);
             fill: var(--tc-gris-texto);
-            font-size: 11px;
+            font-size: 13px;
             letter-spacing: normal;
+        }
+        /* El nombre del token es lo que hay que poder leer: tamaño de lectura,
+           y el color dice de una si sobrevivió al filtro o no. */
+        .d3-chart-container .tok {
+            font-size: 14px;
+            font-weight: var(--tc-weight-body-ui);
+            fill: var(--tc-gris-texto);
+            dominant-baseline: middle;
+            transition: fill var(--tc-transicion);
+        }
+        .d3-chart-container .tok-vivo {
+            fill: var(--tc-tinta);
+            font-weight: var(--tc-weight-body-bold);
+        }
+        .d3-chart-container .tok-elegido { fill: var(--tc-coral) }
+        .d3-chart-container .bar-value {
+            font-size: 12.5px;
+            font-weight: var(--tc-weight-body-ui);
+            fill: var(--tc-gris-texto);
+            dominant-baseline: middle;
+        }
+        .d3-chart-container .bar-value-vivo {
+            fill: var(--tc-tinta);
+            font-weight: var(--tc-weight-body-semibold);
+        }
+        @media (max-width: 640px) {
+            .d3-chart-container .tok { font-size: 12px }
+            .d3-chart-container .bar-value { font-size: 11px }
         }
         .d3-chart-container .bar {
             transition: fill var(--tc-transicion-lenta), opacity var(--tc-transicion-lenta);
@@ -131,16 +159,11 @@
         }
         .d3-chart-container .cut-label {
             font-family: var(--tc-font-body);
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 500;
             letter-spacing: normal;
             fill: var(--tc-coral);
             pointer-events: none;
-        }
-        .d3-chart-container .axis text { font-size: 10px; }
-        .d3-chart-container .axis path,
-        .d3-chart-container .axis line {
-            stroke: var(--tc-linea);
         }
 
         @keyframes samplePulse {
@@ -161,8 +184,8 @@
                 opacity: 1;
             }
             100% {
-                fill: var(--tc-tinta);
-                stroke: var(--tc-tinta);
+                fill: var(--tc-coral);
+                stroke: var(--tc-coral);
                 stroke-width: 1px;
                 opacity: 1;
             }
@@ -631,7 +654,7 @@
                     <div id="selection-status" class="text-center py-1 mb-2 transition-all duration-300" style="min-height: 28px; opacity: 0;">
                         <span id="status-text"></span>
                     </div>
-                    <div id="chart-container" class="d3-chart-container w-full h-72"></div>
+                    <div id="chart-container" class="d3-chart-container w-full"></div>
                     <div class="chart-legend" data-i18n-aria="chartLegendAria" aria-label="Leyenda del gráfico">
                         <div class="legend-item"><span class="legend-swatch candidate"></span><span data-i18n="legendCandidate">Candidato final</span></div>
                         <div class="legend-item"><span class="legend-swatch cut-topp"></span><span data-i18n="legendCutP">Descartado por Top-P</span></div>
@@ -1399,154 +1422,184 @@
             }
 
             // --- Gráfico D3 ---
-            const margin = { top: 20, right: 20, bottom: 80, left: 40 };
+            // Barras horizontales: el token se lee de corrido, a tamaño de lectura,
+            // y la longitud de la barra es la probabilidad. El panel es ancho y sobra
+            // lugar a la izquierda para los nombres, que es lo que hay que poder leer.
+            const margin = { top: 10, right: 62, bottom: 10, left: 176 };
             const container = d3.select("#chart-container");
-            let width = container.node().getBoundingClientRect().width - margin.left - margin.right;
-            let height = container.node().getBoundingClientRect().height - margin.top - margin.bottom;
+            function medirMargenes() {
+                const angosto = container.node().getBoundingClientRect().width < 560;
+                margin.left = angosto ? 124 : 176;
+                margin.right = angosto ? 46 : 62;
+            }
+            medirMargenes();
+            const anchoUtil = () => container.node().getBoundingClientRect().width - margin.left - margin.right;
+            const altoUtil = () => container.node().getBoundingClientRect().height - margin.top - margin.bottom;
+            let width = anchoUtil();
+            let height = altoUtil();
 
             const svgRoot = container.append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom);
+                .attr("width", "100%")
+                .attr("height", "100%");
 
             const svg = svgRoot.append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
 
-            const x = d3.scaleBand().range([0, width]).padding(0.15);
-            const y = d3.scaleLinear().range([height, 0]);
+            const y = d3.scaleBand().padding(0.32);
+            const x = d3.scaleLinear();
 
-            const xAxis = svg.append("g").attr("class", "axis axis-x").attr("transform", `translate(0,${height})`);
-            const yAxis = svg.append("g").attr("class", "axis axis-y");
-
-            // Grupos para capas: ghost (atrás) < bars (adelante) < overlays (líneas de corte)
+            // Capas: ghost (atrás) < barras < rótulos y líneas de corte
             const ghostLayer = svg.append("g").attr("class", "ghost-layer");
             const barsLayer = svg.append("g").attr("class", "bars-layer");
+            const labelsLayer = svg.append("g").attr("class", "labels-layer");
+            const valuesLayer = svg.append("g").attr("class", "values-layer");
             const overlayLayer = svg.append("g").attr("class", "overlay-layer");
+
+            // El token lleva el espacio inicial: se muestra para que se vea que es parte del token.
+            function mostrarToken(tok) {
+                const texto = tok.startsWith(' ') ? '␣' + tok.slice(1) : tok;
+                const tope = container.node().getBoundingClientRect().width < 560 ? 13 : 24;
+                return texto.length > tope ? texto.slice(0, tope - 1) + '…' : texto;
+            }
 
             const tooltip = d3.select("body").append("div").attr("class", "tooltip");
 
             function updateChart(baseProbs, tempProbs, candidates, k, selectedToken = null) {
-                // Responsive: menos barras en viewport angosto
-                const maxBars = window.innerWidth < 640 ? 10 : 15;
+                const maxBars = window.innerWidth < 640 ? 8 : 12;
                 const displayTemp = tempProbs.slice(0, maxBars);
                 const displayTokens = displayTemp.map(d => d.token);
 
-                // Índices de los tokens mostrados en la distribución original (mismo orden)
                 const baseByToken = new Map(baseProbs.map(p => [p.token, p.prob]));
-                const displayBase = displayTokens.map(tok => ({
-                    token: tok,
-                    prob: baseByToken.get(tok) ?? 0
-                }));
-
+                const displayBase = displayTokens.map(tok => ({ token: tok, prob: baseByToken.get(tok) ?? 0 }));
                 const candidateTokens = new Set(candidates.map(c => c.token));
 
-                // Y domain cubre ambos (post-temperatura y original) para que nada sobresalga
-                const yMax = Math.max(
+                medirMargenes();
+                svg.attr('transform', `translate(${margin.left},${margin.top})`);
+                width = anchoUtil();
+                height = altoUtil();
+
+                // La escala cubre las dos distribuciones para que ninguna se salga del cuadro.
+                const xMax = Math.max(
                     d3.max(displayTemp, d => d.prob) || 0,
                     d3.max(displayBase, d => d.prob) || 0
                 );
 
-                x.domain(displayTokens);
-                y.domain([0, yMax * 1.05]);
+                y.domain(displayTokens).range([0, height]);
+                x.domain([0, xMax * 1.06]).range([0, width]);
 
-                xAxis.transition().duration(300).call(d3.axisBottom(x).tickFormat(tok => {
-                    // Mostrar token con guion bajo visible en lugar de espacio inicial
-                    if (tok.startsWith(' ')) return '␣' + tok.slice(1);
-                    return tok;
-                }))
-                    .selectAll("text")
-                    .attr("transform", "rotate(-45)")
-                    .style("text-anchor", "end");
+                const fila = d => y(d.token);
+                const alto = y.bandwidth();
 
-                yAxis.transition().duration(300).call(d3.axisLeft(y).ticks(5, ".0%"));
+                // Estado de cada token: vivo, cortado por Top-P, fuera de Top-K, elegido.
+                function clasesBarra(d, i) {
+                    let c = 'bar';
+                    if (candidateTokens.has(d.token)) c += ' candidate';
+                    else if (i < k) c += ' cut-topp';
+                    if (d.token === selectedToken) c += ' selected';
+                    return c;
+                }
+                function clasesRotulo(d, i) {
+                    let c = 'tok';
+                    if (candidateTokens.has(d.token)) c += ' tok-vivo';
+                    else c += ' tok-fuera';
+                    if (d.token === selectedToken) c += ' tok-elegido';
+                    return c;
+                }
 
-                // --- Ghost bars (distribución original, contorno punteado) ---
-                const ghosts = ghostLayer.selectAll(".bar-ghost").data(displayBase, d => d.token);
+                // --- Nombres de token (columna izquierda) ---
+                const labels = labelsLayer.selectAll('.tok').data(displayTemp, d => d.token);
+                labels.exit().remove();
+                labels.enter().append('text')
+                    .attr('x', -14)
+                    .attr('text-anchor', 'end')
+                    .attr('y', d => fila(d) + alto / 2)
+                    .merge(labels)
+                    .attr('class', clasesRotulo)
+                    .text(d => mostrarToken(d.token))
+                    .transition().duration(300)
+                    .attr('y', d => fila(d) + alto / 2);
+
+                // --- Probabilidad original, antes de temperatura: contorno punteado ---
+                const ghosts = ghostLayer.selectAll('.bar-ghost').data(displayBase, d => d.token);
                 ghosts.exit().remove();
-                ghosts.enter().append("rect")
-                    .attr("class", "bar-ghost")
-                    .attr("x", d => x(d.token))
-                    .attr("width", x.bandwidth())
-                    .attr("y", height)
-                    .attr("height", 0)
+                ghosts.enter().append('rect')
+                    .attr('class', 'bar-ghost')
+                    .attr('x', 0)
+                    .attr('y', d => fila(d))
+                    .attr('height', alto)
+                    .attr('width', 0)
                     .merge(ghosts)
                     .transition().duration(300)
-                    .attr("x", d => x(d.token))
-                    .attr("width", x.bandwidth())
-                    .attr("y", d => y(d.prob))
-                    .attr("height", d => height - y(d.prob));
+                    .attr('y', d => fila(d))
+                    .attr('height', alto)
+                    .attr('width', d => Math.max(0, x(d.prob)));
 
-                // --- Solid bars (distribución post-temperatura, con estados) ---
-                const bars = barsLayer.selectAll(".bar").data(displayTemp, d => d.token);
-
+                // --- Barras (distribución con temperatura aplicada) ---
+                const bars = barsLayer.selectAll('.bar').data(displayTemp, d => d.token);
                 bars.exit().remove();
 
-                const barsEnter = bars.enter().append("rect")
-                    .attr("class", "bar")
-                    .attr("x", d => x(d.token))
-                    .attr("width", x.bandwidth())
-                    .attr("y", height)
-                    .attr("height", 0);
-
-                barsEnter.merge(bars)
-                    .on("mouseover", (event, d) => {
+                bars.enter().append('rect')
+                    .attr('class', 'bar')
+                    .attr('x', 0)
+                    .attr('y', d => fila(d))
+                    .attr('height', alto)
+                    .attr('width', 0)
+                    .merge(bars)
+                    .on('mouseover', (event, d) => {
                         const baseP = baseByToken.get(d.token) ?? 0;
-                        tooltip.transition().duration(150).style("opacity", .95);
+                        tooltip.transition().duration(150).style('opacity', .95);
                         tooltip.html(
                             `${t.tipToken}: "${d.token}"<br/>` +
                             `${t.tipOrig}: ${(baseP * 100).toFixed(2)}%<br/>` +
                             `${t.tipTemp}: ${(d.prob * 100).toFixed(2)}%`
                         )
-                            .style("left", (event.clientX + window.scrollX + 10) + "px")
-                            .style("top", (event.clientY + window.scrollY - 40) + "px");
+                            .style('left', (event.clientX + window.scrollX + 10) + 'px')
+                            .style('top', (event.clientY + window.scrollY - 40) + 'px');
                     })
-                    .on("mouseout", () => {
-                        tooltip.transition().duration(300).style("opacity", 0);
-                    })
-                    // El estado (candidato / descartado / elegido) se aplica ya mismo:
-                    // si esperara al final de la transición, cada barra parpadearía en gris.
-                    .attr("class", (d, i) => {
-                        let classes = "bar";
-                        if (candidateTokens.has(d.token)) {
-                            classes += " candidate";
-                        } else if (i < k) {
-                            // Estaba en Top-K pero no sobrevivió a Top-P
-                            classes += " cut-topp";
-                        }
-                        // else: i >= k → fuera de Top-K (estilo default)
-                        if (d.token === selectedToken) classes += " selected";
-                        return classes;
-                    })
+                    .on('mouseout', () => { tooltip.transition().duration(300).style('opacity', 0); })
+                    // El estado se aplica ya: si esperara al final de la transición,
+                    // cada barra parpadearía en gris.
+                    .attr('class', clasesBarra)
                     .transition().duration(300)
-                    .attr("x", d => x(d.token))
-                    .attr("width", x.bandwidth())
-                    .attr("y", d => y(d.prob))
-                    .attr("height", d => height - y(d.prob));
+                    .attr('y', d => fila(d))
+                    .attr('height', alto)
+                    .attr('width', d => Math.max(0, x(d.prob)));
 
-                // --- Línea de corte Top-K ---
-                overlayLayer.selectAll("*").remove();
+                // --- Porcentaje al final de cada barra ---
+                const vals = valuesLayer.selectAll('.bar-value').data(displayTemp, d => d.token);
+                vals.exit().remove();
+                vals.enter().append('text')
+                    .attr('class', 'bar-value')
+                    .attr('y', d => fila(d) + alto / 2)
+                    .merge(vals)
+                    .attr('class', (d, i) => 'bar-value' + (candidateTokens.has(d.token) ? ' bar-value-vivo' : ''))
+                    .text(d => (d.prob * 100).toFixed(1) + '%')
+                    .transition().duration(300)
+                    .attr('x', d => Math.max(0, x(d.prob)) + 8)
+                    .attr('y', d => fila(d) + alto / 2);
+
+                // --- Corte de Top-K: separa lo que el modelo ni mira ---
+                overlayLayer.selectAll('*').remove();
                 if (k < displayTemp.length) {
-                    const cutX = x(displayTokens[k]) - (x.step() - x.bandwidth()) / 2;
-                    overlayLayer.append("line")
-                        .attr("class", "cut-line")
-                        .attr("x1", cutX)
-                        .attr("x2", cutX)
-                        .attr("y1", 0)
-                        .attr("y2", height);
-                    overlayLayer.append("text")
-                        .attr("class", "cut-label")
-                        .attr("x", cutX + 4)
-                        .attr("y", 12)
-                        .text(`← Top-K = ${k}`);
+                    const cutY = y(displayTokens[k]) - (y.step() - y.bandwidth()) / 2;
+                    overlayLayer.append('line')
+                        .attr('class', 'cut-line')
+                        .attr('x1', -margin.left + 8)
+                        .attr('x2', width + margin.right - 8)
+                        .attr('y1', cutY)
+                        .attr('y2', cutY);
+                    overlayLayer.append('text')
+                        .attr('class', 'cut-label')
+                        .attr('x', width + margin.right - 8)
+                        .attr('y', cutY - 7)
+                        .attr('text-anchor', 'end')
+                        .text(`Top-K = ${k}`);
                 }
             }
 
             // Redibujar en resize
             window.addEventListener('resize', () => {
-                const newW = container.node().getBoundingClientRect().width - margin.left - margin.right;
-                if (Math.abs(newW - width) < 4) return;
-                width = newW;
-                svgRoot.attr("width", width + margin.left + margin.right);
-                x.range([0, width]);
+                if (Math.abs(anchoUtil() - width) < 4 && Math.abs(altoUtil() - height) < 4) return;
                 updateStateAndViz();
             });
 
