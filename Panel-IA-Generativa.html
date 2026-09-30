@@ -55,6 +55,23 @@
             border-bottom: 1px solid var(--tc-linea);
         }
         .chart-actions { display: flex; gap: var(--tc-space-2); flex-shrink: 0 }
+        .chart-texto { min-width: 0 }
+        /* El pedido que originó el texto: es el contexto de todo lo que pasa abajo. */
+        .pedido {
+            display: flex;
+            align-items: center;
+            gap: var(--tc-space-2);
+            margin: 0 0 6px;
+            font-size: var(--tc-ui-cuerpo);
+            color: var(--tc-gris-texto);
+        }
+        .pedido strong { color: var(--tc-tinta); font-weight: var(--tc-weight-body-semibold) }
+        .pedido-sep {
+            width: 8px;
+            height: 8px;
+            flex: none;
+            background: var(--tc-lima);
+        }
         /* La frase que se va armando es el hilo de la demo: va a tamaño de lectura. */
         .frase {
             margin: 0;
@@ -623,7 +640,10 @@
                 <div class="tc-surface chart-card">
                     <div class="chart-head">
                         <h2 class="sr-only" data-i18n="chartTitle">Probabilidades del siguiente token</h2>
-                        <p id="output-display" class="frase" aria-live="polite"><span id="prompt-text">Había una vez, en una tierra lejana, vivía un</span><span id="generated-text"></span></p>
+                        <div class="chart-texto">
+                            <p class="pedido"><span data-i18n="pedidoLabel">Le pediste</span><span class="pedido-sep" aria-hidden="true"></span><strong data-i18n="pedidoTexto">Redactá un cuento medieval</strong></p>
+                            <p id="output-display" class="frase" aria-live="polite"><span id="prompt-text">Había una vez, en una tierra lejana, vivía un</span><span id="generated-text"></span></p>
+                        </div>
                         <div class="chart-actions">
                             <button id="prepare-btn" type="button" data-i18n="prepareBtn">Analizar opciones</button>
                             <button id="select-btn" type="button" data-i18n="selectBtn" disabled>Seleccionar token</button>
@@ -1069,6 +1089,8 @@
                     __title: "Panel de IA generativa · Booster",
                     breadcrumb: "Recursos interactivos",
                     tituloPagina: "Panel de IA generativa",
+                    pedidoLabel: "Le pediste",
+                    pedidoTexto: "Redactá un cuento medieval",
                     footer: "La experiencia no se enseña: se entrena.",
                     paramsMostrar: "Ajustar parámetros",
                     paramsOcultar: "Ocultar parámetros",
@@ -1109,6 +1131,8 @@
                     __title: "Painel de IA generativa · Booster",
                     breadcrumb: "Recursos interativos",
                     tituloPagina: "Painel de IA generativa",
+                    pedidoLabel: "Você pediu",
+                    pedidoTexto: "Redija um conto medieval",
                     footer: "A experiência não se ensina: se treina.",
                     paramsMostrar: "Ajustar parâmetros",
                     paramsOcultar: "Ocultar parâmetros",
@@ -1318,7 +1342,7 @@
                         .classed("sampling", true);
                 });
 
-                await sleep(600);
+                await sleep(750);
 
                 svg.selectAll(".bar").classed("sampling", false);
             }
@@ -1330,8 +1354,9 @@
                 // Mostrar estado: muestreando
                 showStatus(t.statusSampling, '#FF4934');
                 
-                // "Ruleta" - iluminar barras según probabilidad
-                const iterations = 10;
+                // "Ruleta": va iluminando candidatas según su probabilidad y frena
+                // sobre el final, para que se vea de dónde sale el token elegido.
+                const iterations = 14;
                 for (let i = 0; i < iterations; i++) {
                     // Calcular cuál candidata resaltar según un muestreo
                     const rand = Math.random();
@@ -1353,8 +1378,10 @@
                     svg.selectAll(".bar")
                         .filter(d => d.token === highlightToken)
                         .classed("sampling", true);
-                    
-                    await sleep(120);
+
+                    // Cada paso dura más que el anterior: la ruleta desacelera.
+                    const avance = i / (iterations - 1);
+                    await sleep(130 + Math.round(370 * avance * avance));
                 }
                 
                 svg.selectAll(".bar").classed("sampling", false);
@@ -1369,7 +1396,7 @@
                     .filter(d => d.token === selectedToken)
                     .classed("final-selected", true);
 
-                await sleep(800);
+                await sleep(1100);
 
                 svg.selectAll(".bar").classed("final-selected", false);
             }
