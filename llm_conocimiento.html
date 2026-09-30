@@ -25,7 +25,7 @@
     padding: 0 var(--tc-margen-web) var(--tc-space-4);
   }
 
-  .page-headline { padding: 0 0 var(--tc-space-4) }
+  .page-headline { padding: 0 0 var(--tc-space-3) }
   .page-headline .tc-kicker { margin-bottom: 6px }
   .page-headline h1 {
     font-family: var(--tc-font-display);
@@ -38,9 +38,8 @@
   }
 
   main {
-    display: grid;
-    grid-template-columns: minmax(0, 2.1fr) minmax(330px, 1fr);
-    align-items: stretch;
+    display: flex;
+    flex-direction: column;
     gap: var(--tc-gap-tarjetas);
     padding-bottom: var(--tc-space-6);
     min-height: 0;
@@ -49,16 +48,15 @@
   @media (max-width: 980px) {
     body { overflow: auto }
     .app { height: auto; min-height: 100vh }
-    main { grid-template-columns: 1fr; overflow: visible }
+    main { overflow: visible }
     .canvas-panel .canvasBox { height: 420px !important }
-    .controls-panel { overflow: visible !important; max-height: none !important }
   }
 
   /* --- Paneles: superficie gris claro, radio 14, sin borde ni sombra --- */
   .panel {
     background: var(--tc-gris-claro);
     border-radius: var(--tc-radius-tarjeta);
-    padding: var(--tc-space-6);
+    padding: var(--tc-space-4) var(--tc-space-6);
     display: flex;
     flex-direction: column;
     gap: var(--tc-space-3);
@@ -74,8 +72,23 @@
     color: var(--tc-coral);
   }
 
-  .canvas-panel { min-height: 0 }
-  .controls-panel { overflow-y: auto }
+  /* El plano se queda con todo el alto sobrante; el prompt ocupa lo que necesita. */
+  .canvas-panel { flex: 1 1 auto; height: auto; min-height: 0 }
+  .prompt-panel {
+    flex: 0 0 auto;
+    height: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    align-items: start;
+    gap: var(--tc-space-6);
+  }
+  .prompt-panel h2 { margin-bottom: var(--tc-space-2) }
+  .prompt-panel label { display: block; margin-bottom: 6px }
+  /* La caja de vocabulario ocupa el alto de la columna de al lado, no más. */
+  .prompt-panel .chips { margin-top: 0; max-height: 108px; align-self: stretch }
+  .prompt-panel input[type="text"] { margin-top: 0 }
+  .prompt-panel small { margin-top: 6px }
+  @media (max-width: 720px) { .prompt-panel { grid-template-columns: 1fr; gap: var(--tc-space-3) } }
 
   /* En una demo a pantalla completa el pie va compacto: el alto se lo lleva el contenido. */
   .tc-footer { margin: 0; padding: var(--tc-space-4) var(--tc-space-6) }
@@ -151,8 +164,8 @@
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
-    margin-top: var(--tc-space-3);
-    max-height: 140px;
+    margin-top: 0;
+    max-height: 66px;
     overflow-y: auto;
     padding: var(--tc-space-3);
     background: var(--tc-blanco);
@@ -173,48 +186,6 @@
   }
   .chip:hover { background: var(--tc-linea) }
   .chip[aria-pressed="true"] { background: var(--tc-lima) }
-
-  /* --- Desglose del embedding --- */
-  .breakdown-section { margin-bottom: var(--tc-space-4) }
-  .breakdown-section:last-child { margin-bottom: 0 }
-  .breakdown-label {
-    font-weight: var(--tc-weight-body-semibold);
-    font-size: var(--tc-ui-tabla);
-    color: var(--tc-gris-texto);
-    margin-bottom: var(--tc-space-2);
-  }
-  .breakdown-tokens { display: flex; flex-wrap: wrap; gap: 6px }
-  .token {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    border-radius: var(--tc-radius-capsula);
-    font-family: var(--tc-font-body);
-    font-weight: var(--tc-weight-body-semibold);
-    font-size: var(--tc-ui-secundario);
-    line-height: 1;
-    padding: 0.42em 0.85em 0.365em;
-  }
-  .token-recognized { background: var(--tc-lima); color: var(--tc-tinta) }
-  .token-recognized .token-vec { font-weight: var(--tc-weight-body-ui); color: var(--tc-tinta); opacity: 0.7 }
-  .token-ignored { background: var(--tc-blanco); color: var(--tc-gris-texto); text-decoration: line-through }
-  .breakdown-result {
-    background: var(--tc-blanco);
-    border-radius: var(--tc-radius-control);
-    padding: var(--tc-space-3) var(--tc-space-4);
-  }
-  .breakdown-vector {
-    font-family: var(--tc-font-display);
-    font-size: 26px;
-    font-weight: var(--tc-weight-display-bold);
-    letter-spacing: var(--tc-tracking-titulo);
-    color: var(--tc-coral);
-  }
-  .breakdown-empty, .empty-hint {
-    font-size: var(--tc-ui-cuerpo);
-    color: var(--tc-gris-texto);
-    margin: 0;
-  }
 
   /* ============================================
      GRÁFICO
@@ -273,7 +244,18 @@
   </div>
 
   <main>
-    <!-- Canvas (izquierda) -->
+    <!-- Prompt (arriba, a todo el ancho) -->
+    <section class="panel prompt-panel" aria-labelledby="promptTitle">
+      <div>
+        <h2 id="promptTitle" data-i18n="promptCardTitle">Tu prompt</h2>
+        <label for="prompt" data-i18n="promptLabel">¿Qué querés preguntar?</label>
+        <input id="prompt" type="text" placeholder="Ej: explicame la fotosíntesis para un niño" data-i18n-ph="promptPlaceholder" aria-describedby="promptHelp" />
+        <small id="promptHelp" data-i18n="promptHelp">Cada palabra reconocida aporta un vector; el promedio es tu embedding.</small>
+      </div>
+      <div class="chips" id="vocab" data-i18n-aria="vocabAria" aria-label="Sugerencias rápidas"></div>
+    </section>
+
+    <!-- Plano vectorial (abajo, a todo el ancho) -->
     <section class="panel canvas-panel" aria-labelledby="vizTitle">
       <h2 id="vizTitle" data-i18n="vizTitle">Espacio vectorial (mapa 2D simplificado)</h2>
       <div class="legend" data-i18n-aria="legendAria" aria-label="Leyenda de elementos">
@@ -284,24 +266,6 @@
       </div>
       <div class="canvasBox" id="plot" aria-live="polite" data-i18n-aria="plotAria" aria-label="Gráfico del espacio vectorial, usa los controles para interactuar."></div>
       <p class="fadeIn" id="hint" data-i18n="hint">Arrastrá un documento cerca de tu prompt, o sumá palabras, para ver cómo se promedia el vector.</p>
-    </section>
-
-    <!-- Controles (derecha) -->
-    <section class="panel controls-panel">
-      <div class="card">
-        <h3 data-i18n="promptCardTitle">Tu prompt</h3>
-        <label for="prompt" data-i18n="promptLabel">¿Qué querés preguntar?</label>
-        <input id="prompt" type="text" placeholder="Ej: explicame la fotosíntesis para un niño" data-i18n-ph="promptPlaceholder" aria-describedby="promptHelp" />
-        <small id="promptHelp" data-i18n="promptHelp">Cada palabra reconocida aporta un vector; el promedio es tu embedding.</small>
-        <div class="chips" id="vocab" data-i18n-aria="vocabAria" aria-label="Sugerencias rápidas"></div>
-      </div>
-
-      <div class="card">
-        <h3 data-i18n="breakdownTitle">Proceso de embedding</h3>
-        <div id="breakdownContent">
-          <p class="empty-hint" data-i18n="emptyHint">Escribí algo o tocá un chip para ver cómo se construye el embedding paso a paso.</p>
-        </div>
-      </div>
     </section>
   </main>
 
@@ -352,14 +316,7 @@
       promptPlaceholder:"Ej: explicame la fotosíntesis para un niño",
       promptHelp:"Cada palabra reconocida aporta un vector; el promedio es tu embedding.",
       vocabAria:"Sugerencias rápidas",
-      breakdownTitle:"Proceso de embedding",
-      emptyHint:"Escribí algo o tocá un chip para ver cómo se construye el embedding paso a paso.",
       footer:"La experiencia no se enseña: se entrena.",
-      bkRecognized:n=>`1. Palabras reconocidas (${n})`,
-      bkNone:"— ninguna palabra del vocabulario",
-      bkIgnored:"2. Palabras ignoradas (fuera de vocabulario)",
-      bkResult:step=>`${step}. Embedding resultante (promedio)`,
-      bkNoVector:"Ninguna palabra reconocida — el modelo no puede generar un embedding. Probá con un chip del vocabulario.",
       docTitles:{
         bio:'Biología — Fotosíntesis',
         hist:'Historia — Revolución Francesa',
@@ -435,14 +392,7 @@
       promptPlaceholder:"Ex: explique a fotossíntese para uma criança",
       promptHelp:"Cada palavra reconhecida contribui com um vetor; a média é o seu embedding.",
       vocabAria:"Sugestões rápidas",
-      breakdownTitle:"Processo de embedding",
-      emptyHint:"Escreva algo ou toque em um chip para ver como o embedding é construído passo a passo.",
       footer:"A experiência não se ensina: se treina.",
-      bkRecognized:n=>`1. Palavras reconhecidas (${n})`,
-      bkNone:"— nenhuma palavra do vocabulário",
-      bkIgnored:"2. Palavras ignoradas (fora do vocabulário)",
-      bkResult:step=>`${step}. Embedding resultante (média)`,
-      bkNoVector:"Nenhuma palavra reconhecida — o modelo não consegue gerar um embedding. Experimente um chip do vocabulário.",
       docTitles:{
         bio:'Biologia — Fotossíntese',
         hist:'História — Revolução Francesa',
@@ -528,7 +478,6 @@
   const plotEl=document.getElementById('plot');
   const promptEl=document.getElementById('prompt');
   const vocabEl=document.getElementById('vocab');
-  const breakdownEl=document.getElementById('breakdownContent');
 
   // ---------- Chips vocab con toggle add/remove ----------
   function normalizeWhitespace(str){ return str.replace(/\s+/g,' ').trim(); }
@@ -596,8 +545,16 @@
   }
   function line(x1,y1,x2,y2,cls){ const l=document.createElementNS(svgNS,'line'); l.setAttribute('x1',x1); l.setAttribute('y1',y1); l.setAttribute('x2',x2); l.setAttribute('y2',y2); l.setAttribute('class',cls); return l; }
   function text(x,y,content,cls){ const tt=document.createElementNS(svgNS,'text'); tt.setAttribute('x',x); tt.setAttribute('y',y); if(cls) tt.setAttribute('class',cls); tt.textContent=content; return tt; }
-  function toScreen(v){ const w=plotEl.clientWidth,h=plotEl.clientHeight; const cx=w/2,cy=h/2; const s=Math.min(w,h)*0.42; return {x:cx+v.x*s,y:cy-v.y*s,s, cx, cy}; }
-  function fromScreen(p){ const w=plotEl.clientWidth,h=plotEl.clientHeight; const cx=w/2,cy=h/2; const s=Math.min(w,h)*0.42; return {x:(p.x-cx)/s, y:-(p.y-cy)/s}; }
+  // El plano se estira a la caja: cada eje usa su propia escala para llenar todo el
+  // ancho disponible. La flecha del prompt sigue apuntando al documento más relevante
+  // (una recta por el origen sigue siendo una recta por el origen), pero los ángulos
+  // en pantalla ya no son los ángulos reales: la similitud la dice el porcentaje.
+  function escala(){
+    const w=plotEl.clientWidth, h=plotEl.clientHeight;
+    return { w, h, cx:w/2, cy:h/2, sx:w*0.46, sy:h*0.46 };
+  }
+  function toScreen(v){ const e=escala(); return {x:e.cx+v.x*e.sx, y:e.cy-v.y*e.sy, s:Math.min(e.sx,e.sy), cx:e.cx, cy:e.cy}; }
+  function fromScreen(p){ const e=escala(); return {x:(p.x-e.cx)/e.sx, y:-(p.y-e.cy)/e.sy}; }
 
   // Draggable docs
   let dragging=null;
@@ -649,7 +606,9 @@
         const wEnd = toScreen(r.vector);
         const wLine = line(origin.cx, origin.cy, wEnd.x, wEnd.y, 'vec-word');
         gVec.appendChild(wLine);
-        const wLbl = text(wEnd.x + 6, wEnd.y + 14, r.word, 'label-word');
+        const wIzq = wEnd.x > plotEl.clientWidth * 0.66;
+        const wLbl = text(wEnd.x + (wIzq ? -6 : 6), wEnd.y + 14, r.word, 'label-word');
+        if(wIzq) wLbl.setAttribute('text-anchor', 'end');
         gLbl.appendChild(wLbl);
       });
     }
@@ -695,56 +654,11 @@
         const sim = Math.max(0, Math.round(d.sim * 100));
         titleText = `${docTitle} · ${sim}%`;
       }
-      const titleLbl = text(d.end.x + 12, d.end.y - 4, titleText, isTop ? 'label-sim top' : 'label');
+      const alaIzquierda = d.end.x > plotEl.clientWidth * 0.66;
+      const titleLbl = text(d.end.x + (alaIzquierda ? -12 : 12), d.end.y - 4, titleText, isTop ? 'label-sim top' : 'label');
+      if(alaIzquierda) titleLbl.setAttribute('text-anchor', 'end');
       gLbl.appendChild(titleLbl);
     });
-  }
-
-  // ---------- Render: panel de desglose ----------
-  function renderBreakdown(embedding){
-    const {vector, recognized, ignored} = embedding;
-
-    if(recognized.length === 0 && ignored.length === 0){
-      breakdownEl.innerHTML = `<p class="empty-hint">${t.emptyHint}</p>`;
-      return;
-    }
-
-    let html = '';
-
-    html += `<div class="breakdown-section">
-      <div class="breakdown-label">${t.bkRecognized(recognized.length)}</div>
-      <div class="breakdown-tokens">`;
-    if(recognized.length === 0){
-      html += `<span class="breakdown-empty">${t.bkNone}</span>`;
-    } else {
-      recognized.forEach(r=>{
-        html += `<span class="token token-recognized"><strong>${r.word}</strong><span class="token-vec">(${r.vector.x.toFixed(2)}, ${r.vector.y.toFixed(2)})</span></span>`;
-      });
-    }
-    html += `</div></div>`;
-
-    if(ignored.length > 0){
-      html += `<div class="breakdown-section">
-        <div class="breakdown-label">${t.bkIgnored}</div>
-        <div class="breakdown-tokens">`;
-      ignored.forEach(w=>{
-        html += `<span class="token token-ignored">${w}</span>`;
-      });
-      html += `</div></div>`;
-    }
-
-    if(vector){
-      html += `<div class="breakdown-section breakdown-result">
-        <div class="breakdown-label">${t.bkResult(ignored.length > 0 ? '3' : '2')}</div>
-        <div class="breakdown-vector">(${vector.x.toFixed(2)}, ${vector.y.toFixed(2)})</div>
-      </div>`;
-    } else {
-      html += `<div class="breakdown-section">
-        <p class="empty-hint">${t.bkNoVector}</p>
-      </div>`;
-    }
-
-    breakdownEl.innerHTML = html;
   }
 
   // ---------- Eventos UI ----------
@@ -755,7 +669,6 @@
     drawGrid();
     const embedding = embedPrompt(promptEl.value);
     renderScene(embedding);
-    renderBreakdown(embedding);
   }
 
   // ---------- i18n: aplicar textos estáticos + cambio de idioma ----------
