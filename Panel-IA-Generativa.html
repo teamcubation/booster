@@ -42,19 +42,16 @@
         .transition-all { transition: all var(--tc-transicion-lenta) }
         .duration-300 { transition-duration: 300ms }
 
-        .demo-headline { padding: var(--tc-space-2) 0 var(--tc-space-6) }
-        .demo-headline .tc-kicker { margin-bottom: 6px }
-        .demo-headline h1 {
+        /* El nombre de la página vive en el header: no gasta una franja propia. */
+        .titulo-pagina {
             font-family: var(--tc-font-display);
-            font-size: clamp(24px, 2.8vw, 40px);
+            font-size: var(--tc-web-titulo-tarjeta);
             font-weight: var(--tc-weight-display-bold);
-            line-height: var(--tc-leading-titulo-resaltado);
             letter-spacing: var(--tc-tracking-titulo);
             color: var(--tc-tinta);
             margin: 0;
         }
-        .demo-headline .tc-lede { margin-top: var(--tc-space-3); font-size: var(--tc-web-cuerpo) }
-        .tc-footer { margin: var(--tc-space-8) 0 var(--tc-space-6); padding: var(--tc-space-4) var(--tc-space-6) }
+        .tc-footer { margin: var(--tc-space-6) 0; padding: var(--tc-space-4) var(--tc-space-6) }
 
         /* ============================================
            SUPERFICIES
@@ -261,7 +258,7 @@
             align-self: stretch;
             background: var(--tc-linea);
         }
-        /* Los parámetros vienen ocultos: el recorrido arranca con los presets.
+        /* Los parámetros vienen ocultos; se abren desde el botón.
            display:contents deja que los sliders sigan siendo hijos del flex de la barra. */
         .toolbar-params { display: contents; }
         .toolbar-params[hidden] { display: none; }
@@ -280,33 +277,6 @@
             align-items: center;
             gap: 2px;
             letter-spacing: normal;
-        }
-
-        /* Presets — segmented mono */
-        .preset-group {
-            display: inline-flex;
-            border: 1px solid var(--tc-linea);
-        }
-        .preset-btn {
-            padding: 6px 12px;
-            font-family: var(--tc-font-body);
-            font-size: var(--tc-ui-secundario);
-            font-weight: 500;
-            letter-spacing: normal;
-            border: none;
-            border-left: 1px solid var(--tc-linea);
-            border-radius: var(--tc-radius-capsula);
-            background: transparent;
-            color: var(--tc-gris-texto);
-            cursor: pointer;
-            transition: background var(--tc-transicion), color var(--tc-transicion);
-            white-space: nowrap;
-        }
-        .preset-btn:first-child { border-left: none; }
-        .preset-btn:hover { color: var(--tc-coral); }
-        .preset-btn.active {
-            background: var(--tc-tinta);
-            color: var(--tc-gris-claro);
         }
 
         /* Chips de dominio */
@@ -572,7 +542,8 @@
         <header class="tc-header">
             <div class="tc-header-izq">
                 <a href="contenidos.html" aria-label="Volver a los recursos"><img class="tc-logo" src="assets/logo/logo-horizontal-color.svg" alt="Teamcubation"></a>
-                <a class="tc-breadcrumb" href="contenidos.html" data-i18n="breadcrumb">Booster · Recursos interactivos</a>
+                <a class="tc-breadcrumb" href="contenidos.html" data-i18n="breadcrumb">Recursos interactivos</a>
+                <h1 class="titulo-pagina" data-i18n="tituloPagina">Panel de IA generativa</h1>
             </div>
             <div class="tc-header-der">
                 <div class="tc-grupo" role="group" aria-label="Idioma / Idioma">
@@ -582,35 +553,10 @@
             </div>
         </header>
 
-        <div class="demo-headline">
-            <p class="tc-kicker" data-i18n="kicker">Sampling</p>
-            <h1>
-                <span data-i18n="h1a">El modelo no sabe qué decir:</span>
-                <span class="tc-resaltado" data-i18n="h1b">calcula</span>
-                <span class="tc-coral" data-i18n="h1c">qué es probable.</span>
-            </h1>
-            <p class="tc-lede" data-i18n="subtitle">Temperatura, Top-K y Top-P moldean la salida del modelo. Elegí un preset, o abrí los parámetros y movelos, para ver qué tokens sobreviven al filtro.</p>
-        </div>
-
         <div>
             <div id="content-demo">
                 <!-- Toolbar horizontal de controles -->
                 <div class="tc-surface mb-4 demo-toolbar">
-                    <div class="toolbar-group">
-                        <span class="toolbar-label">
-                            <span data-i18n="presetsLabel">Presets</span>
-                            <span class="info-wrap">
-                                <button type="button" class="info-btn" data-i18n-aria="presetsInfoAria" aria-label="Qué son los presets" tabindex="0"><span aria-hidden="true">i</span></button>
-                                <span class="info-tip" role="tooltip" data-i18n="presetsTip">Configuraciones rápidas que mueven los tres parámetros juntos.</span>
-                            </span>
-                        </span>
-                        <div class="preset-group" role="group" data-i18n-aria="presetsGroupAria" aria-label="Presets de configuración">
-                            <button type="button" class="preset-btn" data-preset="preciso" data-i18n="presetPreciso">Preciso</button>
-                            <button type="button" class="preset-btn" data-preset="balanceado" data-i18n="presetBalanceado">Balanceado</button>
-                            <button type="button" class="preset-btn" data-preset="creativo" data-i18n="presetCreativo">Creativo</button>
-                        </div>
-                    </div>
-
                     <button type="button" id="params-toggle" class="tc-btn tc-btn-sm" aria-expanded="false" aria-controls="params-avanzados">Ajustar parámetros</button>
 
                     <div class="toolbar-params" id="params-avanzados" hidden>
@@ -722,13 +668,6 @@
             const resetBtn = document.getElementById('reset-btn');
             const selectionStatus = document.getElementById('selection-status');
             const statusText = document.getElementById('status-text');
-
-            // Presets: configuraciones que mueven los 3 parámetros juntos
-            const presets = {
-                preciso:    { temperature: 0.2, top_k: 10, top_p: 0.5 },
-                balanceado: { temperature: 0.7, top_k: 20, top_p: 0.9 },
-                creativo:   { temperature: 1.3, top_k: 40, top_p: 0.95 }
-            };
 
             // Dominios: cada uno define su prompt y su vocabulario contextual
             const domainsES = {
@@ -1129,23 +1068,12 @@
             const UI = {
                 es: {
                     __title: "Panel de IA generativa · Booster",
-                    kicker: "Sampling",
-                    breadcrumb: "Booster · Recursos interactivos",
-                    h1a: "El modelo no sabe qué decir:",
-                    h1b: "calcula",
-                    h1c: "qué es probable.",
-                    subtitle: "Temperatura, Top-K y Top-P moldean la salida del modelo. Elegí un preset, o abrí los parámetros y movelos, para ver qué tokens sobreviven al filtro.",
+                    breadcrumb: "Recursos interactivos",
+                    tituloPagina: "Panel de IA generativa",
                     footer: "La experiencia no se enseña: se entrena.",
-                    presetsLabel: "Presets",
                     paramsMostrar: "Ajustar parámetros",
                     paramsOcultar: "Ocultar parámetros",
                     paramsToggleAria: "Mostrar u ocultar temperatura, Top-K y Top-P",
-                    presetsInfoAria: "Qué son los presets",
-                    presetsTip: "Configuraciones rápidas que mueven los tres parámetros juntos.",
-                    presetsGroupAria: "Presets de configuración",
-                    presetPreciso: "Preciso",
-                    presetBalanceado: "Balanceado",
-                    presetCreativo: "Creativo",
                     tempLabel: "Temp",
                     tempInfoAria: "Qué es temperatura",
                     tempTip: "Controla qué tan predecible o creativa es la IA. Valores más altos = más creatividad.",
@@ -1184,23 +1112,12 @@
                 },
                 pt: {
                     __title: "Painel de IA generativa · Booster",
-                    kicker: "Sampling",
-                    breadcrumb: "Booster · Recursos interativos",
-                    h1a: "O modelo não sabe o que dizer:",
-                    h1b: "calcula",
-                    h1c: "o que é provável.",
-                    subtitle: "Temperatura, Top-K e Top-P moldam a saída do modelo. Escolha um preset, ou abra os parâmetros e mova-os, para ver quais tokens sobrevivem ao filtro.",
+                    breadcrumb: "Recursos interativos",
+                    tituloPagina: "Painel de IA generativa",
                     footer: "A experiência não se ensina: se treina.",
-                    presetsLabel: "Presets",
                     paramsMostrar: "Ajustar parâmetros",
                     paramsOcultar: "Ocultar parâmetros",
                     paramsToggleAria: "Mostrar ou ocultar temperatura, Top-K e Top-P",
-                    presetsInfoAria: "O que são os presets",
-                    presetsTip: "Configurações rápidas que movem os três parâmetros juntos.",
-                    presetsGroupAria: "Presets de configuração",
-                    presetPreciso: "Preciso",
-                    presetBalanceado: "Balanceado",
-                    presetCreativo: "Criativo",
                     tempLabel: "Temp",
                     tempInfoAria: "O que é temperatura",
                     tempTip: "Controla o quão previsível ou criativa é a IA. Valores mais altos = mais criatividade.",
@@ -1335,19 +1252,6 @@
                 const candidates = getCandidates(tempProbs, k, p);
 
                 updateChart(baseProbs, tempProbs, candidates, k);
-                syncPresetHighlight(temp, k, p);
-            }
-
-            // Resalta el preset activo si los valores coinciden con alguno
-            function syncPresetHighlight(temp, k, p) {
-                const match = Object.entries(presets).find(([_, v]) =>
-                    Math.abs(v.temperature - temp) < 0.01 &&
-                    v.top_k === k &&
-                    Math.abs(v.top_p - p) < 0.01
-                );
-                document.querySelectorAll('.preset-btn').forEach(btn => {
-                    btn.classList.toggle('active', !!match && btn.dataset.preset === match[0]);
-                });
             }
 
             // PASO 1: Preparar y mostrar opciones
@@ -1664,19 +1568,6 @@
                 });
             });
 
-            // Presets
-            document.querySelectorAll('.preset-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const preset = presets[btn.dataset.preset];
-                    if (!preset) return;
-                    tempSlider.value = preset.temperature;
-                    topKSlider.value = preset.top_k;
-                    topPSlider.value = preset.top_p;
-                    updateStateAndViz();
-                    invalidatePreparedState();
-                });
-            });
-
             // Selector de prompt / dominio
             document.querySelectorAll('.prompt-chip').forEach(chip => {
                 chip.addEventListener('click', () => {
@@ -1711,8 +1602,8 @@
             });
 
             // ---------- i18n: aplicar textos estáticos + cambio de idioma ----------
-            // Tweak: los tres parámetros arrancan ocultos. Quien quiera afinarlos los abre;
-            // el resto se maneja con los presets, que mueven los tres juntos.
+            // Tweak: los tres parámetros arrancan ocultos. La demo se puede recorrer entera
+            // con los valores por defecto; quien quiera afinarlos los abre desde el botón.
             const paramsBox = document.getElementById('params-avanzados');
             const paramsToggle = document.getElementById('params-toggle');
 
