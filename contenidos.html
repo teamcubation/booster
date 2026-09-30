@@ -3,186 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booster · Índice de contenidos</title>
-    <meta name="description" content="Recursos y demos interactivas de Teamcubation para entender cómo funciona la IA generativa.">
-    <link rel="icon" href="imagenes/brand/iso-light.png">
+    <title>Booster · Recursos interactivos</title>
+    <meta name="description" content="Demos interactivas de Teamcubation para entender cómo funciona la IA generativa por dentro.">
+    <link rel="icon" href="assets/logo/isotipo-color.svg">
     <link rel="stylesheet" href="teamcubation.css">
     <style>
-        body {
+        body { display: flex; flex-direction: column; min-height: 100vh }
+        .tc-page { flex: 1; display: flex; flex-direction: column; width: 100% }
+
+        .hero { padding: var(--tc-space-16) 0 var(--tc-space-12) }
+        .hero .tc-display { max-width: 20ch }
+        .hero .tc-lede { margin-top: var(--tc-space-6); max-width: 60ch }
+
+        .grilla { padding-bottom: var(--tc-space-12) }
+
+        .tarjeta-demo {
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-        }
-
-        .tc-page {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-        }
-
-        .index-headline {
-            padding: var(--tc-s6) 0 var(--tc-s5);
-            border-bottom: 1px solid var(--tc-line);
-        }
-
-        .index-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            border-bottom: 1px solid var(--tc-line);
-        }
-
-        .index-card {
-            display: flex;
-            flex-direction: column;
-            gap: var(--tc-s3);
-            padding: var(--tc-s5) var(--tc-s5) var(--tc-s6) 0;
+            gap: var(--tc-space-3);
+            background: var(--tc-gris-claro);
+            border-radius: var(--tc-radius-tarjeta);
+            padding: var(--tc-space-8);
+            height: 100%;
             text-decoration: none;
-            border-top: none;
-            transition: background var(--tc-transition-fast);
-            animation: tcFadeUp 0.4s ease-out both;
+            transition: background var(--tc-transicion);
+            animation: tcFadeUp 0.3s ease-out both;
         }
+        .tarjeta-demo:nth-child(1) { animation-delay: 0.04s }
+        .tarjeta-demo:nth-child(2) { animation-delay: 0.10s }
+        .tarjeta-demo:nth-child(3) { animation-delay: 0.16s }
 
-        .index-card + .index-card {
-            padding-left: var(--tc-s5);
-            border-left: 1px solid var(--tc-line-soft);
-        }
+        .tarjeta-demo:hover { background: #f1f1f0; text-decoration: none }
+        .tarjeta-demo:hover .tarjeta-cta { opacity: 0.9 }
 
-        .index-card:nth-child(1) { animation-delay: 0.04s; }
-        .index-card:nth-child(2) { animation-delay: 0.10s; }
-        .index-card:nth-child(3) { animation-delay: 0.16s; }
-
-        .index-card-num {
-            font-family: var(--tc-font-mono);
-            font-size: var(--tc-mono);
-            font-weight: 500;
-            letter-spacing: 0.08em;
-            color: var(--tc-mute);
-        }
-
-        .index-card-title {
+        .tarjeta-titulo {
             font-family: var(--tc-font-display);
-            font-size: var(--tc-h1);
-            font-weight: 700;
+            font-size: var(--tc-web-titulo-tarjeta);
+            font-weight: var(--tc-weight-display-bold);
             line-height: 1.15;
-            letter-spacing: -0.01em;
-            color: var(--tc-ink);
+            letter-spacing: var(--tc-tracking-titulo);
+            color: var(--tc-coral);
             margin: 0;
-            transition: color var(--tc-transition-fast);
         }
-
-        .index-card-desc {
-            font-size: var(--tc-body);
-            color: var(--tc-ink-soft);
-            line-height: 1.55;
+        .tarjeta-desc {
+            font-size: var(--tc-web-cuerpo);
+            line-height: var(--tc-leading-cuerpo);
+            color: var(--tc-tinta);
             margin: 0;
-            max-width: 46ch;
         }
-
-        .index-card-cta {
-            margin-top: auto;
-            padding-top: var(--tc-s4);
-            font-family: var(--tc-font-mono);
-            font-size: var(--tc-mono);
-            font-weight: 500;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            color: var(--tc-mute);
-            display: inline-flex;
-            align-items: center;
-            gap: var(--tc-s2);
-            transition: color var(--tc-transition-fast), gap var(--tc-transition-fast);
-        }
-
-        .index-card:hover .index-card-title { color: var(--tc-orange); }
-        .index-card:hover .index-card-cta {
-            color: var(--tc-orange);
-            gap: var(--tc-s3);
-        }
-        .index-card:focus-visible {
-            outline: 1px solid var(--tc-orange);
-            outline-offset: -1px;
-        }
-
-        @media (max-width: 700px) {
-            .index-card { padding-right: 0; }
-            .index-card + .index-card {
-                padding-left: 0;
-                border-left: none;
-                border-top: 1px solid var(--tc-line-soft);
-            }
-            .index-card-title { font-size: var(--tc-h2); }
-        }
+        /* El aire sobrante queda abajo: el CTA se pega al pie de la caja. */
+        .tarjeta-cta { margin-top: auto; padding-top: var(--tc-space-6) }
     </style>
 </head>
 <body>
     <div class="tc-page">
-        <header class="tc-chrome-top">
-            <div class="tc-chrome-left">
-                <img class="tc-logo" src="imagenes/brand/logo-color.png" alt="Teamcubation">
-                <span class="tc-chrome-path">// BOOSTER · ÍNDICE</span>
+        <header class="tc-header">
+            <div class="tc-header-izq">
+                <img class="tc-logo" src="assets/logo/logo-horizontal-color.svg" alt="Teamcubation">
             </div>
-            <div class="tc-chrome-right">
-                <span class="tc-chrome-path">DOC.ID · TC-BST-00</span>
-                <div class="tc-segmented" role="group" aria-label="Idioma / Idioma">
-                    <button type="button" data-lang="es">ES</button>
-                    <button type="button" data-lang="pt">PT</button>
+            <div class="tc-header-der">
+                <div class="tc-grupo" role="group" aria-label="Idioma / Idioma">
+                    <button type="button" data-lang="es">Español</button>
+                    <button type="button" data-lang="pt">Português</button>
                 </div>
             </div>
         </header>
 
-        <div class="index-headline">
-            <p class="tc-eyebrow">↳ booster / contenidos.tq</p>
+        <div class="hero">
+            <p class="tc-kicker" data-i18n="kicker">Booster</p>
             <h1 class="tc-display">
-                <span data-i18n="titleA">Recursos</span>
-                <span class="tc-accent" data-i18n="titleB">interactivos</span><span class="tc-dot"></span>
+                <span data-i18n="titleA">La caja negra de la IA,</span>
+                <span class="tc-resaltado" data-i18n="titleB">abierta</span>
+                <span class="tc-coral" data-i18n="titleC">en vivo.</span>
             </h1>
             <p class="tc-lede" data-i18n="subtitle">
-                Demos que abren la caja negra de la IA generativa. Cada una explica un mecanismo real
-                del modelo con controles que podés mover en vivo.
+                Tres demos para ver por dentro cómo un modelo elige cada palabra, dónde guarda lo que
+                sabe y cuánto cambia su respuesta según el contexto que le das.
             </p>
         </div>
 
-        <nav class="index-grid" aria-label="Contenidos disponibles">
-            <a href="Panel-IA-Generativa.html" class="index-card">
-                <span class="index-card-num">01</span>
-                <p class="tc-tag" data-i18n="card1Tag">[ SAMPLING ]</p>
-                <h2 class="index-card-title" data-i18n="card1Title">Panel de IA Generativa</h2>
-                <p class="index-card-desc" data-i18n="card1Desc">
-                    Cómo un LLM elige la siguiente palabra. Movés Temperatura, Top-K y Top-P y
-                    ves en el gráfico exactamente qué tokens sobreviven al filtro.
+        <nav class="grilla tc-fila-3" aria-label="Contenidos disponibles">
+            <a href="Panel-IA-Generativa.html" class="tarjeta-demo">
+                <p class="tc-kicker" data-i18n="card1Tag">01 · Sampling</p>
+                <h2 class="tarjeta-titulo" data-i18n="card1Title">Panel de IA generativa</h2>
+                <p class="tarjeta-desc" data-i18n="card1Desc">
+                    Cómo un modelo elige la palabra que sigue. Movés temperatura, Top-K y Top-P y ves
+                    en el gráfico qué tokens sobreviven al filtro.
                 </p>
-                <span class="index-card-cta"><span data-i18n="cta">Abrir demo</span> →</span>
+                <span class="tarjeta-cta"><span class="tc-cta tc-cta-sm" data-i18n="cta1">Abrir demo</span></span>
             </a>
 
-            <a href="llm_conocimiento.html" class="index-card">
-                <span class="index-card-num">02</span>
-                <p class="tc-tag" data-i18n="card2Tag">[ EMBEDDINGS ]</p>
-                <h2 class="index-card-title" data-i18n="card2Title">Conocimiento LLM</h2>
-                <p class="index-card-desc" data-i18n="card2Desc">
-                    Cómo un modelo guarda conocimiento en un espacio vectorial. Escribís un prompt
-                    y seguís paso a paso el embedding y la similitud de coseno.
+            <a href="llm_conocimiento.html" class="tarjeta-demo">
+                <p class="tc-kicker" data-i18n="card2Tag">02 · Embeddings</p>
+                <h2 class="tarjeta-titulo" data-i18n="card2Title">Conocimiento LLM</h2>
+                <p class="tarjeta-desc" data-i18n="card2Desc">
+                    Cómo un modelo guarda lo que sabe en un espacio vectorial. Escribís un prompt y
+                    seguís paso a paso el embedding y la similitud de coseno.
                 </p>
-                <span class="index-card-cta"><span data-i18n="cta2">Abrir demo</span> →</span>
+                <span class="tarjeta-cta"><span class="tc-cta tc-cta-sm" data-i18n="cta2">Abrir demo</span></span>
             </a>
 
-            <a href="itinerario-norte.html" class="index-card">
-                <span class="index-card-num">03</span>
-                <p class="tc-tag" data-i18n="card3Tag">[ CONTEXTO ]</p>
-                <h2 class="index-card-title" data-i18n="card3Title">Itinerario del norte</h2>
-                <p class="index-card-desc" data-i18n="card3Desc">
-                    Cuánto cambia la respuesta según el contexto que le des. Escribís un pedido de viaje
-                    y ves en el mapa cómo la IA pasa de dudar entre diez provincias a una ruta concreta.
+            <a href="itinerario-norte.html" class="tarjeta-demo">
+                <p class="tc-kicker" data-i18n="card3Tag">03 · Contexto</p>
+                <h2 class="tarjeta-titulo" data-i18n="card3Title">Itinerario del norte</h2>
+                <p class="tarjeta-desc" data-i18n="card3Desc">
+                    Cuánto cambia la respuesta según el contexto que le des. Pedís un viaje y ves en el
+                    mapa cómo pasa de dudar entre diez provincias a una ruta concreta.
                 </p>
-                <span class="index-card-cta"><span data-i18n="cta3">Abrir demo</span> →</span>
+                <span class="tarjeta-cta"><span class="tc-cta tc-cta-sm" data-i18n="cta3">Abrir demo</span></span>
             </a>
         </nav>
 
-        <footer class="tc-chrome-bottom">
-            <span class="tc-chrome-anchor">[ TQ ]</span>
-            <span class="tc-chrome-section" data-i18n="chromeSection">ÍNDICE</span>
-            <span class="tc-chrome-chapter">V1.2026</span>
-            <span class="tc-chrome-page">01 / 01</span>
+        <footer class="tc-footer">
+            <img class="tc-logo tc-logo-sm" src="assets/logo/logo-horizontal-color.svg" alt="Teamcubation">
+            <span class="tc-footer-nota" data-i18n="footer">La experiencia no se enseña: se entrena.</span>
         </footer>
     </div>
 
@@ -190,42 +124,46 @@
     (function () {
         const I18N = {
             es: {
-                __title: "Booster · Índice de contenidos",
-                titleA: "Recursos",
-                titleB: "interactivos",
-                subtitle: "Demos que abren la caja negra de la IA generativa. Cada una explica un mecanismo real del modelo con controles que podés mover en vivo.",
-                card1Tag: "[ SAMPLING ]",
-                card1Title: "Panel de IA Generativa",
-                card1Desc: "Cómo un LLM elige la siguiente palabra. Movés Temperatura, Top-K y Top-P y ves en el gráfico exactamente qué tokens sobreviven al filtro.",
-                card2Tag: "[ EMBEDDINGS ]",
+                __title: "Booster · Recursos interactivos",
+                kicker: "Booster",
+                titleA: "La caja negra de la IA,",
+                titleB: "abierta",
+                titleC: "en vivo.",
+                subtitle: "Tres demos para ver por dentro cómo un modelo elige cada palabra, dónde guarda lo que sabe y cuánto cambia su respuesta según el contexto que le das.",
+                card1Tag: "01 · Sampling",
+                card1Title: "Panel de IA generativa",
+                card1Desc: "Cómo un modelo elige la palabra que sigue. Movés temperatura, Top-K y Top-P y ves en el gráfico qué tokens sobreviven al filtro.",
+                card2Tag: "02 · Embeddings",
                 card2Title: "Conocimiento LLM",
-                card2Desc: "Cómo un modelo guarda conocimiento en un espacio vectorial. Escribís un prompt y seguís paso a paso el embedding y la similitud de coseno.",
-                card3Tag: "[ CONTEXTO ]",
+                card2Desc: "Cómo un modelo guarda lo que sabe en un espacio vectorial. Escribís un prompt y seguís paso a paso el embedding y la similitud de coseno.",
+                card3Tag: "03 · Contexto",
                 card3Title: "Itinerario del norte",
-                card3Desc: "Cuánto cambia la respuesta según el contexto que le des. Escribís un pedido de viaje y ves en el mapa cómo la IA pasa de dudar entre diez provincias a una ruta concreta.",
-                cta: "Abrir demo",
+                card3Desc: "Cuánto cambia la respuesta según el contexto que le des. Pedís un viaje y ves en el mapa cómo pasa de dudar entre diez provincias a una ruta concreta.",
+                cta1: "Abrir demo",
                 cta2: "Abrir demo",
                 cta3: "Abrir demo",
-                chromeSection: "ÍNDICE"
+                footer: "La experiencia no se enseña: se entrena."
             },
             pt: {
-                __title: "Booster · Índice de conteúdos",
-                titleA: "Recursos",
-                titleB: "interativos",
-                subtitle: "Demos que abrem a caixa-preta da IA generativa. Cada uma explica um mecanismo real do modelo com controles que você move ao vivo.",
-                card1Tag: "[ SAMPLING ]",
-                card1Title: "Painel de IA Generativa",
-                card1Desc: "Como um LLM escolhe a próxima palavra. Você move Temperatura, Top-K e Top-P e vê no gráfico exatamente quais tokens sobrevivem ao filtro.",
-                card2Tag: "[ EMBEDDINGS ]",
+                __title: "Booster · Recursos interativos",
+                kicker: "Booster",
+                titleA: "A caixa-preta da IA,",
+                titleB: "aberta",
+                titleC: "ao vivo.",
+                subtitle: "Três demos para ver por dentro como um modelo escolhe cada palavra, onde guarda o que sabe e quanto muda a resposta conforme o contexto que você dá.",
+                card1Tag: "01 · Sampling",
+                card1Title: "Painel de IA generativa",
+                card1Desc: "Como um modelo escolhe a próxima palavra. Você move temperatura, Top-K e Top-P e vê no gráfico quais tokens sobrevivem ao filtro.",
+                card2Tag: "02 · Embeddings",
                 card2Title: "Conhecimento LLM",
-                card2Desc: "Como um modelo guarda conhecimento em um espaço vetorial. Você escreve um prompt e acompanha passo a passo o embedding e a similaridade de cosseno.",
-                card3Tag: "[ CONTEXTO ]",
+                card2Desc: "Como um modelo guarda o que sabe em um espaço vetorial. Você escreve um prompt e acompanha passo a passo o embedding e a similaridade de cosseno.",
+                card3Tag: "03 · Contexto",
                 card3Title: "Itinerário do norte",
-                card3Desc: "Quanto muda a resposta conforme o contexto que você dá. Você escreve um pedido de viagem e vê no mapa como a IA passa de duvidar entre dez províncias a uma rota concreta. (Demo em espanhol.)",
-                cta: "Abrir demo",
+                card3Desc: "Quanto muda a resposta conforme o contexto que você dá. Você pede uma viagem e vê no mapa como passa de duvidar entre dez províncias a uma rota concreta. (Demo em espanhol.)",
+                cta1: "Abrir demo",
                 cta2: "Abrir demo",
                 cta3: "Abrir demo",
-                chromeSection: "ÍNDICE"
+                footer: "A experiência não se ensina: se treina."
             }
         };
 
@@ -244,13 +182,13 @@
                 const key = el.getAttribute("data-i18n");
                 if (dict[key] != null) el.textContent = dict[key];
             });
-            document.querySelectorAll(".tc-segmented [data-lang]").forEach(btn => {
+            document.querySelectorAll(".tc-grupo [data-lang]").forEach(btn => {
                 btn.classList.toggle("active", btn.dataset.lang === lang);
             });
             localStorage.setItem(LANG_KEY, lang);
         }
 
-        document.querySelectorAll(".tc-segmented [data-lang]").forEach(btn => {
+        document.querySelectorAll(".tc-grupo [data-lang]").forEach(btn => {
             btn.addEventListener("click", () => applyLang(btn.dataset.lang));
         });
 

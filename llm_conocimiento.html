@@ -5,93 +5,87 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Conocimiento LLM · Booster</title>
 <meta name="description" content="Demo interactiva de Teamcubation: cómo un LLM descompone un prompt en palabras, mapea cada una a un vector y las promedia para obtener un embedding que compara con su conocimiento usando similitud de coseno." />
-<link rel="icon" href="imagenes/brand/iso-light.png">
+<link rel="icon" href="assets/logo/isotipo-color.svg">
 <link rel="stylesheet" href="teamcubation.css">
 <style>
   /* ============================================
-     CONOCIMIENTO LLM — Cubation Design System
-     Editorial · una sola tinta · chrome monoespaciado
+     CONOCIMIENTO LLM — Teamcubation Design System
+     Blanco dominante · tarjetas gris claro · resaltador lima · remate coral.
+     Cero sombras, cero bordes decorativos.
      ============================================ */
   html, body { height: 100% }
-  body {
-    margin: 0;
-    background: var(--tc-cream);
-    color: var(--tc-ink-soft);
-    font-family: var(--tc-font-display);
-    line-height: 1.45;
-    font-size: 16px;
-    overflow: hidden;
-  }
+  body { overflow: hidden }
+
   .app {
     display: grid;
     grid-template-rows: auto auto 1fr auto;
     height: 100vh;
     max-width: 1456px;
     margin: 0 auto;
-    padding: var(--tc-s4) var(--tc-s5) var(--tc-s3);
+    padding: 0 var(--tc-margen-web) var(--tc-space-4);
   }
 
-  /* --- Chrome + headline --- */
-  .page-headline {
-    padding: var(--tc-s4) 0 var(--tc-s3);
-    border-bottom: 1px solid var(--tc-line);
-  }
-  .page-headline .tc-eyebrow { margin-bottom: var(--tc-s2); }
+  .page-headline { padding: 0 0 var(--tc-space-4) }
+  .page-headline .tc-kicker { margin-bottom: 6px }
   .page-headline h1 {
     font-family: var(--tc-font-display);
-    font-size: clamp(22px, 2.6vw, 40px);
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    color: var(--tc-ink);
+    font-size: clamp(24px, 2.8vw, 40px);
+    font-weight: var(--tc-weight-display-bold);
+    line-height: var(--tc-leading-titulo-resaltado);
+    letter-spacing: var(--tc-tracking-titulo);
+    color: var(--tc-tinta);
     margin: 0;
   }
 
   main {
     display: grid;
-    grid-template-columns: minmax(0, 2.2fr) minmax(320px, 1fr);
-    gap: var(--tc-s4);
-    padding: var(--tc-s4) 0;
+    grid-template-columns: minmax(0, 2.1fr) minmax(330px, 1fr);
+    align-items: stretch;
+    gap: var(--tc-gap-tarjetas);
+    padding-bottom: var(--tc-space-6);
     min-height: 0;
     overflow: hidden;
   }
-  @media (max-width: 900px) {
+  @media (max-width: 980px) {
     body { overflow: auto }
-    .app { height: auto; min-height: 100vh; padding: var(--tc-s3) var(--tc-s4); }
+    .app { height: auto; min-height: 100vh }
     main { grid-template-columns: 1fr; overflow: visible }
     .canvas-panel .canvasBox { height: 420px !important }
     .controls-panel { overflow: visible !important; max-height: none !important }
   }
 
-  /* --- Paneles --- */
+  /* --- Paneles: superficie gris claro, radio 14, sin borde ni sombra --- */
   .panel {
-    background: var(--tc-white);
-    border: 1px solid var(--tc-line-soft);
-    border-radius: 0;
-    padding: var(--tc-s3);
+    background: var(--tc-gris-claro);
+    border-radius: var(--tc-radius-tarjeta);
+    padding: var(--tc-space-6);
     display: flex;
     flex-direction: column;
-    gap: var(--tc-s2);
+    gap: var(--tc-space-3);
+    height: 100%;
     min-height: 0;
   }
   .panel h2 {
     margin: 0;
-    font-family: var(--tc-font-mono);
-    font-size: var(--tc-mono);
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--tc-orange);
+    font-family: var(--tc-font-display);
+    font-size: var(--tc-web-titulo-tarjeta);
+    font-weight: var(--tc-weight-display-bold);
+    letter-spacing: var(--tc-tracking-titulo);
+    color: var(--tc-coral);
   }
 
   .canvas-panel { min-height: 0 }
-  .controls-panel { overflow-y: auto; gap: var(--tc-s3) }
+  .controls-panel { overflow-y: auto }
+
+  /* En una demo a pantalla completa el pie va compacto: el alto se lo lleva el contenido. */
+  .tc-footer { margin: 0; padding: var(--tc-space-4) var(--tc-space-6) }
+  @media (max-width: 980px) { .tc-footer { margin-top: var(--tc-space-6) } }
+
 
   .canvasBox {
     position: relative;
-    background: var(--tc-white);
-    border: 1px solid var(--tc-line-soft);
-    border-radius: 0;
+    background: var(--tc-blanco);
+    border-radius: var(--tc-radius-control);
     overflow: hidden;
     flex: 1;
     min-height: 280px;
@@ -99,214 +93,182 @@
   }
 
   /* --- Leyenda --- */
-  .legend {
-    display: flex;
-    gap: var(--tc-s3);
-    flex-wrap: wrap;
-    padding: var(--tc-s1) 0;
-  }
+  .legend { display: flex; gap: var(--tc-space-4); flex-wrap: wrap }
   .pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    font-family: var(--tc-font-mono);
-    font-size: var(--tc-mono-sm);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--tc-mute);
+    gap: 7px;
+    font-size: var(--tc-ui-tabla);
+    font-weight: var(--tc-weight-body-ui);
+    color: var(--tc-gris-texto);
   }
-  .dot { width: 10px; height: 10px; border-radius: 0 }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none }
 
-  /* --- Cards de control --- */
-  .card {
-    background: transparent;
-    border: none;
-    border-top: 1px solid var(--tc-line-soft);
-    border-radius: 0;
-    padding: var(--tc-s3) 0 0;
-  }
+  /* --- Bloques de control --- */
+  .card { padding-top: var(--tc-space-4); border-top: var(--tc-borde-producto) }
   .card:first-child { border-top: none; padding-top: 0 }
   .card h3 {
-    margin: 0 0 var(--tc-s2) 0;
-    font-family: var(--tc-font-mono);
-    font-size: var(--tc-mono-sm);
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--tc-orange);
-  }
-  .row { display: flex; gap: 10px; flex-wrap: wrap }
-  label {
+    margin: 0 0 var(--tc-space-3) 0;
     font-family: var(--tc-font-display);
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--tc-ink);
+    font-size: var(--tc-ui-titulo-tarjeta);
+    font-weight: var(--tc-weight-display-bold);
+    letter-spacing: var(--tc-tracking-titulo);
+    color: var(--tc-tinta);
+  }
+  label {
+    display: block;
+    font-weight: var(--tc-weight-body-semibold);
+    font-size: var(--tc-ui-cuerpo);
+    color: var(--tc-tinta);
   }
   small {
     display: block;
-    margin-top: var(--tc-s1);
-    font-size: 12px;
-    color: var(--tc-mute);
-  }
-  input[type="text"], .chipInput {
-    width: 100%;
-    margin-top: var(--tc-s2);
-    padding: 10px 12px;
-    border-radius: 0;
-    border: 1px solid var(--tc-line-soft);
-    background: var(--tc-white);
-    font-family: var(--tc-font-mono);
-    font-size: 14px;
-    color: var(--tc-ink);
-    box-sizing: border-box;
-    transition: border-color var(--tc-transition-fast);
-  }
-  input[type="text"]:focus {
-    outline: none;
-    border-color: var(--tc-orange);
-    box-shadow: inset 0 -2px 0 var(--tc-orange);
+    margin-top: 6px;
+    font-size: var(--tc-ui-tabla);
+    font-weight: var(--tc-weight-body-ui);
+    color: var(--tc-gris-texto);
   }
 
-  /* --- Chips de vocabulario --- */
+  input[type="text"] {
+    width: 100%;
+    margin-top: var(--tc-space-2);
+    height: 40px;
+    padding: 0 12px;
+    background: var(--tc-blanco);
+    border: 1px solid var(--tc-linea);
+    border-radius: var(--tc-radius-control);
+    font-family: var(--tc-font-body);
+    font-weight: var(--tc-weight-body);
+    font-size: var(--tc-ui-cuerpo);
+    color: var(--tc-tinta);
+    transition: border-color var(--tc-transicion);
+  }
+  input[type="text"]:focus { outline: none; border: 1.5px solid var(--tc-tinta) }
+  input[type="text"]::placeholder { color: var(--tc-gris-texto) }
+
+  /* --- Chips de vocabulario: cápsulas --- */
   .chips {
     display: flex;
-    gap: var(--tc-s1);
+    gap: 6px;
     flex-wrap: wrap;
-    margin-top: var(--tc-s2);
+    margin-top: var(--tc-space-3);
     max-height: 140px;
     overflow-y: auto;
-    padding: var(--tc-s2);
-    border: 1px solid var(--tc-line-soft);
-    border-radius: 0;
-    background: var(--tc-cream);
+    padding: var(--tc-space-3);
+    background: var(--tc-blanco);
+    border-radius: var(--tc-radius-control);
   }
   .chip {
-    background: var(--tc-white);
-    border: 1px solid var(--tc-line-soft);
-    padding: 4px 8px;
-    border-radius: 0;
-    font-family: var(--tc-font-mono);
-    font-size: 11px;
-    letter-spacing: 0.02em;
-    color: var(--tc-ink-soft);
+    background: var(--tc-gris-claro);
+    color: var(--tc-tinta);
+    border: 0;
+    border-radius: var(--tc-radius-capsula);
+    font-family: var(--tc-font-body);
+    font-weight: var(--tc-weight-body-semibold);
+    font-size: var(--tc-ui-secundario);
+    line-height: 1;
+    padding: 0.42em 0.85em 0.365em;
     cursor: pointer;
-    transition: background var(--tc-transition-fast), color var(--tc-transition-fast), border-color var(--tc-transition-fast);
+    transition: background var(--tc-transicion), color var(--tc-transicion);
   }
-  .chip:hover { border-color: var(--tc-orange); color: var(--tc-orange) }
-  .chip[aria-pressed="true"] {
-    background: var(--tc-orange);
-    color: var(--tc-white);
-    border-color: var(--tc-orange);
-  }
+  .chip:hover { background: var(--tc-linea) }
+  .chip[aria-pressed="true"] { background: var(--tc-lima) }
 
   /* --- Desglose del embedding --- */
-  .breakdown-section { margin-bottom: var(--tc-s3) }
+  .breakdown-section { margin-bottom: var(--tc-space-4) }
   .breakdown-section:last-child { margin-bottom: 0 }
   .breakdown-label {
-    font-family: var(--tc-font-mono);
-    font-size: var(--tc-mono-sm);
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--tc-mute);
-    margin-bottom: var(--tc-s2);
+    font-weight: var(--tc-weight-body-semibold);
+    font-size: var(--tc-ui-tabla);
+    color: var(--tc-gris-texto);
+    margin-bottom: var(--tc-space-2);
   }
-  .breakdown-tokens { display: flex; flex-wrap: wrap; gap: var(--tc-s1) }
+  .breakdown-tokens { display: flex; flex-wrap: wrap; gap: 6px }
   .token {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 3px 8px;
-    border-radius: 0;
-    font-family: var(--tc-font-mono);
-    font-size: 11px;
-    border: 1px solid transparent;
+    border-radius: var(--tc-radius-capsula);
+    font-family: var(--tc-font-body);
+    font-weight: var(--tc-weight-body-semibold);
+    font-size: var(--tc-ui-secundario);
+    line-height: 1;
+    padding: 0.42em 0.85em 0.365em;
   }
-  .token-recognized {
-    background: var(--tc-orange-soft);
-    border-color: var(--tc-orange);
-    color: var(--tc-ink);
-  }
-  .token-recognized .token-vec { font-size: 10px; color: var(--tc-ink-soft) }
-  .token-ignored {
-    background: transparent;
-    border-color: var(--tc-line-soft);
-    color: var(--tc-mute);
-    text-decoration: line-through;
-  }
+  .token-recognized { background: var(--tc-lima); color: var(--tc-tinta) }
+  .token-recognized .token-vec { font-weight: var(--tc-weight-body-ui); color: var(--tc-tinta); opacity: 0.7 }
+  .token-ignored { background: var(--tc-blanco); color: var(--tc-gris-texto); text-decoration: line-through }
   .breakdown-result {
-    background: var(--tc-cream);
-    border-left: 2px solid var(--tc-orange);
-    border-radius: 0;
-    padding: var(--tc-s2) var(--tc-s3);
+    background: var(--tc-blanco);
+    border-radius: var(--tc-radius-control);
+    padding: var(--tc-space-3) var(--tc-space-4);
   }
-  .breakdown-result .breakdown-label { color: var(--tc-mute) }
   .breakdown-vector {
-    font-family: var(--tc-font-mono);
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--tc-orange);
+    font-family: var(--tc-font-display);
+    font-size: 26px;
+    font-weight: var(--tc-weight-display-bold);
+    letter-spacing: var(--tc-tracking-titulo);
+    color: var(--tc-coral);
   }
-  .breakdown-empty { font-family: var(--tc-font-mono); font-size: 11px; color: var(--tc-mute) }
-  .empty-hint { font-size: 13px; color: var(--tc-mute); margin: 0 }
-
-  /* ============================================
-     GRÁFICO
-     Naranja = el prompt del usuario. Tinta = el resultado. Grises = el resto.
-     ============================================ */
-  .canvasBox svg { position: absolute; inset: 0; width: 100%; height: 100% }
-  .axis { stroke: var(--tc-mute-light); stroke-width: 1 }
-  .grid-line { stroke: rgba(13, 12, 13, 0.05); stroke-width: 1 }
-
-  .vec-prompt { stroke: var(--tc-orange); stroke-width: 3; marker-end: url(#arrowOrange) }
-  .vec-word { stroke: var(--tc-chart-hi-soft); stroke-width: 1.5; stroke-dasharray: 5 3; opacity: 0.85; marker-end: url(#arrowOrangeSoft) }
-  .vec-to-top { stroke: var(--tc-ink); stroke-width: 1; stroke-dasharray: 4 3; opacity: 0.5 }
-
-  .point { fill: var(--tc-white); stroke: var(--tc-mute); stroke-width: 1.5 }
-  .point.top { fill: var(--tc-ink); stroke: var(--tc-ink) }
-
-  .label { font-family: var(--tc-font-mono); font-size: 11px; fill: var(--tc-mute); user-select: none; pointer-events: none }
-  .label-word { font-family: var(--tc-font-mono); font-size: 10px; fill: var(--tc-orange); font-weight: 500; user-select: none; pointer-events: none }
-  .label-sim { font-family: var(--tc-font-mono); font-size: 10px; fill: var(--tc-mute); font-weight: 500; user-select: none; pointer-events: none }
-  .label-sim.top { fill: var(--tc-ink); font-weight: 700 }
-
-  #hint {
-    font-family: var(--tc-font-mono);
-    font-size: var(--tc-mono-sm);
-    letter-spacing: 0.04em;
-    color: var(--tc-mute);
+  .breakdown-empty, .empty-hint {
+    font-size: var(--tc-ui-cuerpo);
+    color: var(--tc-gris-texto);
     margin: 0;
   }
 
-  .fadeIn { animation: fade .5s ease both }
+  /* ============================================
+     GRÁFICO
+     Coral = tu prompt. Lima = las palabras que lo forman. Tinta = el resultado.
+     ============================================ */
+  .canvasBox svg { position: absolute; inset: 0; width: 100%; height: 100% }
+  .axis { stroke: var(--tc-linea); stroke-width: 1 }
+  .grid-line { stroke: var(--tc-gris-claro); stroke-width: 1 }
+
+  .vec-prompt { stroke: var(--tc-coral); stroke-width: 3; marker-end: url(#arrowCoral) }
+  .vec-word { stroke: var(--tc-estado-ok); stroke-width: 1.5; stroke-dasharray: 5 3; marker-end: url(#arrowSerie) }
+  .vec-to-top { stroke: var(--tc-tinta); stroke-width: 1; stroke-dasharray: 4 3; opacity: 0.45 }
+
+  .point { fill: var(--tc-blanco); stroke: var(--tc-gris-texto); stroke-width: 1.5 }
+  .point.top { fill: var(--tc-tinta); stroke: var(--tc-tinta) }
+
+  .label { font-family: var(--tc-font-body); font-size: 12px; font-weight: 400; fill: var(--tc-gris-texto); user-select: none; pointer-events: none }
+  .label-word { font-family: var(--tc-font-body); font-size: 11px; font-weight: 500; fill: var(--tc-estado-ok); user-select: none; pointer-events: none }
+  .label-sim { font-family: var(--tc-font-body); font-size: 11px; font-weight: 400; fill: var(--tc-gris-texto); user-select: none; pointer-events: none }
+  .label-sim.top { fill: var(--tc-tinta); font-weight: 700 }
+
+  #hint {
+    font-size: var(--tc-ui-tabla);
+    font-weight: var(--tc-weight-body-ui);
+    color: var(--tc-gris-texto);
+    margin: 0;
+  }
+
+  .fadeIn { animation: fade .3s ease both }
   @keyframes fade { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0 }
 </style>
 </head>
 <body>
 <div class="app">
-  <header class="tc-chrome-top">
-    <div class="tc-chrome-left">
-      <a href="contenidos.html" aria-label="Volver al índice"><img class="tc-logo" src="imagenes/brand/logo-color.png" alt="Teamcubation"></a>
-      <a class="tc-chrome-path" href="contenidos.html">// BOOSTER · DEMO_02</a>
+  <header class="tc-header">
+    <div class="tc-header-izq">
+      <a href="contenidos.html" aria-label="Volver a los recursos"><img class="tc-logo" src="assets/logo/logo-horizontal-color.svg" alt="Teamcubation"></a>
+      <a class="tc-breadcrumb" href="contenidos.html" data-i18n="breadcrumb">Booster · Recursos interactivos</a>
     </div>
-    <div class="tc-chrome-right">
-      <span class="tc-chrome-path">DOC.ID · TC-BST-02</span>
-      <div class="tc-segmented" role="group" aria-label="Idioma / Idioma">
-        <button type="button" data-lang="es">ES</button>
-        <button type="button" data-lang="pt">PT</button>
+    <div class="tc-header-der">
+      <div class="tc-grupo" role="group" aria-label="Idioma / Idioma">
+        <button type="button" data-lang="es">Español</button>
+        <button type="button" data-lang="pt">Português</button>
       </div>
     </div>
   </header>
 
   <div class="page-headline">
-    <p class="tc-eyebrow">↳ demo_02 / embeddings.tq</p>
+    <p class="tc-kicker" data-i18n="kicker">Embeddings</p>
     <h1>
-      <span data-i18n="h1a">Cómo el LLM convierte tu prompt en un</span>
-      <span class="tc-accent" data-i18n="h1b">embedding</span><span class="tc-dot"></span>
+      <span data-i18n="h1a">Tu prompt se vuelve</span>
+      <span class="tc-resaltado" data-i18n="h1b">un punto</span>
+      <span class="tc-coral" data-i18n="h1c">en el espacio.</span>
     </h1>
   </div>
 
@@ -315,13 +277,13 @@
     <section class="panel canvas-panel" aria-labelledby="vizTitle">
       <h2 id="vizTitle" data-i18n="vizTitle">Espacio vectorial (mapa 2D simplificado)</h2>
       <div class="legend" data-i18n-aria="legendAria" aria-label="Leyenda de elementos">
-        <span class="pill"><span class="dot" style="background:var(--tc-white); border:1.5px solid var(--tc-mute)"></span> <span data-i18n="legKnowledge">Conocimiento</span></span>
-        <span class="pill"><span class="dot" style="background:var(--tc-chart-hi-soft)"></span> <span data-i18n="legWord">Vector de cada palabra</span></span>
-        <span class="pill"><span class="dot" style="background:var(--tc-orange)"></span> <span data-i18n="legPrompt">Embedding del prompt (promedio)</span></span>
-        <span class="pill"><span class="dot" style="background:var(--tc-ink)"></span> <span data-i18n="legTop">Documento más relevante</span></span>
+        <span class="pill"><span class="dot" style="background:var(--tc-blanco); border:1.5px solid var(--tc-gris-texto)"></span> <span data-i18n="legKnowledge">Conocimiento</span></span>
+        <span class="pill"><span class="dot" style="background:var(--tc-estado-ok)"></span> <span data-i18n="legWord">Vector de cada palabra</span></span>
+        <span class="pill"><span class="dot" style="background:var(--tc-coral)"></span> <span data-i18n="legPrompt">Embedding del prompt (promedio)</span></span>
+        <span class="pill"><span class="dot" style="background:var(--tc-tinta)"></span> <span data-i18n="legTop">Documento más relevante</span></span>
       </div>
       <div class="canvasBox" id="plot" aria-live="polite" data-i18n-aria="plotAria" aria-label="Gráfico del espacio vectorial, usa los controles para interactuar."></div>
-      <p class="label fadeIn" id="hint" data-i18n="hint">💡 Tip: arrastrá un documento cerca de tu prompt o sumá palabras para ver cómo se promedia el vector.</p>
+      <p class="fadeIn" id="hint" data-i18n="hint">Arrastrá un documento cerca de tu prompt, o sumá palabras, para ver cómo se promedia el vector.</p>
     </section>
 
     <!-- Controles (derecha) -->
@@ -343,11 +305,9 @@
     </section>
   </main>
 
-  <footer class="tc-chrome-bottom">
-    <span class="tc-chrome-anchor">[ TQ ]</span>
-    <span class="tc-chrome-section" data-i18n="chromeSection">EMBEDDINGS</span>
-    <span class="tc-chrome-chapter">V1.2026</span>
-    <span class="tc-chrome-page">02 / 02</span>
+  <footer class="tc-footer">
+    <img class="tc-logo tc-logo-sm" src="assets/logo/logo-horizontal-color.svg" alt="Teamcubation">
+    <span class="tc-footer-nota" data-i18n="footer">La experiencia no se enseña: se entrena.</span>
   </footer>
 </div>
 
@@ -374,9 +334,11 @@
   const I18N={
     es:{
       __title:"Conocimiento LLM · Booster",
-      h1a:"Cómo el LLM convierte tu prompt en un",
-      h1b:"embedding",
-      chromeSection:"EMBEDDINGS",
+      kicker:"Embeddings",
+      breadcrumb:"Booster · Recursos interactivos",
+      h1a:"Tu prompt se vuelve",
+      h1b:"un punto",
+      h1c:"en el espacio.",
       vizTitle:"Espacio vectorial (mapa 2D simplificado)",
       legendAria:"Leyenda de elementos",
       legKnowledge:"Conocimiento",
@@ -384,7 +346,7 @@
       legPrompt:"Embedding del prompt (promedio)",
       legTop:"Documento más relevante",
       plotAria:"Gráfico del espacio vectorial, usa los controles para interactuar.",
-      hint:"[ TIP ] Arrastrá un documento cerca de tu prompt o sumá palabras para ver cómo se promedia el vector.",
+      hint:"Arrastrá un documento cerca de tu prompt, o sumá palabras, para ver cómo se promedia el vector.",
       promptCardTitle:"Tu prompt",
       promptLabel:"¿Qué querés preguntar?",
       promptPlaceholder:"Ej: explicame la fotosíntesis para un niño",
@@ -392,7 +354,7 @@
       vocabAria:"Sugerencias rápidas",
       breakdownTitle:"Proceso de embedding",
       emptyHint:"Escribí algo o tocá un chip para ver cómo se construye el embedding paso a paso.",
-      footer:"Hecho con ♥ para aprender. Alto contraste y navegación por teclado incluidos.",
+      footer:"La experiencia no se enseña: se entrena.",
       bkRecognized:n=>`1. Palabras reconocidas (${n})`,
       bkNone:"— ninguna palabra del vocabulario",
       bkIgnored:"2. Palabras ignoradas (fuera de vocabulario)",
@@ -455,9 +417,11 @@
     },
     pt:{
       __title:"Conhecimento LLM · Booster",
-      h1a:"Como o LLM converte seu prompt em um",
-      h1b:"embedding",
-      chromeSection:"EMBEDDINGS",
+      kicker:"Embeddings",
+      breadcrumb:"Booster · Recursos interativos",
+      h1a:"Seu prompt vira",
+      h1b:"um ponto",
+      h1c:"no espaço.",
       vizTitle:"Espaço vetorial (mapa 2D simplificado)",
       legendAria:"Legenda de elementos",
       legKnowledge:"Conhecimento",
@@ -465,7 +429,7 @@
       legPrompt:"Embedding do prompt (média)",
       legTop:"Documento mais relevante",
       plotAria:"Gráfico do espaço vetorial, use os controles para interagir.",
-      hint:"[ DICA ] Arraste um documento para perto do seu prompt ou adicione palavras para ver como o vetor é calculado pela média.",
+      hint:"Arraste um documento para perto do seu prompt, ou adicione palavras, para ver como o vetor é calculado pela média.",
       promptCardTitle:"Seu prompt",
       promptLabel:"O que você quer perguntar?",
       promptPlaceholder:"Ex: explique a fotossíntese para uma criança",
@@ -473,7 +437,7 @@
       vocabAria:"Sugestões rápidas",
       breakdownTitle:"Processo de embedding",
       emptyHint:"Escreva algo ou toque em um chip para ver como o embedding é construído passo a passo.",
-      footer:"Feito com ♥ para aprender. Alto contraste e navegação por teclado incluídos.",
+      footer:"A experiência não se ensina: se treina.",
       bkRecognized:n=>`1. Palavras reconhecidas (${n})`,
       bkNone:"— nenhuma palavra do vocabulário",
       bkIgnored:"2. Palavras ignoradas (fora do vocabulário)",
@@ -610,11 +574,11 @@
   const defs=document.createElementNS(svgNS,'defs');
   const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   defs.innerHTML=`
-    <marker id="arrowOrange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto-start-reverse">
-      <path d="M0,0 L12,6 L0,12 z" fill="${cssVar('--tc-orange')}"></path>
+    <marker id="arrowCoral" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto-start-reverse">
+      <path d="M0,0 L12,6 L0,12 z" fill="${cssVar('--tc-coral')}"></path>
     </marker>
-    <marker id="arrowOrangeSoft" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="${cssVar('--tc-chart-hi-soft')}" opacity="0.7"></path>
+    <marker id="arrowSerie" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="${cssVar('--tc-estado-ok')}"></path>
     </marker>`;
   svg.appendChild(defs);
   const gGrid=document.createElementNS(svgNS,'g');
@@ -810,7 +774,7 @@
       const key=el.getAttribute('data-i18n-aria');
       if(t[key]!=null) el.setAttribute('aria-label', t[key]);
     });
-    document.querySelectorAll('.tc-segmented [data-lang]').forEach(btn=>{
+    document.querySelectorAll('.tc-grupo [data-lang]').forEach(btn=>{
       btn.classList.toggle('active', btn.dataset.lang===lang);
     });
   }
@@ -827,7 +791,7 @@
     update();
   }
 
-  document.querySelectorAll('.tc-segmented [data-lang]').forEach(btn=>{
+  document.querySelectorAll('.tc-grupo [data-lang]').forEach(btn=>{
     btn.addEventListener('click', ()=>setLang(btn.dataset.lang));
   });
 
