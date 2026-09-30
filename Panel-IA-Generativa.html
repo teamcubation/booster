@@ -1423,9 +1423,11 @@
             const valuesLayer = svg.append("g").attr("class", "values-layer");
             const overlayLayer = svg.append("g").attr("class", "overlay-layer");
 
-            // El token lleva el espacio inicial: se muestra para que se vea que es parte del token.
+            // El token del modelo lleva el espacio inicial, pero marcarlo en cada fila
+            // ensucia la lectura: se muestra la palabra limpia. El token crudo, con su
+            // espacio y todo, sigue estando en el tooltip.
             function mostrarToken(tok) {
-                const texto = tok.startsWith(' ') ? '␣' + tok.slice(1) : tok;
+                const texto = tok.trim();
                 const tope = container.node().getBoundingClientRect().width < 560 ? 13 : 24;
                 return texto.length > tope ? texto.slice(0, tope - 1) + '…' : texto;
             }
