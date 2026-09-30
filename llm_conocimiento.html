@@ -18,20 +18,18 @@
 
   .app {
     display: grid;
-    grid-template-rows: auto auto 1fr auto;
+    grid-template-rows: auto 1fr auto;
     height: 100vh;
     max-width: 1456px;
     margin: 0 auto;
     padding: 0 var(--tc-margen-web) var(--tc-space-4);
   }
 
-  .page-headline { padding: 0 0 var(--tc-space-3) }
-  .page-headline .tc-kicker { margin-bottom: 6px }
-  .page-headline h1 {
+  /* El nombre de la página vive en el header: no gasta una franja propia. */
+  .titulo-pagina {
     font-family: var(--tc-font-display);
-    font-size: clamp(24px, 2.8vw, 40px);
+    font-size: var(--tc-web-titulo-tarjeta);
     font-weight: var(--tc-weight-display-bold);
-    line-height: var(--tc-leading-titulo-resaltado);
     letter-spacing: var(--tc-tracking-titulo);
     color: var(--tc-tinta);
     margin: 0;
@@ -74,14 +72,7 @@
 
   /* El plano se queda con todo el alto sobrante; el prompt ocupa lo que necesita. */
   .canvas-panel { flex: 1 1 auto; height: auto; min-height: 0 }
-  .prompt-panel {
-    flex: 0 0 auto;
-    height: auto;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-    align-items: start;
-    gap: var(--tc-space-6);
-  }
+  .prompt-panel { flex: 0 0 auto; height: auto }
   .prompt-panel h2 { margin-bottom: var(--tc-space-2) }
   .ejemplos { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: var(--tc-space-2) }
   .ejemplos-label {
@@ -90,11 +81,8 @@
     color: var(--tc-gris-texto);
   }
   .prompt-panel label { display: block; margin-bottom: 6px }
-  /* La caja de vocabulario ocupa el alto de la columna de al lado, no más. */
-  .prompt-panel .chips { margin-top: 0; max-height: 108px; align-self: stretch }
   .prompt-panel input[type="text"] { margin-top: 0 }
   .prompt-panel small { margin-top: 6px }
-  @media (max-width: 720px) { .prompt-panel { grid-template-columns: 1fr; gap: var(--tc-space-3) } }
 
   /* En una demo a pantalla completa el pie va compacto: el alto se lo lleva el contenido. */
   .tc-footer { margin: 0; padding: var(--tc-space-4) var(--tc-space-6) }
@@ -165,18 +153,7 @@
   input[type="text"]:focus { outline: none; border: 1.5px solid var(--tc-tinta) }
   input[type="text"]::placeholder { color: var(--tc-gris-texto) }
 
-  /* --- Chips de vocabulario: cápsulas --- */
-  .chips {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-top: 0;
-    max-height: 66px;
-    overflow-y: auto;
-    padding: var(--tc-space-3);
-    background: var(--tc-blanco);
-    border-radius: var(--tc-radius-control);
-  }
+  /* --- Cápsulas de los prompts de ejemplo --- */
   .chip {
     background: var(--tc-gris-claro);
     color: var(--tc-tinta);
@@ -191,7 +168,6 @@
     transition: background var(--tc-transicion), color var(--tc-transicion);
   }
   .chip:hover { background: var(--tc-linea) }
-  .chip[aria-pressed="true"] { background: var(--tc-lima) }
 
   /* ============================================
      GRÁFICO
@@ -230,7 +206,8 @@
   <header class="tc-header">
     <div class="tc-header-izq">
       <a href="contenidos.html" aria-label="Volver a los recursos"><img class="tc-logo" src="assets/logo/logo-horizontal-color.svg" alt="Teamcubation"></a>
-      <a class="tc-breadcrumb" href="contenidos.html" data-i18n="breadcrumb">Booster · Recursos interactivos</a>
+      <a class="tc-breadcrumb" href="contenidos.html" data-i18n="breadcrumb">Recursos interactivos</a>
+      <h1 class="titulo-pagina" data-i18n="tituloPagina">Conocimiento LLM</h1>
     </div>
     <div class="tc-header-der">
       <div class="tc-grupo" role="group" aria-label="Idioma / Idioma">
@@ -240,20 +217,11 @@
     </div>
   </header>
 
-  <div class="page-headline">
-    <p class="tc-kicker" data-i18n="kicker">Embeddings</p>
-    <h1>
-      <span data-i18n="h1a">Tu prompt se vuelve</span>
-      <span class="tc-resaltado" data-i18n="h1b">un punto</span>
-      <span class="tc-coral" data-i18n="h1c">en el espacio.</span>
-    </h1>
-  </div>
-
   <main>
     <!-- Prompt (arriba, a todo el ancho) -->
     <section class="panel prompt-panel" aria-labelledby="promptTitle">
       <div>
-        <h2 id="promptTitle" data-i18n="promptCardTitle">Tu prompt</h2>
+        <h2 id="promptTitle" class="sr-only" data-i18n="promptCardTitle">Tu prompt</h2>
         <label for="prompt" data-i18n="promptLabel">¿Qué querés preguntar?</label>
         <input id="prompt" type="text" placeholder="Ej: explicame la fotosíntesis para un niño" data-i18n-ph="promptPlaceholder" aria-describedby="promptHelp" />
         <small id="promptHelp" data-i18n="promptHelp">Cada palabra reconocida aporta un vector; el promedio es tu embedding.</small>
@@ -263,7 +231,6 @@
           <button type="button" class="chip" data-ejemplo data-i18n="ej2">Explicame la fotosíntesis para un niño</button>
         </div>
       </div>
-      <div class="chips" id="vocab" data-i18n-aria="vocabAria" aria-label="Sugerencias rápidas"></div>
     </section>
 
     <!-- Plano vectorial (abajo, a todo el ancho) -->
@@ -276,7 +243,7 @@
         <span class="pill"><span class="dot" style="background:var(--tc-tinta)"></span> <span data-i18n="legTop">Documento más relevante</span></span>
       </div>
       <div class="canvasBox" id="plot" aria-live="polite" data-i18n-aria="plotAria" aria-label="Gráfico del espacio vectorial, usa los controles para interactuar."></div>
-      <p class="fadeIn" id="hint" data-i18n="hint">Arrastrá un documento cerca de tu prompt, o sumá palabras, para ver cómo se promedia el vector.</p>
+      <p class="fadeIn" id="hint" data-i18n="hint">Arrastrá un documento cerca de tu prompt, o cambiá las palabras, para ver cómo se promedia el vector.</p>
     </section>
   </main>
 
@@ -310,11 +277,8 @@
   const I18N={
     es:{
       __title:"Conocimiento LLM · Booster",
-      kicker:"Embeddings",
-      breadcrumb:"Booster · Recursos interactivos",
-      h1a:"Tu prompt se vuelve",
-      h1b:"un punto",
-      h1c:"en el espacio.",
+      breadcrumb:"Recursos interactivos",
+      tituloPagina:"Conocimiento LLM",
       vizTitle:"Espacio vectorial (mapa 2D simplificado)",
       legendAria:"Leyenda de elementos",
       legKnowledge:"Conocimiento",
@@ -322,12 +286,11 @@
       legPrompt:"Embedding del prompt (promedio)",
       legTop:"Documento más relevante",
       plotAria:"Gráfico del espacio vectorial, usa los controles para interactuar.",
-      hint:"Arrastrá un documento cerca de tu prompt, o sumá palabras, para ver cómo se promedia el vector.",
+      hint:"Arrastrá un documento cerca de tu prompt, o cambiá las palabras, para ver cómo se promedia el vector.",
       promptCardTitle:"Tu prompt",
       promptLabel:"¿Qué querés preguntar?",
       promptPlaceholder:"Ej: explicame la fotosíntesis para un niño",
       promptHelp:"Cada palabra reconocida aporta un vector; el promedio es tu embedding.",
-      vocabAria:"Sugerencias rápidas",
       ejemplosAria:"Prompts de ejemplo",
       ejemplosLabel:"Probá con",
       ej1:"Redactá un cuento medieval",
@@ -400,11 +363,8 @@
     },
     pt:{
       __title:"Conhecimento LLM · Booster",
-      kicker:"Embeddings",
-      breadcrumb:"Booster · Recursos interativos",
-      h1a:"Seu prompt vira",
-      h1b:"um ponto",
-      h1c:"no espaço.",
+      breadcrumb:"Recursos interativos",
+      tituloPagina:"Conhecimento LLM",
       vizTitle:"Espaço vetorial (mapa 2D simplificado)",
       legendAria:"Legenda de elementos",
       legKnowledge:"Conhecimento",
@@ -412,12 +372,11 @@
       legPrompt:"Embedding do prompt (média)",
       legTop:"Documento mais relevante",
       plotAria:"Gráfico do espaço vetorial, use os controles para interagir.",
-      hint:"Arraste um documento para perto do seu prompt, ou adicione palavras, para ver como o vetor é calculado pela média.",
+      hint:"Arraste um documento para perto do seu prompt, ou troque as palavras, para ver como o vetor é calculado pela média.",
       promptCardTitle:"Seu prompt",
       promptLabel:"O que você quer perguntar?",
       promptPlaceholder:"Ex: explique a fotossíntese para uma criança",
       promptHelp:"Cada palavra reconhecida contribui com um vetor; a média é o seu embedding.",
-      vocabAria:"Sugestões rápidas",
       ejemplosAria:"Prompts de exemplo",
       ejemplosLabel:"Experimente",
       ej1:"Redija um conto medieval",
@@ -504,11 +463,9 @@
   const tokenize = s => (s.match(/\p{L}+/gu) || []);
 
   let vocabLookup={};
-  let vocabKeys=[];
   function buildVocabIndex(){
     vocabLookup={};
     Object.keys(vocab).forEach(k=>{ vocabLookup[normalize(k)]={display:k, vector:vocab[k]}; });
-    vocabKeys=Object.keys(vocab).sort();
   }
 
   // ---------- Estado ----------
@@ -517,45 +474,6 @@
   // ---------- DOM ----------
   const plotEl=document.getElementById('plot');
   const promptEl=document.getElementById('prompt');
-  const vocabEl=document.getElementById('vocab');
-
-  // ---------- Chips vocab con toggle add/remove ----------
-  function normalizeWhitespace(str){ return str.replace(/\s+/g,' ').trim(); }
-  function addWordToPrompt(word){
-    const base=promptEl.value.trim();
-    const parts= base? base.split(/\s+/):[];
-    const normWord = normalize(word);
-    const exists = parts.some(p => normalize(p) === normWord);
-    if(!exists) parts.push(word);
-    promptEl.value=normalizeWhitespace(parts.join(' '));
-  }
-  function removeWordFromPrompt(word){
-    const normWord = normalize(word);
-    const kept = promptEl.value.split(/\s+/).filter(p => normalize(p) !== normWord);
-    promptEl.value=normalizeWhitespace(kept.join(' '));
-  }
-  function syncChipsWithPrompt(){
-    const set=new Set(tokenize(promptEl.value).map(normalize));
-    vocabKeys.forEach(k=>{
-      const b=vocabEl.querySelector(`[data-key="${k}"]`);
-      if(b) b.setAttribute('aria-pressed', set.has(normalize(k))?'true':'false');
-    });
-  }
-  function buildChips(){
-    vocabEl.innerHTML='';
-    vocabKeys.forEach(k=>{
-      const b=document.createElement('button');
-      b.className='chip'; b.type='button'; b.textContent=k; b.dataset.key=k;
-      b.setAttribute('aria-pressed','false');
-      b.addEventListener('click',()=>{
-        const pressed=b.getAttribute('aria-pressed')==='true';
-        if(pressed){ removeWordFromPrompt(k); b.setAttribute('aria-pressed','false'); }
-        else { addWordToPrompt(k); b.setAttribute('aria-pressed','true'); }
-        update();
-      });
-      vocabEl.appendChild(b);
-    });
-  }
 
   // ---------- SVG ----------
   const svgNS='http://www.w3.org/2000/svg';
@@ -702,14 +620,13 @@
   }
 
   // ---------- Eventos UI ----------
-  promptEl.addEventListener('input',()=>{ syncChipsWithPrompt(); update(); });
+  promptEl.addEventListener('input', update);
 
   // Los ejemplos cargan su propio texto, así que siguen al idioma activo.
   document.querySelectorAll('[data-ejemplo]').forEach(b=>{
     b.addEventListener('click',()=>{
       promptEl.value = b.textContent;
       promptEl.focus();
-      syncChipsWithPrompt();
       update();
     });
   });
@@ -747,7 +664,6 @@
     lang=newLang; t=I18N[lang]; vocab=t.vocab;
     localStorage.setItem(LANG_KEY, lang);
     buildVocabIndex();
-    buildChips();
     promptEl.value='';          // el vocabulario cambia de idioma: reiniciamos el prompt
     lastPrompt='';
     applyStaticI18n();
@@ -760,7 +676,6 @@
 
   // init
   buildVocabIndex();
-  buildChips();
   applyStaticI18n();
   const ro=new ResizeObserver(update); ro.observe(plotEl);
   update();
