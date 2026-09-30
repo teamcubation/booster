@@ -83,6 +83,12 @@
     gap: var(--tc-space-6);
   }
   .prompt-panel h2 { margin-bottom: var(--tc-space-2) }
+  .ejemplos { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: var(--tc-space-2) }
+  .ejemplos-label {
+    font-size: var(--tc-ui-tabla);
+    font-weight: var(--tc-weight-body-semibold);
+    color: var(--tc-gris-texto);
+  }
   .prompt-panel label { display: block; margin-bottom: 6px }
   /* La caja de vocabulario ocupa el alto de la columna de al lado, no más. */
   .prompt-panel .chips { margin-top: 0; max-height: 108px; align-self: stretch }
@@ -251,6 +257,11 @@
         <label for="prompt" data-i18n="promptLabel">¿Qué querés preguntar?</label>
         <input id="prompt" type="text" placeholder="Ej: explicame la fotosíntesis para un niño" data-i18n-ph="promptPlaceholder" aria-describedby="promptHelp" />
         <small id="promptHelp" data-i18n="promptHelp">Cada palabra reconocida aporta un vector; el promedio es tu embedding.</small>
+        <div class="ejemplos" role="group" data-i18n-aria="ejemplosAria" aria-label="Prompts de ejemplo">
+          <span class="ejemplos-label" data-i18n="ejemplosLabel">Probá con</span>
+          <button type="button" class="chip" data-ejemplo data-i18n="ej1">Redactá un cuento medieval</button>
+          <button type="button" class="chip" data-ejemplo data-i18n="ej2">Explicame la fotosíntesis para un niño</button>
+        </div>
       </div>
       <div class="chips" id="vocab" data-i18n-aria="vocabAria" aria-label="Sugerencias rápidas"></div>
     </section>
@@ -292,6 +303,7 @@
     {id:'astro',v:{x: 0.1, y: 0.9}},
     {id:'dep',  v:{x:-0.3, y:-0.8}},
     {id:'cine', v:{x: 0.3, y:-0.85}},
+    {id:'lit',  v:{x:-0.45,y: 0.85}},
   ];
 
   // ---------- i18n: textos de UI, títulos de documentos y vocabulario por idioma ----------
@@ -316,6 +328,10 @@
       promptPlaceholder:"Ej: explicame la fotosíntesis para un niño",
       promptHelp:"Cada palabra reconocida aporta un vector; el promedio es tu embedding.",
       vocabAria:"Sugerencias rápidas",
+      ejemplosAria:"Prompts de ejemplo",
+      ejemplosLabel:"Probá con",
+      ej1:"Redactá un cuento medieval",
+      ej2:"Explicame la fotosíntesis para un niño",
       footer:"La experiencia no se enseña: se entrena.",
       docTitles:{
         bio:'Biología — Fotosíntesis',
@@ -324,7 +340,8 @@
         prog:'Programación — Algoritmos',
         astro:'Astronomía — Estrellas',
         dep:'Deporte — Fútbol',
-        cine:'Cine — Hollywood'
+        cine:'Cine — Hollywood',
+        lit:'Literatura — Cuentos'
       },
       vocab:{
         // Biología
@@ -366,6 +383,15 @@
         "são":{x:-.35,y:-.75}, "paulo":{x:-.37,y:-.77}, "tricolor":{x:-.38,y:-.8},
         "escudo":{x:-.34,y:-.84}, "boca":{x:-.26,y:-.86},
         // Cine
+        // Literatura / cuentos
+        "cuento":{x:-.45,y:.88}, "cuentos":{x:-.45,y:.88}, "relato":{x:-.42,y:.86}, "relatos":{x:-.42,y:.86},
+        "narrativa":{x:-.4,y:.84}, "narrador":{x:-.38,y:.82}, "fábula":{x:-.5,y:.9}, "leyenda":{x:-.52,y:.84},
+        "novela":{x:-.4,y:.9}, "ficción":{x:-.48,y:.87}, "literatura":{x:-.45,y:.86},
+        "escribir":{x:-.36,y:.8}, "escribí":{x:-.36,y:.8}, "redactá":{x:-.34,y:.78}, "redactar":{x:-.34,y:.78},
+        "contame":{x:-.38,y:.78}, "personaje":{x:-.43,y:.8}, "personajes":{x:-.43,y:.8}, "trama":{x:-.47,y:.82},
+        "castillo":{x:-.55,y:.78}, "caballero":{x:-.58,y:.74}, "princesa":{x:-.52,y:.8}, "dragón":{x:-.5,y:.76},
+        "bruja":{x:-.54,y:.86}, "hada":{x:-.5,y:.9}, "aventura":{x:-.45,y:.74},
+        // Cine
         "cine":{x:.3,y:-.85}, "hollywood":{x:.28,y:-.9}, "película":{x:.32,y:-.82}, "actor":{x:.3,y:-.88},
         "actriz":{x:.28,y:-.85}, "director":{x:.32,y:-.88}, "oscar":{x:.35,y:-.9}, "pantalla":{x:.28,y:-.8},
         "escena":{x:.3,y:-.78}, "guion":{x:.32,y:-.85}, "estreno":{x:.28,y:-.92}, "taquilla":{x:.35,y:-.85},
@@ -392,6 +418,10 @@
       promptPlaceholder:"Ex: explique a fotossíntese para uma criança",
       promptHelp:"Cada palavra reconhecida contribui com um vetor; a média é o seu embedding.",
       vocabAria:"Sugestões rápidas",
+      ejemplosAria:"Prompts de exemplo",
+      ejemplosLabel:"Experimente",
+      ej1:"Redija um conto medieval",
+      ej2:"Explique a fotossíntese para uma criança",
       footer:"A experiência não se ensina: se treina.",
       docTitles:{
         bio:'Biologia — Fotossíntese',
@@ -400,7 +430,8 @@
         prog:'Programação — Algoritmos',
         astro:'Astronomia — Estrelas',
         dep:'Esporte — Futebol',
-        cine:'Cinema — Hollywood'
+        cine:'Cinema — Hollywood',
+        lit:'Literatura — Contos'
       },
       vocab:{
         // Biologia
@@ -441,6 +472,15 @@
         "campeão":{x:-.35,y:-.78}, "liga":{x:-.3,y:-.88}, "torneio":{x:-.25,y:-.82}, "esporte":{x:-.3,y:-.78},
         "são":{x:-.35,y:-.75}, "paulo":{x:-.37,y:-.77}, "tricolor":{x:-.38,y:-.8},
         "escudo":{x:-.34,y:-.84}, "boca":{x:-.26,y:-.86},
+        // Cinema
+        // Literatura / contos
+        "conto":{x:-.45,y:.88}, "contos":{x:-.45,y:.88}, "relato":{x:-.42,y:.86}, "relatos":{x:-.42,y:.86},
+        "narrativa":{x:-.4,y:.84}, "narrador":{x:-.38,y:.82}, "fábula":{x:-.5,y:.9}, "lenda":{x:-.52,y:.84},
+        "romance":{x:-.4,y:.9}, "ficção":{x:-.48,y:.87}, "literatura":{x:-.45,y:.86},
+        "escrever":{x:-.36,y:.8}, "escreva":{x:-.36,y:.8}, "redija":{x:-.34,y:.78}, "redigir":{x:-.34,y:.78},
+        "conte":{x:-.38,y:.78}, "personagem":{x:-.43,y:.8}, "personagens":{x:-.43,y:.8}, "trama":{x:-.47,y:.82},
+        "castelo":{x:-.55,y:.78}, "cavaleiro":{x:-.58,y:.74}, "princesa":{x:-.52,y:.8}, "dragão":{x:-.5,y:.76},
+        "bruxa":{x:-.54,y:.86}, "fada":{x:-.5,y:.9}, "aventura":{x:-.45,y:.74},
         // Cinema
         "cinema":{x:.3,y:-.85}, "hollywood":{x:.28,y:-.9}, "filme":{x:.32,y:-.82}, "ator":{x:.3,y:-.88},
         "atriz":{x:.28,y:-.85}, "diretor":{x:.32,y:-.88}, "oscar":{x:.35,y:-.9}, "tela":{x:.28,y:-.8},
@@ -663,6 +703,16 @@
 
   // ---------- Eventos UI ----------
   promptEl.addEventListener('input',()=>{ syncChipsWithPrompt(); update(); });
+
+  // Los ejemplos cargan su propio texto, así que siguen al idioma activo.
+  document.querySelectorAll('[data-ejemplo]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      promptEl.value = b.textContent;
+      promptEl.focus();
+      syncChipsWithPrompt();
+      update();
+    });
+  });
 
   // ---------- Update ----------
   function update(){
